@@ -3,10 +3,12 @@
 import { useBudgetStore } from "@lib/store";
 import { useTheme } from "@lib/theme";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const { incomes, expenses } = useBudgetStore();
   const { theme } = useTheme();
+  const router = useRouter();
 
   const [activeAction, setActiveAction] = useState<string | null>(null);
 
@@ -81,66 +83,76 @@ export default function HomePage() {
       </div>
 
       {/* Quick Actions */}
-      <div style={{ marginBottom: "2rem" }}>
+      <div
+        style={{
+          marginBottom: "2rem",
+          textAlign: "center",
+        }}
+      >
         <h2
           style={{
-            marginBottom: "1rem",
-            fontSize: "1.2rem",
-            fontWeight: 600,
+            marginBottom: "1.5rem",
+            fontSize: "1.5rem",
+            fontWeight: 700,
+            color: "#1976d2",
+            letterSpacing: "0.5px",
+            fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
           }}
         >
           Quick Actions
         </h2>
+
         <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "1rem",
+            flexWrap: "wrap",
+          }}
         >
           {quickActions.map((action) => (
             <button
               key={action.name}
-              onClick={() => setActiveAction(action.type)}
+              onClick={() => {
+                if (action.type === "income") {
+                  router.push("/addIncome"); // navigate to Add Income page
+                } else if (action.type === "expense") {
+                  router.push("/addExpense"); // navigate to Add Expense page
+                } else if (action.type === "report") {
+                  router.push("/report"); // navigate to Reports page
+                }
+                setActiveAction(action.type); // optional: keep track for styling
+              }}
               style={{
-                width: "50%",
-                padding: "0.75rem 1rem",
-                borderRadius: "10px",
+                minWidth: "150px",
+                padding: "0.85rem 1.2rem",
+                borderRadius: "12px",
                 border: "none",
                 cursor: "pointer",
                 backgroundColor:
                   activeAction === action.type ? "#1976d2" : "#2196f3",
                 color: "#fff",
                 fontWeight: 600,
+                fontSize: "1rem",
                 boxShadow:
                   activeAction === action.type
-                    ? "0 4px 8px rgba(25, 118, 210, 0.4)"
-                    : "0 2px 4px rgba(33, 150, 243, 0.3)",
+                    ? "0 6px 12px rgba(25, 118, 210, 0.4)"
+                    : "0 3px 6px rgba(33, 150, 243, 0.3)",
                 transition: "all 0.2s ease",
-                margin: "0 auto", // <-- this centers the button
-                display: "block", // <-- required for margin auto to work
               }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  activeAction === action.type ? "#1565c0" : "#1976d2")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  activeAction === action.type ? "#1976d2" : "#2196f3")
+              }
             >
               {action.name}
             </button>
           ))}
         </div>
-      </div>
-
-      {/* Placeholder for dynamic content */}
-      <div
-        style={{
-          marginTop: "1rem",
-          padding: "0.75rem",
-          borderRadius: "8px",
-          backgroundColor: isLight ? "#f9f9f9" : "#2a2a2a",
-          color: isLight ? "#111" : "#f0f0f0",
-          minHeight: "80px",
-          fontWeight: 500,
-          fontSize: "0.95rem",
-          transition: "all 0.3s",
-        }}
-      >
-        {activeAction === "income" && <p>Income form goes here</p>}
-        {activeAction === "expense" && <p>Expense form goes here</p>}
-        {activeAction === "report" && <p>Reports view goes here</p>}
-        {!activeAction && <p>Select an action above</p>}
       </div>
     </main>
   );

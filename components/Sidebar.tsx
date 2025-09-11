@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "@lib/theme";
+import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -9,7 +10,14 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
-  const tabs = ["Home", "Settings", "Report", "Profile"];
+  const router = useRouter();
+
+  const tabs = [
+    { name: "Home", path: "/" },
+    { name: "Settings", path: "/settings" },
+    { name: "Report", path: "/report" },
+    { name: "Profile", path: "/profile" },
+  ];
 
   return (
     <div
@@ -68,7 +76,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       >
         {tabs.map((tab) => (
           <li
-            key={tab}
+            key={tab.name}
             style={{
               padding: "0.75rem 1rem",
               marginBottom: "0.5rem",
@@ -76,6 +84,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               cursor: "pointer",
               transition: "all 0.2s",
               backgroundColor: "transparent",
+            }}
+            onClick={() => {
+              router.push(tab.path);
+              onClose(); // close sidebar after navigation
             }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor =
@@ -85,7 +97,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               (e.currentTarget.style.backgroundColor = "transparent")
             }
           >
-            {tab}
+            {tab.name}
           </li>
         ))}
       </ul>
@@ -97,7 +109,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           bottom: "75px",
           left: "50%",
           transform: "translateX(-50%)",
-          width: "80%", // optional: makes it slightly smaller than full sidebar width
+          width: "80%",
         }}
       >
         <button
@@ -125,7 +137,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           {theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
         </button>
       </div>
-      
     </div>
   );
 }
