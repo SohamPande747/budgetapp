@@ -9,21 +9,44 @@ export default function AddExpense() {
   const [amount, setAmount] = useState("");
 
   const handleAddAccount = () => {
-    if (newAccount.trim() !== "") {
-      setAccounts([...accounts, newAccount]);
-      setSelectedAccount(newAccount);
-      setNewAccount("");
+    if (newAccount.trim() === "") return;
+
+    // prevent duplicates (case-insensitive)
+    if (
+      accounts.some(
+        (acc) => acc.toLowerCase() === newAccount.trim().toLowerCase()
+      )
+    ) {
+      alert("Account already exists!");
+      return;
     }
+
+    setAccounts([...accounts, newAccount.trim()]);
+    setSelectedAccount(newAccount.trim());
+    setNewAccount("");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!selectedAccount) {
+      alert("Please select an account.");
+      return;
+    }
+    if (Number(amount) <= 0) {
+      alert("Please enter a valid expense amount.");
+      return;
+    }
+
     console.log({
       type: "expense",
       account: selectedAccount,
       amount,
     });
-    alert(`Expense of ₹${amount} added to ${selectedAccount}`);
+
+    alert(`✅ Expense of ₹${amount} added to ${selectedAccount}`);
+
+    // reset only amount and selected account
     setAmount("");
     setSelectedAccount("");
   };

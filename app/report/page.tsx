@@ -1,133 +1,115 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { useTheme } from "@lib/theme";
+import { useTheme } from "@lib/theme"; // ✅ theme hook
 
-interface Transaction {
-  id: number;
-  account: string;
+type Transaction = {
+  id: string | number;
   type: "income" | "expense";
   amount: number;
-  created_at: string;
-}
-
-interface AccountReport {
   account: string;
-  totalIncome: number;
-  totalExpense: number;
-  currentBalance: number;
-  transactions: Transaction[];
-}
+};
 
 export default function ReportPage() {
-  const { theme } = useTheme();
-  const [reports, setReports] = useState<AccountReport[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
   useEffect(() => {
-    fetchReports();
+    const fetchTransactions = async () => {
+      try {
+        const res = await fetch("/api/transactions");
+        if (!res.ok) throw new Error("Failed to fetch transactions");
+
+        const data = await res.json();
+        setTransactions(Array.isArray(data) ? data : []);
+      } catch (err: any) {
+        console.error("❌ Fetch error:", err);
+        setError("Failed to load transactions.");
+        setTransactions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
   }, []);
 
-  const fetchReports = async () => {
-    setLoading(true);
-    // fetch all transactions
-    const { data, error } = await supabase
-      .from("transactions")
-      .select("*")
-      .order("created_at", { ascending: true });
+  if (loading) return <p style={{ textAlign: "center" }}>⏳ Loading...</p>;
 
-    if (error) {
-      console.error(error);
-      setLoading(false);
-      return;
-    }
-
-    // aggregate per account
-    const accountsMap: Record<string, AccountReport> = {};
-
-    data.forEach((tx: Transaction) => {
-      if (!accountsMap[tx.account]) {
-        accountsMap[tx.account] = {
-          account: tx.account,
-          totalIncome: 0,
-          totalExpense: 0,
-          currentBalance: 0,
-          transactions: [],
-        };
-      }
-
-      if (tx.type === "income") accountsMap[tx.account].totalIncome += tx.amount;
-      if (tx.type === "expense") accountsMap[tx.account].totalExpense += tx.amount;
-
-      accountsMap[tx.account].transactions.push(tx);
-      accountsMap[tx.account].currentBalance =
-        accountsMap[tx.account].totalIncome - accountsMap[tx.account].totalExpense;
-    });
-
-    setReports(Object.values(accountsMap));
-    setLoading(false);
-  };
-
-  const isLight = theme === "light";
-    return (
+  return (
     <main
       style={{
         padding: "2rem",
-        minHeight: "100vh",
-        backgroundColor: isLight ? "#fafafa" : "#121212",
+        maxWidth: "700px",
+        margin: "0 auto",
+        fontFamily: "Segoe UI, sans-serif",
         color: isLight ? "#111" : "#f0f0f0",
-        fontFamily: "sans-serif",
       }}
     >
-      <h1 style={{ fontSize: "2rem", marginBottom: "1.5rem" }}>Reports</h1>
+      <h1
+        style={{
+          textAlign: "center",
+          marginBottom: "2rem",
+          fontSize: "2rem",
+          color: isLight ? "#1976d2" : "#90caf9",
+        }}
+      >
+        📊 Transaction Report
+      </h1>
 
-      {loading && <p>Loading...</p>}
+      {error && (
+        <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+      )}
 
-      {!loading &&
-        reports.map((acc) => (
-          <div
-            key={acc.account}
-            style={{
-              marginBottom: "2rem",
-              borderRadius: "12px",
-              padding: "1rem",
-              backgroundColor: isLight ? "#fff" : "#1e1e1e",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-            }}
-          >
-            <h2 style={{ marginBottom: "0.5rem" }}>{acc.account}</h2>
-            <p>
-              Total Income: ₹{acc.totalIncome} | Total Expense: ₹{acc.totalExpense} | Balance: ₹
-              {acc.currentBalance}
-            </p>
-
-            <table
+      {transactions.length === 0 ? (
+        <p style={{ textAlign: "center", fontSize: "1.1rem" }}>
+          No transactions yet.
+        </p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          {transactions.map((t) => (
+            <div
+              key={t.id}
               style={{
-                width: "100%",
-                marginTop: "1rem",
-                borderCollapse: "collapse",
+                padding: "1rem 1.5rem",
+                borderRadius: "12px",
+                background: isLight ? "#fff" : "#2a2a2a",
+                boxShadow: isLight
+                  ? "0 4px 12px rgba(0,0,0,0.1)"
+                  : "0 4px 12px rgba(0,0,0,0.5)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderLeft: `6px solid ${
+                  t.type === "income" ? "#4caf50" : "#f44336"
+                }`,
               }}
             >
-              <thead>
-                <tr>
-                  <th style={{ borderBottom: "1px solid #ccc", padding: "0.5rem" }}>Type</th>
-                  <th style={{ borderBottom: "1px solid #ccc", padding: "0.5rem" }}>Amount</th>
-                  <th style={{ borderBottom: "1px solid #ccc", padding: "0.5rem" }}>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {acc.transactions.map((tx) => (
-                  <tr key={tx.id}>
-                    <td style={{ padding: "0.5rem" }}>{tx.type}</td>
-                    <td style={{ padding: "0.5rem" }}>₹{tx.amount}</td>
-                    <td style={{ padding: "0.5rem" }}>{new Date(tx.created_at).toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+              <div>
+                <strong style={{ textTransform: "capitalize" }}>
+                  {t.type}
+                </strong>
+                <p style={{ margin: 0, fontSize: "0.9rem", opacity: 0.8 }}>
+                  {t.account}
+                </p>
+              </div>
+              <span
+                style={{
+                  fontWeight: 600,
+                  fontSize: "1.1rem",
+                  color: t.type === "income" ? "#4caf50" : "#f44336",
+                }}
+              >
+                ₹{Number(t.amount).toLocaleString("en-IN")}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </main>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTheme } from "@lib/theme"; // ✅ import theme hook
+import { useTheme } from "@lib/theme"; // ✅ theme hook
 
 export default function AddIncomePage() {
   const [accounts, setAccounts] = useState(["Cash", "Bank", "UPI"]);
@@ -9,23 +9,38 @@ export default function AddIncomePage() {
   const [selectedAccount, setSelectedAccount] = useState("Cash");
   const [amount, setAmount] = useState("");
 
-  const { theme } = useTheme(); // ✅ get theme
+  const { theme } = useTheme();
   const isLight = theme === "light";
 
   const handleAddAccount = () => {
-    if (newAccount.trim() && !accounts.includes(newAccount)) {
-      setAccounts([...accounts, newAccount]);
-      setSelectedAccount(newAccount);
-      setNewAccount("");
+    if (!newAccount.trim()) return;
+
+    // ✅ prevent duplicates
+    if (
+      accounts.some(
+        (acc) => acc.toLowerCase() === newAccount.trim().toLowerCase()
+      )
+    ) {
+      alert("Account already exists!");
+      return;
     }
+
+    setAccounts([...accounts, newAccount.trim()]);
+    setSelectedAccount(newAccount.trim());
+    setNewAccount("");
   };
 
   const handleSave = () => {
-    if (!amount) {
-      alert("Please enter amount");
+    if (!amount || Number(amount) <= 0) {
+      alert("Please enter a valid amount");
       return;
     }
-    alert(`Income added:\nAccount: ${selectedAccount}\nAmount: ₹${amount}`);
+
+    alert(`✅ Income added:\nAccount: ${selectedAccount}\nAmount: ₹${amount}`);
+
+    // ✅ reset form
+    setAmount("");
+    setSelectedAccount("Cash");
   };
 
   return (
@@ -35,12 +50,12 @@ export default function AddIncomePage() {
         margin: "3rem auto",
         padding: "2rem",
         borderRadius: "16px",
-        background: isLight ? "#ffffff" : "#1e1e1e", // ✅ theme aware
+        background: isLight ? "#ffffff" : "#1e1e1e",
         boxShadow: isLight
           ? "0 6px 20px rgba(0,0,0,0.1)"
           : "0 6px 20px rgba(0,0,0,0.6)",
         fontFamily: "Segoe UI, sans-serif",
-        color: isLight ? "#111" : "#f0f0f0", // ✅ text color
+        color: isLight ? "#111" : "#f0f0f0",
         transition: "all 0.3s ease",
       }}
     >
@@ -50,7 +65,7 @@ export default function AddIncomePage() {
           textAlign: "center",
           fontSize: "1.8rem",
           fontWeight: 600,
-          color: isLight ? "#1976d2" : "#90caf9", // ✅ theme aware
+          color: isLight ? "#1976d2" : "#90caf9",
         }}
       >
         ➕ Add Income
@@ -71,7 +86,7 @@ export default function AddIncomePage() {
           border: "1px solid #888",
           fontSize: "1rem",
           outline: "none",
-          background: isLight ? "#fff" : "#2a2a2a", // ✅ theme aware
+          background: isLight ? "#fff" : "#2a2a2a",
           color: isLight ? "#111" : "#f0f0f0",
         }}
       >
@@ -96,7 +111,7 @@ export default function AddIncomePage() {
             border: "1px solid #888",
             fontSize: "1rem",
             outline: "none",
-            background: isLight ? "#fff" : "#2a2a2a", // ✅ theme aware
+            background: isLight ? "#fff" : "#2a2a2a",
             color: isLight ? "#111" : "#f0f0f0",
           }}
         />
@@ -106,7 +121,7 @@ export default function AddIncomePage() {
             padding: "0.9rem 1.2rem",
             border: "none",
             borderRadius: "10px",
-            background: isLight ? "#4caf50" : "#388e3c", // ✅ theme aware
+            background: isLight ? "#4caf50" : "#388e3c",
             color: "#fff",
             cursor: "pointer",
             fontWeight: 600,
@@ -127,15 +142,14 @@ export default function AddIncomePage() {
         onChange={(e) => setAmount(e.target.value)}
         placeholder="Enter amount (₹)"
         style={{
-          width: "80%",
+          width: "100%", // ✅ full width
           padding: "0.9rem",
           marginBottom: "1.5rem",
           borderRadius: "10px",
           border: "1px solid #888",
           fontSize: "1rem",
           outline: "none",
-          alignItems: "center",
-          background: isLight ? "#fff" : "#2a2a2a", // ✅ theme aware
+          background: isLight ? "#fff" : "#2a2a2a",
           color: isLight ? "#111" : "#f0f0f0",
         }}
       />
@@ -148,7 +162,7 @@ export default function AddIncomePage() {
           padding: "1rem",
           border: "none",
           borderRadius: "12px",
-          background: isLight ? "#1976d2" : "#1565c0", // ✅ theme aware
+          background: isLight ? "#1976d2" : "#1565c0",
           color: "#fff",
           fontWeight: 700,
           fontSize: "1rem",
