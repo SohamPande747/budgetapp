@@ -2,15 +2,32 @@
 
 import { useBudgetStore } from "@lib/store";
 import { useTheme } from "@lib/theme";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function HomePage() {
-  const { incomes, expenses } = useBudgetStore();
+  const { incomes, expenses, setIncomes, setExpenses } = useBudgetStore();
   const { theme } = useTheme();
   const router = useRouter();
 
   const [activeAction, setActiveAction] = useState<string | null>(null);
+
+  // ⬇️ fetch transactions on page load
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      const res = await fetch("/api/transactions");
+      const data = await res.json();
+
+      // Split into incomes and expenses
+      const incomeData = data.filter((t: any) => t.type === "income");
+      const expenseData = data.filter((t: any) => t.type === "expense");
+
+      setIncomes(incomeData);
+      setExpenses(expenseData);
+    };
+
+    fetchTransactions();
+  }, [setIncomes, setExpenses]);
 
   const totalIncome = incomes.reduce((sum, inc) => sum + inc.amount, 0);
   const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);

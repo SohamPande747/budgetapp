@@ -1,7 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTheme } from "@lib/theme"; // ✅ theme hook
+import { useTheme } from "@lib/theme";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend,
+} from "recharts";
 
 type Transaction = {
   id: string | number;
@@ -9,6 +22,8 @@ type Transaction = {
   amount: number;
   account: string;
 };
+
+const COLORS = ["#4caf50", "#f44336"];
 
 export default function ReportPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -40,11 +55,40 @@ export default function ReportPage() {
 
   if (loading) return <p style={{ textAlign: "center" }}>⏳ Loading...</p>;
 
+  // 📊 Calculate totals
+  const totalIncome = transactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalExpense = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const balance = totalIncome - totalExpense;
+
+  // 📊 Pie chart data
+  const pieData = [
+    { name: "Income", value: totalIncome },
+    { name: "Expense", value: totalExpense },
+  ];
+
+  // 📊 Bar chart data (group by account)
+  const accounts: { [key: string]: { income: number; expense: number } } = {};
+  transactions.forEach((t) => {
+    if (!accounts[t.account]) accounts[t.account] = { income: 0, expense: 0 };
+    accounts[t.account][t.type] += t.amount;
+  });
+  const barData = Object.keys(accounts).map((account) => ({
+    account,
+    income: accounts[account].income,
+    expense: accounts[account].expense,
+  }));
+
   return (
     <main
       style={{
         padding: "2rem",
-        maxWidth: "700px",
+        maxWidth: "1000px",
         margin: "0 auto",
         fontFamily: "Segoe UI, sans-serif",
         color: isLight ? "#111" : "#f0f0f0",
@@ -65,6 +109,83 @@ export default function ReportPage() {
         <p style={{ color: "red", textAlign: "center" }}>{error}</p>
       )}
 
+      {/* Summary cards */}
+      <div
+        style={{
+          display: "flex",
+          gap: "1rem",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          marginBottom: "2rem",
+        }}
+      >
+        {[
+          { label: "Total Income", value: totalIncome, color: "#4caf50" },
+          { label: "Total Expense", value: totalExpense, color: "#f44336" },
+          { label: "Balance", value: balance, color: "#2196f3" },
+        ].map((card) => (
+          <div
+            key={card.label}
+            style={{
+              flex: "1 1 200px",
+              padding: "1rem",
+              borderRadius: "12px",
+              backgroundColor: card.color,
+              color: "#fff",
+              textAlign: "center",
+              fontWeight: 600,
+              boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+            }}
+          >
+            <p style={{ margin: 0 }}>{card.label}</p>
+            <h2 style={{ margin: "0.5rem 0 0 0" }}>
+              ₹{card.value.toLocaleString("en-IN")}
+            </h2>
+          </div>
+        ))}
+      </div>
+
+      {/* Pie Chart */}
+      <h2 style={{ textAlign: "center", margin: "2rem 0 1rem" }}>
+        Income vs Expense
+      </h2>
+      <ResponsiveContainer width="100%" height={300}>
+        <PieChart>
+          <Pie
+            data={pieData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={100}
+            label
+          >
+            {pieData.map((_, index) => (
+              <Cell key={index} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
+      </ResponsiveContainer>
+
+      {/* Bar Chart */}
+      <h2 style={{ textAlign: "center", margin: "2rem 0 1rem" }}>
+        Accounts Breakdown
+      </h2>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={barData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="account" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="income" fill="#4caf50" />
+          <Bar dataKey="expense" fill="#f44336" />
+        </BarChart>
+      </ResponsiveContainer>
+
+      {/* Transaction List */}
+      <h2 style={{ margin: "2rem 0 1rem" }}>All Transactions</h2>
       {transactions.length === 0 ? (
         <p style={{ textAlign: "center", fontSize: "1.1rem" }}>
           No transactions yet.

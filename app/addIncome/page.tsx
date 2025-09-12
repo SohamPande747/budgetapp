@@ -30,17 +30,42 @@ export default function AddIncomePage() {
     setNewAccount("");
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!amount || Number(amount) <= 0) {
       alert("Please enter a valid amount");
       return;
     }
 
-    alert(`✅ Income added:\nAccount: ${selectedAccount}\nAmount: ₹${amount}`);
+    try {
+      const res = await fetch("/api/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "income",
+          account: selectedAccount,
+          amount: Number(amount),
+          date: new Date().toISOString(),
+        }),
+      });
 
-    // ✅ reset form
-    setAmount("");
-    setSelectedAccount("Cash");
+      if (!res.ok) {
+        throw new Error("Failed to save income");
+      }
+
+      const newIncome = await res.json();
+      console.log("✅ Saved to backend:", newIncome);
+
+      alert(
+        `✅ Income added:\nAccount: ${selectedAccount}\nAmount: ₹${amount}`
+      );
+
+      // reset form
+      setAmount("");
+      setSelectedAccount("Cash");
+    } catch (error) {
+      console.error(error);
+      alert("❌ Failed to save income to backend");
+    }
   };
 
   return (
@@ -72,7 +97,9 @@ export default function AddIncomePage() {
       </h2>
 
       {/* Account Dropdown */}
-      <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500 }}>
+      <label
+        style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500 }}
+      >
         Select Account
       </label>
       <select
@@ -133,7 +160,9 @@ export default function AddIncomePage() {
       </div>
 
       {/* Amount */}
-      <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500 }}>
+      <label
+        style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500 }}
+      >
         Amount
       </label>
       <input

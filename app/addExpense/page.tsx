@@ -25,31 +25,47 @@ export default function AddExpense() {
     setSelectedAccount(newAccount.trim());
     setNewAccount("");
   };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  if (!selectedAccount) {
+    alert("Please select an account.");
+    return;
+  }
+  if (Number(amount) <= 0) {
+    alert("Please enter a valid expense amount.");
+    return;
+  }
 
-    if (!selectedAccount) {
-      alert("Please select an account.");
-      return;
-    }
-    if (Number(amount) <= 0) {
-      alert("Please enter a valid expense amount.");
-      return;
-    }
-
-    console.log({
-      type: "expense",
-      account: selectedAccount,
-      amount,
+  try {
+    const res = await fetch("/api/transactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "expense",
+        account: selectedAccount,
+        amount: Number(amount),
+        date: new Date().toISOString(),
+      }),
     });
+
+    if (!res.ok) {
+      throw new Error("Failed to save expense");
+    }
+
+    const newExpense = await res.json();
+    console.log("✅ Saved to backend:", newExpense);
 
     alert(`✅ Expense of ₹${amount} added to ${selectedAccount}`);
 
     // reset only amount and selected account
     setAmount("");
     setSelectedAccount("");
-  };
+  } catch (error) {
+    console.error(error);
+    alert("❌ Failed to save expense to backend");
+  }
+};
 
   return (
     <div

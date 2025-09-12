@@ -1,20 +1,23 @@
-"use client";
-
 import { create } from "zustand";
-import { Income, Expense } from "../types/budget"; // Make sure @types/budget exists
+
+interface Transaction {
+  id: number;
+  type: "income" | "expense";
+  account: string;
+  amount: number;
+  date: string;
+}
 
 interface BudgetState {
-  incomes: Income[];
-  expenses: Expense[];
-  addIncome: (income: Income) => void;
-  addExpense: (expense: Expense) => void;
+  incomes: Transaction[];
+  expenses: Transaction[];
+  setIncomes: (incomes: Transaction[]) => void;
+  setExpenses: (expenses: Transaction[]) => void;
 }
 
 export const useBudgetStore = create<BudgetState>((set) => ({
   incomes: [],
   expenses: [],
-  addIncome: (income) =>
-    set((state) => ({ incomes: [...state.incomes, income] })),
-  addExpense: (expense) =>
-    set((state) => ({ expenses: [...state.expenses, expense] })),
+  setIncomes: (incomes) => set({ incomes }),
+  setExpenses: (expenses) => set({ expenses }),
 }));
