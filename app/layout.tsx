@@ -4,7 +4,7 @@ import { useState, ReactNode } from "react";
 import { useTheme } from "@lib/theme";
 import Hamburger from "../components/Hamburger";
 import Sidebar from "../components/Sidebar";
-import { useRouter } from "next/navigation"; // ✅ correct import
+import { useRouter } from "next/navigation"; 
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export default function AddExpense() {
   const [accounts, setAccounts] = useState(["Cash", "Bank", "Credit Card"]);
-  const [selectedAccount, setSelectedAccount] = useState("");
+  const [selectedAccount, setSelectedAccount] = useState(accounts[0]); // default to "Cash"
   const [newAccount, setNewAccount] = useState("");
   const [amount, setAmount] = useState("");
 
@@ -25,17 +25,9 @@ export default function AddExpense() {
     setSelectedAccount(newAccount.trim());
     setNewAccount("");
   };
-const handleSubmit = async (e: React.FormEvent) => {
+  
+  const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
-
-  if (!selectedAccount) {
-    alert("Please select an account.");
-    return;
-  }
-  if (Number(amount) <= 0) {
-    alert("Please enter a valid expense amount.");
-    return;
-  }
 
   try {
     const res = await fetch("/api/transactions", {
@@ -49,23 +41,25 @@ const handleSubmit = async (e: React.FormEvent) => {
       }),
     });
 
+    const data = await res.json();
+
     if (!res.ok) {
-      throw new Error("Failed to save expense");
+      console.error("API Error:", data);
+      alert(`❌ ${data.error || "Failed to save expense"}`);
+      return;
     }
 
-    const newExpense = await res.json();
-    console.log("✅ Saved to backend:", newExpense);
-
+    console.log("✅ Saved to backend:", data);
     alert(`✅ Expense of ₹${amount} added to ${selectedAccount}`);
 
-    // reset only amount and selected account
     setAmount("");
     setSelectedAccount("");
   } catch (error) {
-    console.error(error);
+    console.error("Fetch error:", error);
     alert("❌ Failed to save expense to backend");
   }
 };
+
 
   return (
     <div
