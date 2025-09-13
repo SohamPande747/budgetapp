@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useTheme } from "@lib/theme"; // ✅ theme hook
+import { useState, useEffect } from "react";
+import { useTheme } from "@lib/theme";
 
 export default function AddIncomePage() {
   const [accounts, setAccounts] = useState(["Cash", "Bank", "UPI"]);
@@ -9,13 +9,33 @@ export default function AddIncomePage() {
   const [selectedAccount, setSelectedAccount] = useState("Cash");
   const [amount, setAmount] = useState("");
 
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
+    []
+  );
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+
   const { theme } = useTheme();
   const isLight = theme === "light";
+
+  // ✅ Fetch categories on load
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/categories");
+        if (!res.ok) throw new Error("Failed to fetch categories");
+        const data = await res.json();
+        setCategories(data ?? []);
+        if (data.length > 0) setSelectedCategory(data[0].id); // default first
+      } catch (err) {
+        console.error("❌ Error fetching categories:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleAddAccount = () => {
     if (!newAccount.trim()) return;
 
-    // ✅ prevent duplicates
     if (
       accounts.some(
         (acc) => acc.toLowerCase() === newAccount.trim().toLowerCase()
@@ -35,6 +55,10 @@ export default function AddIncomePage() {
       alert("Please enter a valid amount");
       return;
     }
+    if (!selectedCategory) {
+      alert("Please select a category");
+      return;
+    }
 
     try {
       const res = await fetch("/api/transactions", {
@@ -45,26 +69,27 @@ export default function AddIncomePage() {
           account: selectedAccount,
           amount: Number(amount),
           date: new Date().toISOString(),
+          category_id: selectedCategory, // ✅ link to category
         }),
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to save income");
-      }
+      if (!res.ok) throw new Error("Failed to save income");
 
       const newIncome = await res.json();
       console.log("✅ Saved to backend:", newIncome);
 
       alert(
-        `✅ Income added:\nAccount: ${selectedAccount}\nAmount: ₹${amount}`
+        `✅ Income added:\nAccount: ${selectedAccount}\nCategory: ${
+          categories.find((c) => c.id === selectedCategory)?.name || "N/A"
+        }\nAmount: ₹${amount}`
       );
 
-      // reset form
       setAmount("");
       setSelectedAccount("Cash");
+      if (categories.length > 0) setSelectedCategory(categories[0].id);
     } catch (error) {
       console.error(error);
-      alert("❌ Failed to save income to backend");
+      alert("❌ Failed to save income");
     }
   };
 
@@ -81,7 +106,6 @@ export default function AddIncomePage() {
           : "0 6px 20px rgba(0,0,0,0.6)",
         fontFamily: "Segoe UI, sans-serif",
         color: isLight ? "#111" : "#f0f0f0",
-        transition: "all 0.3s ease",
       }}
     >
       <h2
@@ -97,9 +121,7 @@ export default function AddIncomePage() {
       </h2>
 
       {/* Account Dropdown */}
-      <label
-        style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500 }}
-      >
+      <label style={{ display: "block", marginBottom: "0.5rem" }}>
         Select Account
       </label>
       <select
@@ -111,8 +133,6 @@ export default function AddIncomePage() {
           marginBottom: "1.5rem",
           borderRadius: "10px",
           border: "1px solid #888",
-          fontSize: "1rem",
-          outline: "none",
           background: isLight ? "#fff" : "#2a2a2a",
           color: isLight ? "#111" : "#f0f0f0",
         }}
@@ -136,8 +156,6 @@ export default function AddIncomePage() {
             padding: "0.9rem",
             borderRadius: "10px",
             border: "1px solid #888",
-            fontSize: "1rem",
-            outline: "none",
             background: isLight ? "#fff" : "#2a2a2a",
             color: isLight ? "#111" : "#f0f0f0",
           }}
@@ -151,39 +169,57 @@ export default function AddIncomePage() {
             background: isLight ? "#4caf50" : "#388e3c",
             color: "#fff",
             cursor: "pointer",
-            fontWeight: 600,
-            transition: "background 0.2s",
           }}
         >
           Add
         </button>
       </div>
 
-      {/* Amount */}
-      <label
-        style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500 }}
-      >
-        Amount
+      {/* Category Dropdown */}
+      <label style={{ display: "block", marginBottom: "0.5rem" }}>
+        Select Category
       </label>
+      <select
+        value={selectedCategory ?? ""}
+        onChange={(e) => setSelectedCategory(Number(e.target.value))}
+        style={{
+          width: "100%",
+          padding: "0.9rem",
+          marginBottom: "1.5rem",
+          borderRadius: "10px",
+          border: "1px solid #888",
+          background: isLight ? "#fff" : "#2a2a2a",
+          color: isLight ? "#111" : "#f0f0f0",
+        }}
+      >
+        <option value="" disabled>
+          -- Select Category --
+        </option>
+        {categories.map((cat) => (
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
+        ))}
+      </select>
+
+      {/* Amount */}
+      <label style={{ display: "block", marginBottom: "0.5rem" }}>Amount</label>
       <input
         type="number"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder="Enter amount (₹)"
         style={{
-          width: "100%", // ✅ full width
+          width: "100%",
           padding: "0.9rem",
           marginBottom: "1.5rem",
           borderRadius: "10px",
           border: "1px solid #888",
-          fontSize: "1rem",
-          outline: "none",
           background: isLight ? "#fff" : "#2a2a2a",
           color: isLight ? "#111" : "#f0f0f0",
         }}
       />
 
-      {/* Save */}
       <button
         onClick={handleSave}
         style={{
@@ -196,10 +232,6 @@ export default function AddIncomePage() {
           fontWeight: 700,
           fontSize: "1rem",
           cursor: "pointer",
-          boxShadow: isLight
-            ? "0 4px 12px rgba(25, 118, 210, 0.3)"
-            : "0 4px 12px rgba(21, 101, 192, 0.6)",
-          transition: "all 0.2s ease",
         }}
       >
         💾 Save Income

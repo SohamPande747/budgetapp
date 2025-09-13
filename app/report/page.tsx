@@ -22,18 +22,28 @@ type Transaction = {
   amount: number;
   account: string;
   date: string;
+  category_id: string;
+  categories?: { name: string }; // ✅ comes from Supabase join
+};
+
+type Category = {
+  id: string | number;
+  name: string;
+  type: "income" | "expense";
 };
 
 const COLORS = ["#4caf50", "#f44336"];
 
 export default function ReportPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingTransaction, setEditingTransaction] = useState<null | Transaction>(null);
   const [amount, setAmount] = useState(0);
   const [account, setAccount] = useState("");
   const [type, setType] = useState<"income" | "expense">("income");
+  const [categoryId, setCategoryId] = useState<string | null>(null);
 
   const { theme } = useTheme();
   const isLight = theme === "light";
@@ -45,26 +55,40 @@ export default function ReportPage() {
   const [sortBy, setSortBy] = useState<"date" | "amount">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-  // --------------------- Fetch Transactions ---------------------
+  
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const res = await fetch("/api/transactions");
-        if (!res.ok) throw new Error("Failed to fetch transactions");
+  const fetchData = async () => {
+    try {
+      const [txRes, catRes] = await Promise.all([
+        fetch("/api/transactions"),
+        fetch("/api/categories"),
+      ]);
 
-        const data: Transaction[] = await res.json();
-        setTransactions(data ?? []);
-      } catch (err: any) {
-        console.error("❌ Fetch error:", err);
-        setError("Failed to load transactions.");
-        setTransactions([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+      if (!txRes.ok || !catRes.ok) throw new Error("Failed to fetch data");
 
-    fetchTransactions();
-  }, []);
+      const txData: Transaction[] = await txRes.json();
+      const catData: Category[] = await catRes.json();
+
+      // Map category names manually
+      const txWithCategory = txData.map((tx) => ({
+        ...tx,
+        categories: { name: catData.find((c) => c.id === tx.category_id)?.name ?? "Uncategorized" },
+      }));
+
+      setTransactions(txWithCategory);
+      setCategories(catData ?? []);
+    } catch (err: any) {
+      console.error("❌ Fetch error:", err);
+      setError("Failed to load report data.");
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
+
 
   // --------------------- Edit & Delete ---------------------
   const startEditing = (transaction: Transaction) => {
@@ -72,6 +96,7 @@ export default function ReportPage() {
     setAmount(transaction.amount);
     setAccount(transaction.account);
     setType(transaction.type);
+    setCategoryId(transaction.category_id);
   };
 
   const saveEdit = async () => {
@@ -86,6 +111,7 @@ export default function ReportPage() {
           amount,
           account,
           type,
+          categoryId,
         }),
       });
 
@@ -276,7 +302,10 @@ export default function ReportPage() {
             <div key={t.id} style={{ padding: "1rem 1.5rem", borderRadius: "12px", background: isLight ? "#fff" : "#2a2a2a", boxShadow: isLight ? "0 4px 12px rgba(0,0,0,0.1)" : "0 4px 12px rgba(0,0,0,0.5)", display: "flex", justifyContent: "space-between", alignItems: "center", borderLeft: `6px solid ${t.type === "income" ? "#4caf50" : "#f44336"}` }}>
               <div>
                 <strong style={{ textTransform: "capitalize" }}>{t.type}</strong>
-                <p style={{ margin: 0, fontSize: "0.9rem", opacity: 0.8 }}>{t.account} — {new Date(t.date).toLocaleDateString()}</p>
+                <p style={{ margin: 0, fontSize: "0.9rem", opacity: 0.8 }}>
+                  {t.account} — {new Date(t.date).toLocaleDateString()} <br />
+                  <em>{t.categories?.name || "Uncategorized"}</em> {/* ✅ fixed */}
+                </p>
               </div>
               <span style={{ fontWeight: 600, fontSize: "1.1rem", color: t.type === "income" ? "#4caf50" : "#f44336" }}>
                 ₹{Number(t.amount).toLocaleString("en-IN")}
@@ -300,6 +329,12 @@ export default function ReportPage() {
             <select value={type} onChange={(e) => setType(e.target.value as "income" | "expense")}>
               <option value="income">Income</option>
               <option value="expense">Expense</option>
+            </select>
+            <select value={categoryId ?? ""} onChange={(e) => setCategoryId(e.target.value)}>
+              <option value="">Select Category</option>
+              {categories.filter((c) => c.type === type).map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
             </select>
             <div style={{ marginTop: "0.5rem" }}>
               <button onClick={saveEdit} style={{ marginRight: "0.5rem" }}>Save</button>

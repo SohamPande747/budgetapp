@@ -2,13 +2,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase, supabaseServer } from "@/lib/supabase";
 
+
 // --------------------- POST ---------------------
 export async function POST(req: NextRequest) {
   try {
-    const { type, account, amount, date } = await req.json();
+    const { type, account, amount, date, category_id } = await req.json();
 
-    if (!type || !account || typeof amount !== "number" || amount <= 0) {
-      console.log("Validation failed:", { type, account, amount });
+    if (!type || !account || typeof amount !== "number" || amount <= 0 || !category_id) {
+      console.log("Validation failed:", { type, account, amount, category_id });
       return NextResponse.json(
         { error: "Missing or invalid required fields" },
         { status: 400 }
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabaseServer
       .from("transactions")
-      .insert([{ type, account, amount, date }])
+      .insert([{ type, account, amount, date, category_id }])
       .select();
 
     if (error) {
@@ -34,13 +35,12 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
 // --------------------- GET ---------------------
 export async function GET() {
   try {
     const { data, error } = await supabaseServer
       .from("transactions")
-      .select("*")
+      .select("id, type, account, amount, date, category_id") // ❌ no join
       .order("date", { ascending: false });
 
     if (error) throw error;
@@ -48,17 +48,15 @@ export async function GET() {
     return NextResponse.json(data);
   } catch (err: any) {
     console.error("GET error:", err);
-    return NextResponse.json(
-      { error: err.message || "Failed to fetch transactions" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: err.message || "Failed to fetch transactions" }, { status: 500 });
   }
 }
+
 
 // --------------------- PATCH ---------------------
 export async function PATCH(req: NextRequest) {
   try {
-    const { id, amount, type, account } = await req.json();
+    const { id, amount, type, account, category_id } = await req.json();
 
     // ✅ Validation
     if (!id || !type || !account || typeof amount !== "number" || amount <= 0) {
@@ -70,7 +68,7 @@ export async function PATCH(req: NextRequest) {
 
     const { data, error } = await supabaseServer
       .from("transactions")
-      .update({ amount, type, account })
+      .update({ amount, type, account, category_id })
       .eq("id", id)
       .select()
       .single(); // ensures single object

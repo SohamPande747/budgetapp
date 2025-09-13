@@ -1,22 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTheme } from "@lib/theme";
 
-export default function AddExpense() {
-  const [accounts, setAccounts] = useState(["Cash", "Bank", "Credit Card"]);
-  const [selectedAccount, setSelectedAccount] = useState(accounts[0]); // default to "Cash"
+export default function AddExpensePage() {
+  const [accounts, setAccounts] = useState(["Cash", "Bank", "UPI"]);
   const [newAccount, setNewAccount] = useState("");
+  const [selectedAccount, setSelectedAccount] = useState("Cash");
   const [amount, setAmount] = useState("");
 
-  const handleAddAccount = () => {
-    if (newAccount.trim() === "") return;
+  const [categories, setCategories] = useState<{ id: number; name: string; type: string }[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
-    // prevent duplicates (case-insensitive)
-    if (
-      accounts.some(
-        (acc) => acc.toLowerCase() === newAccount.trim().toLowerCase()
-      )
-    ) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
+  // ✅ Fetch only expense categories on load
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/categories");
+        if (!res.ok) throw new Error("Failed to fetch categories");
+        const data = await res.json();
+
+        const expenseCats = (data ?? []).filter((c: any) => c.type === "expense");
+        setCategories(expenseCats);
+
+        if (expenseCats.length > 0) setSelectedCategory(expenseCats[0].id);
+      } catch (err) {
+        console.error("❌ Error fetching categories:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const handleAddAccount = () => {
+    if (!newAccount.trim()) return;
+
+    if (accounts.some((acc) => acc.toLowerCase() === newAccount.trim().toLowerCase())) {
       alert("Account already exists!");
       return;
     }
@@ -25,41 +46,49 @@ export default function AddExpense() {
     setSelectedAccount(newAccount.trim());
     setNewAccount("");
   };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
 
-  try {
-    const res = await fetch("/api/transactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "expense",
-        account: selectedAccount,
-        amount: Number(amount),
-        date: new Date().toISOString(),
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error("API Error:", data);
-      alert(`❌ ${data.error || "Failed to save expense"}`);
+  const handleSave = async () => {
+    if (!amount || Number(amount) <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+    if (!selectedCategory) {
+      alert("Please select a category");
       return;
     }
 
-    console.log("✅ Saved to backend:", data);
-    alert(`✅ Expense of ₹${amount} added to ${selectedAccount}`);
+    try {
+      const res = await fetch("/api/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "expense",
+          account: selectedAccount,
+          amount: Number(amount),
+          date: new Date().toISOString(),
+          category_id: selectedCategory, // ✅ always a valid FK
+        }),
+      });
 
-    setAmount("");
-    setSelectedAccount("");
-  } catch (error) {
-    console.error("Fetch error:", error);
-    alert("❌ Failed to save expense to backend");
-  }
-};
+      if (!res.ok) throw new Error("Failed to save expense");
 
+      const newExpense = await res.json();
+      console.log("✅ Saved to backend:", newExpense);
+
+      alert(
+        `✅ Expense added:\nAccount: ${selectedAccount}\nCategory: ${
+          categories.find((c) => c.id === selectedCategory)?.name || "N/A"
+        }\nAmount: ₹${amount}`
+      );
+
+      setAmount("");
+      setSelectedAccount("Cash");
+      if (categories.length > 0) setSelectedCategory(categories[0].id);
+    } catch (error) {
+      console.error(error);
+      alert("❌ Failed to save expense");
+    }
+  };
 
   return (
     <div
@@ -67,101 +96,143 @@ export default function AddExpense() {
         maxWidth: "500px",
         margin: "3rem auto",
         padding: "2rem",
-        backgroundColor: "var(--card-bg)",
-        color: "var(--text-color)",
-        borderRadius: "12px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+        borderRadius: "16px",
+        background: isLight ? "#ffffff" : "#1e1e1e",
+        boxShadow: isLight
+          ? "0 6px 20px rgba(0,0,0,0.1)"
+          : "0 6px 20px rgba(0,0,0,0.6)",
+        fontFamily: "Segoe UI, sans-serif",
+        color: isLight ? "#111" : "#f0f0f0",
       }}
     >
-      <h2 style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-        Add Expense
-      </h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+      <h2
+        style={{
+          marginBottom: "1.5rem",
+          textAlign: "center",
+          fontSize: "1.8rem",
+          fontWeight: 600,
+          color: isLight ? "#d32f2f" : "#ef9a9a",
+        }}
       >
-        {/* Select existing account */}
-        <select
-          value={selectedAccount}
-          onChange={(e) => setSelectedAccount(e.target.value)}
-          style={{
-            padding: "0.75rem",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            fontSize: "1rem",
-          }}
-        >
-          <option value="">Select Account</option>
-          {accounts.map((account, idx) => (
-            <option key={idx} value={account}>
-              {account}
-            </option>
-          ))}
-        </select>
+        ➖ Add Expense
+      </h2>
 
-        {/* Add new account */}
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <input
-            type="text"
-            placeholder="Add New Account"
-            value={newAccount}
-            onChange={(e) => setNewAccount(e.target.value)}
-            style={{
-              flex: 1,
-              padding: "0.75rem",
-              borderRadius: "8px",
-              border: "1px solid #ccc",
-            }}
-          />
-          <button
-            type="button"
-            onClick={handleAddAccount}
-            style={{
-              padding: "0.75rem 1rem",
-              borderRadius: "8px",
-              backgroundColor: "#2196f3",
-              color: "white",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Add
-          </button>
-        </div>
+      {/* Account Dropdown */}
+      <label style={{ display: "block", marginBottom: "0.5rem" }}>
+        Select Account
+      </label>
+      <select
+        value={selectedAccount}
+        onChange={(e) => setSelectedAccount(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "0.9rem",
+          marginBottom: "1.5rem",
+          borderRadius: "10px",
+          border: "1px solid #888",
+          background: isLight ? "#fff" : "#2a2a2a",
+          color: isLight ? "#111" : "#f0f0f0",
+        }}
+      >
+        {accounts.map((acc) => (
+          <option key={acc} value={acc}>
+            {acc}
+          </option>
+        ))}
+      </select>
 
-        {/* Expense Amount */}
+      {/* Add New Account */}
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
         <input
-          type="number"
-          placeholder="Expense Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          type="text"
+          value={newAccount}
+          onChange={(e) => setNewAccount(e.target.value)}
+          placeholder="New account name"
           style={{
-            padding: "0.75rem",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            fontSize: "1rem",
+            flex: 1,
+            padding: "0.9rem",
+            borderRadius: "10px",
+            border: "1px solid #888",
+            background: isLight ? "#fff" : "#2a2a2a",
+            color: isLight ? "#111" : "#f0f0f0",
           }}
-          required
         />
-
-        {/* Submit Button */}
         <button
-          type="submit"
+          onClick={handleAddAccount}
           style={{
-            padding: "0.75rem",
-            borderRadius: "8px",
+            padding: "0.9rem 1.2rem",
             border: "none",
-            cursor: "pointer",
-            backgroundColor: "#f44336",
+            borderRadius: "10px",
+            background: isLight ? "#4caf50" : "#388e3c",
             color: "#fff",
-            fontWeight: "600",
-            boxShadow: "0 4px 8px rgba(244,67,54,0.3)",
-            transition: "all 0.2s ease",
+            cursor: "pointer",
           }}
         >
-          Add Expense
+          Add
         </button>
-      </form>
+      </div>
+
+      {/* Category Dropdown */}
+      <label style={{ display: "block", marginBottom: "0.5rem" }}>
+        Select Category
+      </label>
+      <select
+        value={selectedCategory ?? ""}
+        onChange={(e) => setSelectedCategory(Number(e.target.value))}
+        style={{
+          width: "100%",
+          padding: "0.9rem",
+          marginBottom: "1.5rem",
+          borderRadius: "10px",
+          border: "1px solid #888",
+          background: isLight ? "#fff" : "#2a2a2a",
+          color: isLight ? "#111" : "#f0f0f0",
+        }}
+      >
+        <option value="" disabled>
+          -- Select Category --
+        </option>
+        {categories.map((cat) => (
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
+        ))}
+      </select>
+
+      {/* Amount */}
+      <label style={{ display: "block", marginBottom: "0.5rem" }}>Amount</label>
+      <input
+        type="number"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        placeholder="Enter amount (₹)"
+        style={{
+          width: "100%",
+          padding: "0.9rem",
+          marginBottom: "1.5rem",
+          borderRadius: "10px",
+          border: "1px solid #888",
+          background: isLight ? "#fff" : "#2a2a2a",
+          color: isLight ? "#111" : "#f0f0f0",
+        }}
+      />
+
+      <button
+        onClick={handleSave}
+        style={{
+          width: "100%",
+          padding: "1rem",
+          border: "none",
+          borderRadius: "12px",
+          background: isLight ? "#d32f2f" : "#c62828",
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: "1rem",
+          cursor: "pointer",
+        }}
+      >
+        💾 Save Expense
+      </button>
     </div>
   );
 }
