@@ -1,6 +1,9 @@
 // app/api/categories/route.ts
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase";
+
+import { supabase, createSupabaseServerClient } from "@/lib/supabase";
+
+const supabaseServer = createSupabaseServerClient();
 // app/api/categories/route.ts
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);

@@ -1,7 +1,8 @@
 // app/api/transactions/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { supabase, supabaseServer } from "@/lib/supabase";
+import { supabase, createSupabaseServerClient } from "@/lib/supabase";
 
+const supabaseServer = createSupabaseServerClient();
 
 // --------------------- POST ---------------------
 export async function POST(req: NextRequest) {

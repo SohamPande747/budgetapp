@@ -13,7 +13,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const router = useRouter();
 
   const tabs = [
-    { name: "Home", path: "/" },
+    { name: "Home", path: "/home" },
     { name: "Settings", path: "/settings" },
     { name: "Report", path: "/report" },
     { name: "Profile", path: "/profile" },

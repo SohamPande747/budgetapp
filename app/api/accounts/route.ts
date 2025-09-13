@@ -1,7 +1,8 @@
 // app/api/accounts/route.ts
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase";
+import { supabase, createSupabaseServerClient } from "@/lib/supabase";
 
+const supabaseServer = createSupabaseServerClient();
 type AccountRecord = {
   id: number;
   name: string;

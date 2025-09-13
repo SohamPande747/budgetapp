@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               cursor: "pointer",
               userSelect: "none",
             }}
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/home")}
           >
             Budget App
           </h1>
