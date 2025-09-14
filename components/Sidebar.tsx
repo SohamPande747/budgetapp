@@ -2,6 +2,7 @@
 
 import { useTheme } from "@lib/theme";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -12,12 +13,21 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
 
+  const [hovered, setHovered] = useState<string | null>(null);
+
   const tabs = [
     { name: "Home", path: "/home" },
+    { name: "Dashboard", path: "/dashboard" },
     { name: "Settings", path: "/settings" },
     { name: "Report", path: "/report" },
     { name: "Profile", path: "/profile" },
   ];
+
+  const sidebarBg =
+    theme === "light"
+      ? "rgba(255, 255, 255, 0.75)"
+      : "rgba(28, 28, 30, 0.75)";
+  const textColor = theme === "light" ? "#111" : "#f5f5f7";
 
   return (
     <div
@@ -25,52 +35,66 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         position: "fixed",
         top: 0,
         left: isOpen ? 0 : -300,
-        width: 250,
+        width: 260,
         height: "100vh",
-        backgroundColor: theme === "light" ? "#ffffff" : "#1e1e1e",
-        color: theme === "light" ? "#111" : "#f0f0f0",
+        backgroundColor: sidebarBg,
+        backdropFilter: "blur(18px)",
+        WebkitBackdropFilter: "blur(18px)",
+        color: textColor,
         transition:
-          "left 0.3s ease, background-color 0.3s ease, color 0.3s ease",
+          "left 0.35s ease, background-color 0.3s ease, color 0.3s ease",
         padding: "1.5rem 1rem",
         zIndex: 1000,
-        boxShadow: "2px 0 12px rgba(0,0,0,0.2)",
+        boxShadow: "4px 0 20px rgba(0,0,0,0.25)",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
+        borderTopRightRadius: "18px",
+        borderBottomRightRadius: "18px",
       }}
     >
-      {/* Top Close Button */}
-      <button
-        onClick={onClose}
+      {/* Profile Section */}
+      <div
         style={{
-          alignSelf: "flex-end",
-          padding: "0.25rem 0.5rem",
-          fontSize: "1rem",
-          border: "none",
-          backgroundColor: theme === "light" ? "#eee" : "#333",
-          color: theme === "light" ? "#111" : "#fff",
-          borderRadius: "6px",
+          display: "flex",
+          alignItems: "center",
+          padding: "0.75rem 1rem",
+          marginBottom: "1.5rem",
+          marginTop: "2.75rem",
+          borderRadius: "12px",
+          backgroundColor: theme === "light" ? "#f9f9f9" : "#2c2c2e",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1)",
           cursor: "pointer",
-          transition: "all 0.2s",
+          transition: "background-color 0.3s",
         }}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.backgroundColor =
-            theme === "light" ? "#ddd" : "#444")
-        }
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.backgroundColor =
-            theme === "light" ? "#eee" : "#333")
-        }
+        onClick={() => router.push("/profile")}
       >
-        ✕
-      </button>
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            backgroundColor: theme === "light" ? "#ddd" : "#444",
+            marginRight: "0.75rem",
+          }}
+        />
+        <div>
+          <p style={{ margin: 0, fontWeight: 600 }}>Guest User</p>
+          <span
+            style={{
+              fontSize: "0.85rem",
+              opacity: 0.7,
+            }}
+          >
+            View Profile
+          </span>
+        </div>
+      </div>
 
       {/* Tabs */}
       <ul
         style={{
           listStyle: "none",
           padding: 0,
-          marginTop: "2rem",
           flexGrow: 1,
         }}
       >
@@ -80,22 +104,25 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             style={{
               padding: "0.75rem 1rem",
               marginBottom: "0.5rem",
-              borderRadius: "8px",
+              borderRadius: "10px",
               cursor: "pointer",
-              transition: "all 0.2s",
-              backgroundColor: "transparent",
+              backgroundColor:
+                hovered === tab.name
+                  ? theme === "light"
+                    ? "rgba(0,0,0,0.05)"
+                    : "rgba(255,255,255,0.1)"
+                  : "transparent",
+              transition: "all 0.25s ease",
+              fontWeight: 500,
+              fontSize: "1rem",
+              letterSpacing: "-0.01em",
             }}
             onClick={() => {
               router.push(tab.path);
-              onClose(); // close sidebar after navigation
+              onClose();
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor =
-                theme === "light" ? "#f0f0f0" : "#333")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
+            onMouseEnter={() => setHovered(tab.name)}
+            onMouseLeave={() => setHovered(null)}
           >
             {tab.name}
           </li>
@@ -105,37 +132,54 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Theme Toggle */}
       <div
         style={{
-          position: "absolute",
-          bottom: "75px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "80%",
+          padding: "1rem",
+          borderTop:
+            theme === "light"
+              ? "1px solid rgba(0,0,0,0.08)"
+              : "1px solid rgba(255,255,255,0.1)",
         }}
       >
-        <button
+        <div
           onClick={toggleTheme}
           style={{
-            width: "100%",
-            padding: "0.75rem",
-            borderRadius: "8px",
-            border: "none",
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "2rem",
+            justifyContent: "space-between",
+            padding: "0.5rem 0.75rem",
+            borderRadius: "50px",
+            backgroundColor: theme === "light" ? "#e0e0e5" : "#3a3a3c",
             cursor: "pointer",
-            backgroundColor: theme === "light" ? "#2196f3" : "#555",
-            color: "#fff",
-            fontWeight: 500,
-            transition: "all 0.2s",
+            transition: "background-color 0.3s ease",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor =
-              theme === "light" ? "#1976d2" : "#666")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor =
-              theme === "light" ? "#2196f3" : "#555")
-          }
         >
-          {theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
-        </button>
+          <span style={{ fontSize: "0.95rem", fontWeight: 500 }}>
+            {theme === "light" ? "Dark Mode" : "Light Mode"}
+          </span>
+          <div
+            style={{
+              width: 40,
+              height: 20,
+              borderRadius: "50px",
+              backgroundColor: theme === "light" ? "#bbb" : "#666",
+              position: "relative",
+              transition: "all 0.3s ease",
+            }}
+          >
+            <div
+              style={{
+                width: 18,
+                height: 18,
+                borderRadius: "50%",
+                backgroundColor: "#fff",
+                position: "absolute",
+                top: 1,
+                left: theme === "light" ? 2 : 20,
+                transition: "left 0.3s ease",
+              }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

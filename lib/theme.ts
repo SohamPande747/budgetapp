@@ -3,6 +3,29 @@
 import { create } from "zustand";
 import { useEffect, useState } from "react";
 
+// Modern theme palettes
+const lightTheme = {
+  background: "linear-gradient(180deg, #FDFDFD 0%, #F4F4F5 100%)",
+  color: "#111827",
+  primary: "linear-gradient(90deg, #3B82F6, #60A5FA)",
+  secondary: "#6B7280",
+  cardBg: "#FFFFFF",
+  border: "#E5E7EB",
+  shadow: "0 2px 10px rgba(0,0,0,0.05)",
+  hoverShadow: "0 4px 20px rgba(0,0,0,0.08)",
+};
+const darkTheme = {
+  background: "linear-gradient(180deg, #000000ff 0%, #000008ff 100%)", // midnight gradient
+  color: "#F9FAFB",
+  primary: "linear-gradient(90deg, #1A2A4D, #2B3B6A)", // muted deep blue
+  secondary: "#9CA3AF",
+  cardBg: "#0F1524", // very dark blue for cards
+  border: "#1C2536",
+  shadow: "0 2px 12px rgba(0,0,0,0.4)",
+  hoverShadow: "0 4px 24px rgba(0,0,0,0.5)",
+};
+
+// Zustand store
 interface ThemeStore {
   theme: "light" | "dark";
   toggleTheme: () => void;
@@ -14,79 +37,40 @@ export const useThemeStore = create<ThemeStore>((set) => ({
     set((state) => ({ theme: state.theme === "light" ? "dark" : "light" })),
 }));
 
-// Custom hook for components
+// Custom hook
 export function useTheme() {
   const store = useThemeStore();
   const [mounted, setMounted] = useState(false);
 
+  // Load saved theme on mount
   useEffect(() => {
     setMounted(true);
-    // Apply theme to body
-    document.body.style.backgroundColor =
-      store.theme === "light" ? "#f4f4f4" : "#121212";
-    document.body.style.color = store.theme === "light" ? "#000" : "#fff";
-  }, [store.theme]);
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark";
+    if (savedTheme && savedTheme !== store.theme) {
+      useThemeStore.setState({ theme: savedTheme });
+    }
+  }, []);
 
-  if (!mounted) return { theme: "light", toggleTheme: () => {} };
-  return store;
+  // Apply theme colors to body
+  useEffect(() => {
+    if (!mounted) return;
+
+    const theme = store.theme === "light" ? lightTheme : darkTheme;
+
+    Object.assign(document.body.style, {
+      background: theme.background,
+      color: theme.color,
+      transition: "all 0.4s ease",
+      fontFamily:
+        "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      lineHeight: "1.6",
+    });
+
+    localStorage.setItem("theme", store.theme);
+  }, [store.theme, mounted]);
+
+  if (!mounted)
+    return { theme: "light", toggleTheme: () => {}, colors: lightTheme };
+
+  return { ...store, colors: store.theme === "light" ? lightTheme : darkTheme };
 }
-
-
-// "use client";
-
-// import { create } from "zustand";
-// import { useEffect, useState } from "react";
-
-// interface ThemeStore {
-//   theme: "light" | "dark";
-//   toggleTheme: () => void;
-// }
-
-// export const useThemeStore = create<ThemeStore>((set) => ({
-//   theme:
-//     typeof window !== "undefined" &&
-//     window.matchMedia("(prefers-color-scheme: dark)").matches
-//       ? "dark"
-//       : "light",
-//   toggleTheme: () =>
-//     set((state) => ({ theme: state.theme === "light" ? "dark" : "light" })),
-// }));
-
-// export function useTheme() {
-//   const store = useThemeStore();
-//   const [mounted, setMounted] = useState(false);
-
-//   useEffect(() => {
-//     setMounted(true);
-
-//     document.body.style.transition =
-//       "background 0.8s ease, color 0.8s ease, border-color 0.8s ease";
-
-//     if (store.theme === "light") {
-//       // Light theme: soft pastel gradient with a hint of color
-//       document.body.style.background =
-//         "linear-gradient(135deg, #fef9f3, #ffe4e1, #d0eaff)";
-//       document.body.style.color = "#1a1a1a";
-//       document.body.style.borderColor = "#e2e8f0"; // soft gray border
-//     } else {
-//       // Dark theme: rich muted gradient with subtle highlights
-//       document.body.style.background =
-//         "linear-gradient(135deg, #0b0f1a, #1a1f2e, #2a3345)";
-//       document.body.style.color = "#e0e6f0";
-//       document.body.style.borderColor = "#3a4a6b";
-//     }
-
-//     // Accent colors: dynamic and slightly playful
-//     const accentColor = store.theme === "light" ? "#ff7e6b" : "#6ec1ff";
-//     document.documentElement.style.setProperty("--accent-color", accentColor);
-
-//     // Optional subtle text shadows for depth
-//     document.body.style.textShadow =
-//       store.theme === "light"
-//         ? "0 1px 2px rgba(0,0,0,0.05)"
-//         : "0 1px 2px rgba(0,0,0,0.4)";
-//   }, [store.theme]);
-
-//   if (!mounted) return { theme: "light", toggleTheme: () => {} };
-//   return store;
-// }

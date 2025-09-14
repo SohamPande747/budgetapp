@@ -5,19 +5,16 @@ import { useTheme } from "@lib/theme";
 
 export default function AddIncomePage() {
   const [accounts, setAccounts] = useState(["Cash", "Bank", "UPI"]);
-  const [newAccount, setNewAccount] = useState("");
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [selectedAccount, setSelectedAccount] = useState("Cash");
-  const [amount, setAmount] = useState("");
-
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
-    []
-  );
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [newCategory, setNewCategory] = useState("");
+  const [amount, setAmount] = useState("");
 
   const { theme } = useTheme();
   const isLight = theme === "light";
 
-  // ✅ Fetch categories on load
+  // Fetch categories on mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -25,29 +22,30 @@ export default function AddIncomePage() {
         if (!res.ok) throw new Error("Failed to fetch categories");
         const data = await res.json();
         setCategories(data ?? []);
-        if (data.length > 0) setSelectedCategory(data[0].id); // default first
+        if (data.length > 0) setSelectedCategory(data[0].id);
       } catch (err) {
-        console.error("❌ Error fetching categories:", err);
+        console.error("Error fetching categories:", err);
       }
     };
     fetchCategories();
   }, []);
 
-  const handleAddAccount = () => {
-    if (!newAccount.trim()) return;
+  const handleAddCategory = () => {
+    if (!newCategory.trim()) return;
 
     if (
-      accounts.some(
-        (acc) => acc.toLowerCase() === newAccount.trim().toLowerCase()
+      categories.some(
+        (cat) => cat.name.toLowerCase() === newCategory.trim().toLowerCase()
       )
     ) {
-      alert("Account already exists!");
+      alert("Category already exists!");
       return;
     }
 
-    setAccounts([...accounts, newAccount.trim()]);
-    setSelectedAccount(newAccount.trim());
-    setNewAccount("");
+    const newCatObj = { id: Date.now(), name: newCategory.trim() };
+    setCategories([...categories, newCatObj]);
+    setSelectedCategory(newCatObj.id);
+    setNewCategory("");
   };
 
   const handleSave = async () => {
@@ -69,17 +67,16 @@ export default function AddIncomePage() {
           account: selectedAccount,
           amount: Number(amount),
           date: new Date().toISOString(),
-          category_id: selectedCategory, // ✅ link to category
+          category_id: selectedCategory,
         }),
       });
 
       if (!res.ok) throw new Error("Failed to save income");
-
       const newIncome = await res.json();
-      console.log("✅ Saved to backend:", newIncome);
+      console.log("Saved to backend:", newIncome);
 
       alert(
-        `✅ Income added:\nAccount: ${selectedAccount}\nCategory: ${
+        `Income added:\nAccount: ${selectedAccount}\nCategory: ${
           categories.find((c) => c.id === selectedCategory)?.name || "N/A"
         }\nAmount: ₹${amount}`
       );
@@ -89,7 +86,7 @@ export default function AddIncomePage() {
       if (categories.length > 0) setSelectedCategory(categories[0].id);
     } catch (error) {
       console.error(error);
-      alert("❌ Failed to save income");
+      alert("Failed to save income");
     }
   };
 
@@ -100,17 +97,17 @@ export default function AddIncomePage() {
         margin: "3rem auto",
         padding: "2rem",
         borderRadius: "16px",
-        background: isLight ? "#ffffff" : "#1e1e1e",
+        background: isLight ? "#ffffff" : "#0d101aff",
         boxShadow: isLight
-          ? "0 6px 20px rgba(0,0,0,0.1)"
-          : "0 6px 20px rgba(0,0,0,0.6)",
+          ? "0 6px 20px #0000008"
+          : "0 6px 20px #000008ff",
         fontFamily: "Segoe UI, sans-serif",
-        color: isLight ? "#111" : "#f0f0f0",
+        color: isLight ? "#000008ff" : "#f0f0f0",
       }}
     >
       <h2
         style={{
-          marginBottom: "1.5rem",
+          marginBottom: "2rem",
           textAlign: "center",
           fontSize: "1.8rem",
           fontWeight: 600,
@@ -121,20 +118,18 @@ export default function AddIncomePage() {
       </h2>
 
       {/* Account Dropdown */}
-      <label style={{ display: "block", marginBottom: "0.5rem" }}>
-        Select Account
-      </label>
+      <label style={{ display: "block", marginBottom: "0.5rem" }}>Select Account</label>
       <select
         value={selectedAccount}
         onChange={(e) => setSelectedAccount(e.target.value)}
         style={{
           width: "100%",
           padding: "0.9rem",
-          marginBottom: "1.5rem",
+          marginBottom: "1.8rem",
           borderRadius: "10px",
           border: "1px solid #888",
           background: isLight ? "#fff" : "#2a2a2a",
-          color: isLight ? "#111" : "#f0f0f0",
+          color: isLight ? "#000008ff" : "#f0f0f0",
         }}
       >
         {accounts.map((acc) => (
@@ -144,24 +139,49 @@ export default function AddIncomePage() {
         ))}
       </select>
 
-      {/* Add New Account */}
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
+      {/* Category Dropdown */}
+      <label style={{ display: "block", marginBottom: "0.5rem" }}>Select Category</label>
+      <select
+        value={selectedCategory ?? ""}
+        onChange={(e) => setSelectedCategory(Number(e.target.value))}
+        style={{
+          width: "100%",
+          padding: "0.9rem",
+          marginBottom: "1rem",
+          borderRadius: "10px",
+          border: "1px solid #888",
+          background: isLight ? "#fff" : "#2a2a2a",
+          color: isLight ? "#000008ff" : "#f0f0f0",
+        }}
+      >
+        <option value="" disabled>
+          -- Select Category --
+        </option>
+        {categories.map((cat) => (
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
+        ))}
+      </select>
+
+      {/* Add New Category */}
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.8rem" }}>
         <input
           type="text"
-          value={newAccount}
-          onChange={(e) => setNewAccount(e.target.value)}
-          placeholder="New account name"
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+          placeholder="New category name"
           style={{
             flex: 1,
             padding: "0.9rem",
             borderRadius: "10px",
             border: "1px solid #888",
             background: isLight ? "#fff" : "#2a2a2a",
-            color: isLight ? "#111" : "#f0f0f0",
+            color: isLight ? "#000008ff" : "#f0f0f0",
           }}
         />
         <button
-          onClick={handleAddAccount}
+          onClick={handleAddCategory}
           style={{
             padding: "0.9rem 1.2rem",
             border: "none",
@@ -175,33 +195,6 @@ export default function AddIncomePage() {
         </button>
       </div>
 
-      {/* Category Dropdown */}
-      <label style={{ display: "block", marginBottom: "0.5rem" }}>
-        Select Category
-      </label>
-      <select
-        value={selectedCategory ?? ""}
-        onChange={(e) => setSelectedCategory(Number(e.target.value))}
-        style={{
-          width: "100%",
-          padding: "0.9rem",
-          marginBottom: "1.5rem",
-          borderRadius: "10px",
-          border: "1px solid #888",
-          background: isLight ? "#fff" : "#2a2a2a",
-          color: isLight ? "#111" : "#f0f0f0",
-        }}
-      >
-        <option value="" disabled>
-          -- Select Category --
-        </option>
-        {categories.map((cat) => (
-          <option key={cat.id} value={cat.id}>
-            {cat.name}
-          </option>
-        ))}
-      </select>
-
       {/* Amount */}
       <label style={{ display: "block", marginBottom: "0.5rem" }}>Amount</label>
       <input
@@ -210,13 +203,13 @@ export default function AddIncomePage() {
         onChange={(e) => setAmount(e.target.value)}
         placeholder="Enter amount (₹)"
         style={{
-          width: "100%",
+          width: "95%",
           padding: "0.9rem",
-          marginBottom: "1.5rem",
+          marginBottom: "2rem",
           borderRadius: "10px",
           border: "1px solid #888",
           background: isLight ? "#fff" : "#2a2a2a",
-          color: isLight ? "#111" : "#f0f0f0",
+          color: isLight ? "#000008ff" : "#f0f0f0",
         }}
       />
 
