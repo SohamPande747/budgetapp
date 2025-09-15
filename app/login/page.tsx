@@ -1,36 +1,39 @@
 "use client";
-
-import { supabase } from "@/lib/supabase";
+import { useState } from "react";
 
 export default function LoginPage() {
-  const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        // Optional: redirect after login
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function handleLogin() {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+      headers: { "Content-Type": "application/json" },
     });
-    if (error) console.error("Login error:", error.message);
-  };
+
+    const data = await res.json();
+    console.log(data);
+  }
 
   return (
-    <div style={{ textAlign: "center", marginTop: "5rem" }}>
-      <h1>Welcome to Budget App</h1>
-      <button
-        onClick={handleGoogleLogin}
-        style={{
-          padding: "1rem 2rem",
-          background: "#4285F4",
-          color: "#fff",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-          fontSize: "1rem",
-        }}
-      >
-        Sign in with Google
-      </button>
+    <div>
+      <input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <input
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        type="password"
+        placeholder="Password"
+      />
+      <button onClick={handleLogin}>Login</button>
+
+      <a href="/api/auth/google">
+        <button>Sign in with Google</button>
+      </a>
     </div>
   );
 }

@@ -1,83 +1,48 @@
-// app/page.tsx (Login Page)
+
+
+
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useBudgetStore } from "@lib/store";
+import { useTheme } from "@lib/theme";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function HomePage() {
+  const { incomes, expenses, setIncomes, setExpenses } = useBudgetStore();
+  const { theme } = useTheme();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
 
+  const [activeAction, setActiveAction] = useState<string | null>(null);
+
+  // Fetch transactions
   useEffect(() => {
-    // Check if user is already logged in
-    const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error("Error checking session:", error.message);
-      }
-      if (session) {
-        router.push("/home"); // Already logged in
-      } else {
-        setLoading(false); // Show login button
-      }
+    const fetchTransactions = async () => {
+      const res = await fetch("/api/transactions");
+      const data = await res.json();
+
+      setIncomes(data.filter((t: any) => t.type === "income"));
+      setExpenses(data.filter((t: any) => t.type === "expense"));
     };
 
-    checkSession();
+    fetchTransactions();
+  }, [setIncomes, setExpenses]);
 
-    // Listen for auth changes (login/logout)
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) router.push("/home");
-    });
+  const totalIncome = incomes.reduce((sum, inc) => sum + inc.amount, 0);
+  const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const savings = totalIncome - totalExpenses;
 
-    return () => listener.subscription.unsubscribe();
-  }, [router]);
+  const quickActions = [
+    { name: "Add Income", type: "income" },
+    { name: "Add Expense", type: "expense" },
+    { name: "View Reports", type: "report" },
+  ];
 
-  const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/home`, // Redirect after login
-      },
-    });
-    if (error) console.error("Login error:", error.message);
-  };
-
-  if (loading) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "5rem" }}>
-        <p>Loading...</p>
-      </div>
-    );
-  }
+  const isLight = theme === "light";
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        gap: "2rem",
-        padding: "2rem",
-      }}
-    >
-      <h1>Welcome to Budget App</h1>
-      <button
-        onClick={handleGoogleLogin}
-        style={{
-          padding: "1rem 2rem",
-          background: "#4285F4",
-          color: "#fff",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-          fontSize: "1rem",
-        }}
-      >
-        Sign in with Google
-      </button>
-    </div>
+    <main>this will the the landing page very soon 
+      
+    </main>
   );
 }

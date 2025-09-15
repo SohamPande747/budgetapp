@@ -2,7 +2,8 @@
 
 import { useTheme } from "@lib/theme";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -14,13 +15,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const router = useRouter();
 
   const [hovered, setHovered] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
 
   const tabs = [
     { name: "Home", path: "/home" },
     { name: "Dashboard", path: "/dashboard" },
     { name: "Settings", path: "/settings" },
     { name: "Report", path: "/report" },
-    { name: "Profile", path: "/profile" },
   ];
 
   const sidebarBg =
@@ -28,6 +29,27 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       ? "rgba(255, 255, 255, 0.75)"
       : "rgba(28, 28, 30, 0.75)";
   const textColor = theme === "light" ? "#111" : "#f5f5f7";
+
+  // 🔹 Load user on mount & subscribe to auth changes
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/"); // redirect to landing/login page
+  };
 
   return (
     <div
@@ -52,7 +74,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         borderBottomRightRadius: "18px",
       }}
     >
-      {/* Profile Section */}
+      Profile Section
       <div
         style={{
           display: "flex",
@@ -78,14 +100,16 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           }}
         />
         <div>
-          <p style={{ margin: 0, fontWeight: 600 }}>Guest User</p>
+          <p style={{ margin: 0, fontWeight: 600 }}>
+            {user ? user.email : "Guest User"}
+          </p>
           <span
             style={{
               fontSize: "0.85rem",
               opacity: 0.7,
             }}
           >
-            View Profile
+            {user ? "View Profile" : "Sign In"}
           </span>
         </div>
       </div>
@@ -129,7 +153,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         ))}
       </ul>
 
-      {/* Theme Toggle */}
+      {/* Footer Actions */}
       <div
         style={{
           padding: "1rem",
@@ -139,12 +163,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               : "1px solid rgba(255,255,255,0.1)",
         }}
       >
+        {/* Theme Toggle */}
         <div
           onClick={toggleTheme}
           style={{
             display: "flex",
             alignItems: "center",
-            marginBottom: "2rem",
+            marginBottom: "1rem",
             justifyContent: "space-between",
             padding: "0.5rem 0.75rem",
             borderRadius: "50px",
@@ -180,6 +205,42 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             />
           </div>
         </div>
+
+        {/* Auth Action */}
+        {user ? (
+          <button
+            onClick={handleLogout}
+            style={{
+              width: "100%",
+              padding: "0.75rem",
+              borderRadius: "10px",
+              border: "none",
+              backgroundColor: "#e74c3c",
+              color: "#fff",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            Sign Out
+          </button>
+        ) : (
+          <button
+            onClick={() => router.push("/login")}
+            style={{
+              width: "100%",
+              padding: "0.75rem",
+              borderRadius: "10px",
+              border: "none",
+              backgroundColor: "#0070f3",
+              color: "#fff",
+              fontWeight: 600,
+              cursor: "pointer",
+              marginBottom: "30px",
+            }}
+          >
+            Sign In
+          </button>
+        )}
       </div>
     </div>
   );
