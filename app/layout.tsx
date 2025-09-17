@@ -105,9 +105,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               fontWeight: 600,
               letterSpacing: "-0.02em",
             }}
-            onClick={() => router.push("/home")}
+            onClick={() => router.push("/")}
           >
-            Budget App
+            Spendle
           </h1>
         </div>
 

@@ -161,6 +161,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             theme === "light"
               ? "1px solid rgba(0,0,0,0.08)"
               : "1px solid rgba(255,255,255,0.1)",
+          marginBottom: "25px",
         }}
       >
         {/* Theme Toggle */}
@@ -179,7 +180,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           }}
         >
           <span style={{ fontSize: "0.95rem", fontWeight: 500 }}>
-            {theme === "light" ? "Dark Mode" : "Light Mode"}
+            {theme === "light" ? "Light Mode" : "Dark Mode"}
           </span>
           <div
             style={{
@@ -205,42 +206,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             />
           </div>
         </div>
-
-        {/* Auth Action */}
-        {user ? (
-          <button
-            onClick={handleLogout}
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: "10px",
-              border: "none",
-              backgroundColor: "#e74c3c",
-              color: "#fff",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            Sign Out
-          </button>
-        ) : (
-          <button
-            onClick={() => router.push("/login")}
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: "10px",
-              border: "none",
-              backgroundColor: "#0070f3",
-              color: "#fff",
-              fontWeight: 600,
-              cursor: "pointer",
-              marginBottom: "30px",
-            }}
-          >
-            Sign In
-          </button>
-        )}
       </div>
     </div>
   );

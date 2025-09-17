@@ -1,30 +1,35 @@
 "use client";
-
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 
-export default function AuthCallback() {
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+export default function GoogleCallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
-    async function handleAuth() {
-      const { data, error } = await supabase.auth.getSession();
+    async function handleUser() {
+      const { data: { user }, error } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error(error);
-        return;
+      if (user) {
+        // Insert into your table
+        await supabase.from("profiles").upsert({
+          id: user.id,
+          email: user.email,
+          full_name: user.user_metadata.full_name,
+          avatar_url: user.user_metadata.avatar_url,
+        });
       }
 
-      if (data.session) {
-        // ✅ user is signed in
-        console.log("User:", data.session.user);
-        router.push("/dashboard"); // redirect to dashboard or home
-      }
+      router.push("/dashboard"); // redirect to your dashboard
     }
 
-    handleAuth();
+    handleUser();
   }, [router]);
 
-  return <p>Loading...</p>;
+  return <p>Logging in...</p>;
 }
