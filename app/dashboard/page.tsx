@@ -41,19 +41,23 @@ export default function HomePage() {
     <main
       style={{
         padding: "3rem 2rem",
-        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-        minHeight: "calc(100vh - 50px)",
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
+        minHeight: "100vh",
+        background: isLight ? "#f5f5f7" : "#1c1c1e",
+        color: isLight ? "#111" : "#f5f5f7",
         transition: "background 0.3s ease, color 0.3s ease",
       }}
     >
-      {/* Page Title */}
+      {/* Title */}
       <h1
         style={{
-          fontSize: "2.6rem",
+          fontSize: "2.5rem",
           marginBottom: "2.5rem",
           fontWeight: 700,
           letterSpacing: "-0.03em",
           textAlign: "center",
+          color: isLight ? "#111" : "#fff",
         }}
       >
         Spendle
@@ -73,26 +77,20 @@ export default function HomePage() {
           {
             label: "Total Income",
             value: totalIncome,
-            bg: isLight
-              ? "linear-gradient(135deg, #a8e6a2, #4caf50)" // green gradient
-              : "linear-gradient(135deg, #145214, #2e7d32)",
-            color: "#fff",
+            bg: isLight ? "#ffffffcc" : "#2c2c2e",
+            accent: "#34c759",
           },
           {
             label: "Total Expenses",
             value: totalExpenses,
-            bg: isLight
-              ? "linear-gradient(135deg, #f28b82, #d32f2f)" // red gradient
-              : "linear-gradient(135deg, #5c1d1d, #b71c1c)",
-            color: "#fff",
+            bg: isLight ? "#ffffffcc" : "#2c2c2e",
+            accent: "#ff3b30",
           },
           {
             label: "Savings",
             value: savings,
-            bg: isLight
-              ? "linear-gradient(135deg, #81d4fa, #0288d1)" // blue gradient
-              : "linear-gradient(135deg, #1a237e, #1976d2)",
-            color: "#fff",
+            bg: isLight ? "#ffffffcc" : "#2c2c2e",
+            accent: "#0a84ff",
           },
         ].map((card) => (
           <div
@@ -100,34 +98,43 @@ export default function HomePage() {
             style={{
               flex: "1 1 260px",
               padding: "2rem",
-              borderRadius: "20px",
+              borderRadius: "24px",
               background: card.bg,
-              color: card.color,
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
               boxShadow: isLight
-                ? "0 8px 20px rgba(0,0,0,0.08)"
-                : "0 8px 20px rgba(0,0,0,0.35)",
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                ? "0 4px 12px rgba(0,0,0,0.08)"
+                : "0 4px 18px rgba(0,0,0,0.5)",
+              transition: "transform 0.25s ease, box-shadow 0.25s ease",
               cursor: "default",
+              textAlign: "center",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-8px) scale(1.02)";
-              e.currentTarget.style.boxShadow =
-                "0 12px 30px rgba(0,0,0,0.15)";
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow = isLight
+                ? "0 8px 20px rgba(0,0,0,0.12)"
+                : "0 8px 24px rgba(0,0,0,0.6)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0) scale(1)";
-              e.currentTarget.style.boxShadow =
-                isLight
-                  ? "0 8px 20px rgba(0,0,0,0.08)"
-                  : "0 8px 20px rgba(0,0,0,0.35)";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = isLight
+                ? "0 4px 12px rgba(0,0,0,0.08)"
+                : "0 4px 18px rgba(0,0,0,0.5)";
             }}
           >
-            <h2 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 600 }}>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: "1.1rem",
+                fontWeight: 600,
+                color: card.accent,
+              }}
+            >
               {card.label}
             </h2>
             <p
               style={{
-                fontSize: "1.8rem",
+                fontSize: "2rem",
                 margin: "0.6rem 0 0 0",
                 fontWeight: 700,
               }}
@@ -143,9 +150,9 @@ export default function HomePage() {
         <h2
           style={{
             marginBottom: "1.8rem",
-            fontSize: "1.6rem",
-            fontWeight: 700,
-            letterSpacing: "-0.01em",
+            fontSize: "1.5rem",
+            fontWeight: 600,
+            color: isLight ? "#111" : "#f5f5f7",
           }}
         >
           Quick Actions
@@ -159,46 +166,43 @@ export default function HomePage() {
             flexWrap: "wrap",
           }}
         >
-          {quickActions.map((action) => {
-            const blueGradient = "linear-gradient(135deg, #81d4fa, #0288d1)"; // blue gradient
-            return (
-              <button
-                key={action.name}
-                onClick={() => {
-                  if (action.type === "income") router.push("/addIncome");
-                  else if (action.type === "expense") router.push("/addExpense");
-                  else if (action.type === "report") router.push("/report");
-                  setActiveAction(action.type);
-                }}
-                style={{
-                  minWidth: "180px",
-                  padding: "1rem 1.5rem",
-                  borderRadius: "18px",
-                  border: "none",
-                  cursor: "pointer",
-                  background: blueGradient,
-                  color: "#fff",
-                  fontWeight: 600,
-                  fontSize: "1rem",
-                  boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
-                  transition: "all 0.3s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform =
-                    "translateY(-6px) scale(1.05)";
-                  e.currentTarget.style.boxShadow =
-                    "0 10px 20px rgba(0,0,0,0.2)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0) scale(1)";
-                  e.currentTarget.style.boxShadow =
-                    "0 6px 15px rgba(0,0,0,0.15)";
-                }}
-              >
-                {action.name}
-              </button>
-            );
-          })}
+          {quickActions.map((action) => (
+            <button
+              key={action.name}
+              onClick={() => {
+                if (action.type === "income") router.push("/addIncome");
+                else if (action.type === "expense") router.push("/addExpense");
+                else if (action.type === "report") router.push("/report");
+                setActiveAction(action.type);
+              }}
+              style={{
+                minWidth: "180px",
+                padding: "0.9rem 1.4rem",
+                borderRadius: "16px",
+                border: "none",
+                cursor: "pointer",
+                background: isLight ? "#0a84ff" : "#0a84ff",
+                color: "#fff",
+                fontWeight: 600,
+                fontSize: "1rem",
+                letterSpacing: "-0.01em",
+                boxShadow: "0 4px 14px rgba(10,132,255,0.3)",
+                transition: "all 0.25s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-3px)";
+                e.currentTarget.style.boxShadow =
+                  "0 6px 18px rgba(10,132,255,0.35)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 14px rgba(10,132,255,0.3)";
+              }}
+            >
+              {action.name}
+            </button>
+          ))}
         </div>
       </div>
     </main>
