@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import {
   Wallet,
   TrendingUp,
@@ -21,12 +22,50 @@ import {
 } from "lucide-react";
 
 const Profile = () => {
-  const [twoFactor, setTwoFactor] = useState(true);
-  const [emailNotif, setEmailNotif] = useState(true);
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const [twoFactor, setTwoFactor] = useState(false);
+  const [emailNotif, setEmailNotif] = useState(false);
   const [pushNotif, setPushNotif] = useState(false);
-  const [budgetAlerts, setBudgetAlerts] = useState(true);
-  const [weeklyReports, setWeeklyReports] = useState(true);
+  const [budgetAlerts, setBudgetAlerts] = useState(false);
+  const [weeklyReports, setWeeklyReports] = useState(false);
   const [privacyMode, setPrivacyMode] = useState(false);
+
+  useEffect(() => {
+    async function fetchUser() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        setUserData({
+          id: user.id,
+          email: user.email ?? null,
+          full_name: user.user_metadata?.full_name ?? profile?.full_name ?? null,
+          avatar_url: user.user_metadata?.avatar_url ?? profile?.avatar_url ?? null,
+          phone: profile?.phone ?? null,
+          member_since: profile?.member_since ?? null,
+          account_type: profile?.account_type ?? null,
+          status: profile?.status ?? "Unverified",
+          total_balance: profile?.total_balance ?? null,
+          monthly_spending: profile?.monthly_spending ?? null,
+          savings_progress: profile?.savings_progress ?? null,
+          investment: profile?.investment ?? null,
+        });
+      }
+
+      setLoading(false);
+    }
+
+    fetchUser();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div style={{
@@ -42,7 +81,7 @@ const Profile = () => {
         flexDirection: 'column',
         gap: '24px'
       }}>
-        
+
         {/* Header */}
         <div style={{
           display: 'flex',
@@ -118,7 +157,7 @@ const Profile = () => {
               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
             }}>
               <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face"
+                src={userData.avatar_url ?? "https://www.gravatar.com/avatar?d=mp&f=y"}
                 alt="Profile"
                 style={{
                   width: '100%',
@@ -142,14 +181,14 @@ const Profile = () => {
                 <Edit size={14} />
               </div>
             </div>
-            
+
             <div style={{ flex: '1' }}>
               <h2 style={{
                 fontSize: '24px',
                 fontWeight: '600',
                 color: '#1e293b',
                 margin: '0 0 8px 0'
-              }}>John Smith</h2>
+              }}>{userData.full_name ?? "Unknown User"}</h2>
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -162,7 +201,7 @@ const Profile = () => {
                   color: '#64748b'
                 }}>
                   <Mail size={16} />
-                  <span>john.smith@email.com</span>
+                  <span>{userData.email ?? "Not Provided"}</span>
                 </div>
                 <div style={{
                   display: 'flex',
@@ -171,31 +210,20 @@ const Profile = () => {
                   color: '#64748b'
                 }}>
                   <Phone size={16} />
-                  <span>+1 (555) 123-4567</span>
+                  <span>{userData.phone ?? "Not Provided"}</span>
                 </div>
               </div>
             </div>
-            
-            <div style={{
-              padding: '8px 16px',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              borderRadius: '20px',
-              color: 'white',
-              fontWeight: '500',
-              fontSize: '14px'
-            }}>
-              Premium Member
-            </div>
           </div>
-          
+
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
             gap: '16px'
           }}>
-            <InfoItem icon={<User size={16} />} label="Member Since" value="January 2024" />
-            <InfoItem icon={<Wallet size={16} />} label="Account Type" value="Premium Savings" />
-            <InfoItem icon={<Shield size={16} />} label="Status" value="Verified" />
+            <InfoItem icon={<User size={16} />} label="Member Since" value={userData.member_since ?? "N/A"} />
+            <InfoItem icon={<Wallet size={16} />} label="Account Type" value={userData.account_type ?? "Standard"} />
+            <InfoItem icon={<Shield size={16} />} label="Status" value={userData.status ?? "Unverified"} />
           </div>
         </div>
 
@@ -208,33 +236,33 @@ const Profile = () => {
           <MetricCard 
             title="Total Balance" 
             icon={<Wallet size={20} />} 
-            value="$12,450.32" 
-            trend="+2.3%" 
+            value={userData.total_balance !== null ? `$${userData.total_balance}` : "N/A"} 
+            trend="%" 
             trendUp 
             color="#3b82f6"
           />
           <MetricCard 
             title="Monthly Spending" 
             icon={<CreditCard size={20} />} 
-            value="$2,847.50" 
-            trend="-8.1%" 
+            value={userData.monthly_spending !== null ? `$${userData.monthly_spending}` : "N/A"} 
+            trend="%" 
             trendUp={false} 
             color="#8b5cf6"
           />
           <MetricCard 
             title="Savings Progress" 
             icon={<Target size={20} />} 
-            value="$8,200 / $12,500" 
-            trend="65%" 
+            value={userData.savings_progress !== null ? `$${userData.savings_progress} / $12,500` : "N/A"} 
+            trend="%" 
             trendUp 
             color="#f59e0b"
-            progress={65}
+            progress={userData.savings_progress ? (userData.savings_progress / 12500) * 100 : undefined}
           />
           <MetricCard 
             title="Investment" 
             icon={<PieChart size={20} />} 
-            value="$15,680.75" 
-            trend="+12.4%" 
+            value={userData.investment !== null ? `$${userData.investment}` : "N/A"} 
+            trend="%" 
             trendUp 
             color="#10b981"
           />
@@ -248,9 +276,9 @@ const Profile = () => {
         }}>
           {/* Account Settings */}
           <Section title="Account Settings" icon={<Settings size={20} />}>
-            <InputField icon={<User size={16} />} label="Full Name" defaultValue="John Smith" />
-            <InputField icon={<Mail size={16} />} label="Email Address" defaultValue="john.smith@email.com" />
-            <InputField icon={<Phone size={16} />} label="Phone Number" defaultValue="+1 (555) 123-4567" />
+            <InputField icon={<User size={16} />} label="Full Name" defaultValue={userData.full_name ?? ""} />
+            <InputField icon={<Mail size={16} />} label="Email Address" defaultValue={userData.email ?? ""} />
+            <InputField icon={<Phone size={16} />} label="Phone Number" defaultValue={userData.phone ?? ""} />
             <ToggleSetting 
               label="Two-Factor Authentication" 
               description="Add an extra layer of security to your account" 
@@ -326,6 +354,9 @@ const Profile = () => {
 };
 
 export default Profile;
+
+// — Helper components (InfoItem, MetricCard, Section, InputField, ToggleSetting, ActionButton) remain unchanged —
+
 
 // Helper Components
 const InfoItem = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) => (

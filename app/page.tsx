@@ -98,7 +98,7 @@ export default function LandingPage() {
           Designed with elegance. Built for clarity.
         </p>
         <button
-          onClick={() => router.push("/signup")}
+          onClick={() => router.push("/login/signup")}
           style={{
             padding: "16px 42px",
             fontSize: "1.2rem",
