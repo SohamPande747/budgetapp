@@ -1,47 +1,62 @@
 // app/api/transactions/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { supabase, createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 
-const supabaseServer = createSupabaseServerClient();
-
-// --------------------- POST ---------------------
 export async function POST(req: NextRequest) {
   try {
-    const { type, account, amount, date, category_id } = await req.json();
+    const supabaseServer = await createSupabaseServerClient({ req });
 
-    if (!type || !account || typeof amount !== "number" || amount <= 0 || !category_id) {
-      console.log("Validation failed:", { type, account, amount, category_id });
+    const { type, account_id, amount, date, category_id } = await req.json();
+
+    if (!type || !account_id || typeof amount !== "number" || amount <= 0 || !category_id) {
       return NextResponse.json(
         { error: "Missing or invalid required fields" },
         { status: 400 }
       );
     }
 
+    const { data: { user }, error: userError } = await supabaseServer.auth.getUser();
+    if (userError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const { data, error } = await supabaseServer
       .from("transactions")
-      .insert([{ type, account, amount, date, category_id }])
-      .select();
+      .insert([{
+        user_id: user.id,
+        type,
+        account_id,
+        amount,
+        date: date ?? new Date().toISOString(),
+        category_id,
+      }])
+      .select()
+      .single();
 
-    if (error) {
-      console.log("Supabase insert error:", error);
-      throw error;
-    }
+    if (error) throw error;
 
-    return NextResponse.json(data[0], { status: 201 });
+    return NextResponse.json(data, { status: 201 });
   } catch (err: any) {
     console.error("POST error:", err);
-    return NextResponse.json(
-      { error: err.message || "Failed to add transaction" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: err.message || "Failed to add transaction" }, { status: 500 });
   }
 }
-// --------------------- GET ---------------------
-export async function GET() {
+
+export async function GET(req: NextRequest) {
   try {
+    const supabaseServer = await createSupabaseServerClient({ req });
+    const { data: { user }, error: userError } = await supabaseServer.auth.getUser();
+    if (userError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const { data, error } = await supabaseServer
       .from("transactions")
-      .select("id, type, account, amount, date, category_id") // ❌ no join
+      .select(`
+        id,
+        type,
+        amount,
+        date,
+        category:categories(name, type),
+        account:accounts(name, balance)
+      `)
+      .eq("user_id", user.id)
       .order("date", { ascending: false });
 
     if (error) throw error;
@@ -53,26 +68,25 @@ export async function GET() {
   }
 }
 
-
-// --------------------- PATCH ---------------------
 export async function PATCH(req: NextRequest) {
   try {
-    const { id, amount, type, account, category_id } = await req.json();
+    const supabaseServer = await createSupabaseServerClient({ req });
+    const { id, amount, type, account_id, category_id } = await req.json();
 
-    // ✅ Validation
-    if (!id || !type || !account || typeof amount !== "number" || amount <= 0) {
-      return NextResponse.json(
-        { error: "Missing or invalid required fields" },
-        { status: 400 }
-      );
+    if (!id || !type || !account_id || typeof amount !== "number" || amount <= 0) {
+      return NextResponse.json({ error: "Missing or invalid required fields" }, { status: 400 });
     }
+
+    const { data: { user }, error: userError } = await supabaseServer.auth.getUser();
+    if (userError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { data, error } = await supabaseServer
       .from("transactions")
-      .update({ amount, type, account, category_id })
+      .update({ amount, type, account_id, category_id })
       .eq("id", id)
+      .eq("user_id", user.id)
       .select()
-      .single(); // ensures single object
+      .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     if (!data) return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
@@ -84,20 +98,20 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-// --------------------- DELETE ---------------------
 export async function DELETE(req: NextRequest) {
   try {
+    const supabaseServer = await createSupabaseServerClient({ req });
     const { id } = await req.json();
+    if (!id) return NextResponse.json({ error: "Missing transaction id" }, { status: 400 });
 
-    // ✅ Validation
-    if (!id) {
-      return NextResponse.json({ error: "Missing transaction id" }, { status: 400 });
-    }
+    const { data: { user }, error: userError } = await supabaseServer.auth.getUser();
+    if (userError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { data, error } = await supabaseServer
       .from("transactions")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 

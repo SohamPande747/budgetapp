@@ -1,44 +1,37 @@
+// app/login/callback/page.
+
 "use client";
+
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase-client";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 export default function GoogleCallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
-    async function handleUser() {
-      try {
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser();
-
-        if (error || !user) {
-          router.push("/"); // redirect to home if failed
-          return;
-        }
-
-        // Insert or update user in your table
-        await supabase.from("profiles").upsert({
-          id: user.id,
-          email: user.email,
-          full_name: user.user_metadata.full_name,
-          avatar_url: user.user_metadata.avatar_url,
-        });
-
-        router.push("/dashboard"); // redirect to dashboard if success
-      } catch (err) {
-        router.push("/"); // redirect to home on error
+    // Check if user is already signed in
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        router.push("/home");
       }
-    }
+    });
 
-    handleUser();
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        router.push("/home");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [router]);
 
-  return null; // nothing to render
+  return (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <p>Loading...</p>
+    </div>
+  );
 }

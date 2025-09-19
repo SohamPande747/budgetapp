@@ -3,7 +3,7 @@
 import { useTheme } from "@lib/theme";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase-client";
 
 interface SidebarProps {
   isOpen: boolean;

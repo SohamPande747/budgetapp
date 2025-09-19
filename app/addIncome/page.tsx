@@ -3,58 +3,72 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "@lib/theme";
 
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface Account {
+  id: string;
+  name: string;
+}
+
 export default function AddIncomePage() {
-  const [accounts, setAccounts] = useState(["Cash", "Bank", "UPI"]);
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
-  const [selectedAccount, setSelectedAccount] = useState("Cash");
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [accounts, setAccounts] = useState<Account[]>([
+    { id: "default_cash", name: "Cash" },
+  ]);
+  const [categories, setCategories] = useState<Category[]>([
+    { id: "default_salary", name: "Salary" },
+  ]);
+  const [selectedAccount, setSelectedAccount] = useState("default_cash");
+  const [selectedCategory, setSelectedCategory] = useState("default_salary");
   const [newCategory, setNewCategory] = useState("");
   const [amount, setAmount] = useState("");
 
   const { theme } = useTheme();
   const isLight = theme === "light";
 
-  // Fetch categories on mount
+  // Fetch accounts and categories from backend
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchAccounts = async () => {
       try {
-        const res = await fetch("/api/categories");
-        if (!res.ok) throw new Error("Failed to fetch categories");
-        const data = await res.json();
-        setCategories(data ?? []);
-        if (data.length > 0) setSelectedCategory(data[0].id);
+        const res = await fetch("/api/accounts");
+        if (!res.ok) throw new Error("Failed to fetch accounts");
+        const data: Account[] = await res.json();
+        if (data.length > 0) {
+          setAccounts(data);
+          setSelectedAccount(data[0].id);
+        }
       } catch (err) {
-        console.error("Error fetching categories:", err);
+        console.error(err);
       }
     };
+
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/categories?type=income");
+        if (!res.ok) throw new Error("Failed to fetch categories");
+        const data: Category[] = await res.json();
+        if (data.length > 0) {
+          setCategories(data);
+          setSelectedCategory(data[0].id);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchAccounts();
     fetchCategories();
   }, []);
-
-  const handleAddCategory = () => {
-    if (!newCategory.trim()) return;
-
-    if (
-      categories.some(
-        (cat) => cat.name.toLowerCase() === newCategory.trim().toLowerCase()
-      )
-    ) {
-      alert("Category already exists!");
-      return;
-    }
-
-    const newCatObj = { id: Date.now(), name: newCategory.trim() };
-    setCategories([...categories, newCatObj]);
-    setSelectedCategory(newCatObj.id);
-    setNewCategory("");
-  };
 
   const handleSave = async () => {
     if (!amount || Number(amount) <= 0) {
       alert("Please enter a valid amount");
       return;
     }
-    if (!selectedCategory) {
-      alert("Please select a category");
+    if (!selectedCategory || !selectedAccount) {
+      alert("Please select an account and category");
       return;
     }
 
@@ -64,7 +78,7 @@ export default function AddIncomePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: "income",
-          account: selectedAccount,
+          account_id: selectedAccount,
           amount: Number(amount),
           date: new Date().toISOString(),
           category_id: selectedCategory,
@@ -72,20 +86,22 @@ export default function AddIncomePage() {
       });
 
       if (!res.ok) throw new Error("Failed to save income");
-      const newIncome = await res.json();
-      console.log("Saved to backend:", newIncome);
+      const data = await res.json();
+      console.log("Saved:", data);
 
       alert(
-        `Income added:\nAccount: ${selectedAccount}\nCategory: ${
-          categories.find((c) => c.id === selectedCategory)?.name || "N/A"
+        `Income added:\nAccount: ${
+          accounts.find((a) => a.id === selectedAccount)?.name
+        }\nCategory: ${
+          categories.find((c) => c.id === selectedCategory)?.name
         }\nAmount: ₹${amount}`
       );
 
       setAmount("");
-      setSelectedAccount("Cash");
+      if (accounts.length > 0) setSelectedAccount(accounts[0].id);
       if (categories.length > 0) setSelectedCategory(categories[0].id);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       alert("Failed to save income");
     }
   };
@@ -98,9 +114,7 @@ export default function AddIncomePage() {
         padding: "2rem",
         borderRadius: "16px",
         background: isLight ? "#ffffff" : "#0d101aff",
-        boxShadow: isLight
-          ? "0 6px 20px #0000008"
-          : "0 6px 20px #000008ff",
+        boxShadow: isLight ? "0 6px 20px #0000008" : "0 6px 20px #000008ff",
         fontFamily: "Segoe UI, sans-serif",
         color: isLight ? "#000008ff" : "#f0f0f0",
       }}
@@ -133,8 +147,8 @@ export default function AddIncomePage() {
         }}
       >
         {accounts.map((acc) => (
-          <option key={acc} value={acc}>
-            {acc}
+          <option key={acc.id} value={acc.id}>
+            {acc.name}
           </option>
         ))}
       </select>
@@ -142,21 +156,18 @@ export default function AddIncomePage() {
       {/* Category Dropdown */}
       <label style={{ display: "block", marginBottom: "0.5rem" }}>Select Category</label>
       <select
-        value={selectedCategory ?? ""}
-        onChange={(e) => setSelectedCategory(Number(e.target.value))}
+        value={selectedCategory}
+        onChange={(e) => setSelectedCategory(e.target.value)}
         style={{
           width: "100%",
           padding: "0.9rem",
-          marginBottom: "1rem",
+          marginBottom: "1.8rem",
           borderRadius: "10px",
           border: "1px solid #888",
           background: isLight ? "#fff" : "#2a2a2a",
           color: isLight ? "#000008ff" : "#f0f0f0",
         }}
       >
-        <option value="" disabled>
-          -- Select Category --
-        </option>
         {categories.map((cat) => (
           <option key={cat.id} value={cat.id}>
             {cat.name}
@@ -164,38 +175,7 @@ export default function AddIncomePage() {
         ))}
       </select>
 
-      {/* Add New Category */}
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.8rem" }}>
-        <input
-          type="text"
-          value={newCategory}
-          onChange={(e) => setNewCategory(e.target.value)}
-          placeholder="New category name"
-          style={{
-            flex: 1,
-            padding: "0.9rem",
-            borderRadius: "10px",
-            border: "1px solid #888",
-            background: isLight ? "#fff" : "#2a2a2a",
-            color: isLight ? "#000008ff" : "#f0f0f0",
-          }}
-        />
-        <button
-          onClick={handleAddCategory}
-          style={{
-            padding: "0.9rem 1.2rem",
-            border: "none",
-            borderRadius: "10px",
-            background: isLight ? "#4caf50" : "#388e3c",
-            color: "#fff",
-            cursor: "pointer",
-          }}
-        >
-          Add
-        </button>
-      </div>
-
-      {/* Amount */}
+      {/* Amount Input */}
       <label style={{ display: "block", marginBottom: "0.5rem" }}>Amount</label>
       <input
         type="number"
@@ -203,7 +183,7 @@ export default function AddIncomePage() {
         onChange={(e) => setAmount(e.target.value)}
         placeholder="Enter amount (₹)"
         style={{
-          width: "95%",
+          width: "100%",
           padding: "0.9rem",
           marginBottom: "2rem",
           borderRadius: "10px",

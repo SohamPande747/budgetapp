@@ -1,8 +1,10 @@
+// app/login/signup
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTheme } from "@/lib/theme"; // adjust path if needed
+import { useTheme } from "@/lib/theme";
 
 export default function SignupPage() {
   const { colors } = useTheme();
@@ -28,8 +30,8 @@ export default function SignupPage() {
     try {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
@@ -166,21 +168,9 @@ export default function SignupPage() {
             justifyContent: "center",
           }}
         >
-          <hr
-            style={{
-              flex: 1,
-              border: "none",
-              borderBottom: `1px solid ${colors.border}`,
-            }}
-          />
+          <hr style={{ flex: 1, border: "none", borderBottom: `1px solid ${colors.border}` }} />
           <span style={{ margin: "0 0.75rem" }}>OR</span>
-          <hr
-            style={{
-              flex: 1,
-              border: "none",
-              borderBottom: `1px solid ${colors.border}`,
-            }}
-          />
+          <hr style={{ flex: 1, border: "none", borderBottom: `1px solid ${colors.border}` }} />
         </div>
 
         <a
