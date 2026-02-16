@@ -36,6 +36,7 @@ export async function GET(req: Request) {
         type
       )
     `)
+    .eq('user_id', user.id)   // ✅ CRITICAL FIX
     .gte('transaction_date', startDate)
     .lte('transaction_date', endDate)
 
@@ -49,8 +50,8 @@ export async function GET(req: Request) {
   let totalIncome = 0
   let totalExpense = 0
 
-  data?.forEach((t) => {
-    const type = t.categories?.[0]?.type
+  data?.forEach((t: any) => {
+    const type = t.categories?.type  // simpler access
     if (type === 'income') {
       totalIncome += Number(t.amount)
     } else if (type === 'expense') {
@@ -59,9 +60,10 @@ export async function GET(req: Request) {
   })
 
   const netSavings = totalIncome - totalExpense
+
   const savingsRate =
     totalIncome > 0
-      ? ((netSavings / totalIncome) * 100).toFixed(2)
+      ? Number(((netSavings / totalIncome) * 100).toFixed(2))
       : 0
 
   return NextResponse.json({

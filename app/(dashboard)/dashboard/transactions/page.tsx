@@ -38,6 +38,22 @@ export default function TransactionsPage() {
     setTransactions(data.data || [])
   }
 
+  async function handleDelete(id: string) {
+    const confirmDelete = confirm('Are you sure you want to delete this transaction?')
+    if (!confirmDelete) return
+
+    const res = await fetch(`/api/transactions?id=${id}`, {
+      method: 'DELETE',
+    })
+
+    if (res.ok) {
+      // Optimistically update UI
+      setTransactions((prev) => prev.filter((t) => t.id !== id))
+    } else {
+      alert('Failed to delete transaction')
+    }
+  }
+
   useEffect(() => {
     fetchTransactions()
   }, [month, year])
@@ -87,6 +103,7 @@ export default function TransactionsPage() {
                 <th>Account</th>
                 <th>Amount</th>
                 <th>Description</th>
+                <th>Action</th> {/* NEW COLUMN */}
               </tr>
             </thead>
             <tbody>
@@ -105,6 +122,14 @@ export default function TransactionsPage() {
                     ₹{t.amount}
                   </td>
                   <td>{t.description}</td>
+                  <td>
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => handleDelete(t.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
