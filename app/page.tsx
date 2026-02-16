@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import styles from './page.module.css'
 
 export default async function HomePage() {
   const supabase = await createClient()

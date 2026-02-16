@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import styles from './page.module.css'
 
 type Account = {
   id: string
@@ -45,23 +46,24 @@ export default function AccountsPage() {
   }, [])
 
   return (
-    <div className="dashboard-container">
-      <div className="page-header">
+    <div className={styles.container}>
+
+      <div className={styles.header}>
         <div>
-          <h1 className="page-title">Accounts</h1>
-          <p className="page-subtitle">
+          <h1 className={styles.title}>Accounts</h1>
+          <p className={styles.subtitle}>
             Manage your payment methods and wallets
           </p>
         </div>
       </div>
 
       {/* Add Account Card */}
-      <div className="card account-card">
+      <div className={`card ${styles.cardSpacing}`}>
         <div className="card-header">
           <h3>Add New Account</h3>
         </div>
 
-        <div className="account-form-row">
+        <div className={styles.formRow}>
           <div className="form-field">
             <label>Account Name</label>
             <input
@@ -74,7 +76,7 @@ export default function AccountsPage() {
           </div>
 
           <button
-            className="primary-btn large-btn"
+            className="primary-btn"
             onClick={createAccount}
           >
             Add Account
@@ -83,17 +85,17 @@ export default function AccountsPage() {
       </div>
 
       {/* Accounts Table */}
-      <div className="card table-card">
+      <div className={`card ${styles.tableCard}`}>
         <div className="card-header">
           <h3>Your Accounts</h3>
-          <span className="muted-text">
+          <span>
             {accounts.length} total
           </span>
         </div>
 
         {accounts.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">💳</div>
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>💳</div>
             <h4>No accounts added</h4>
             <p>Add your first payment method above.</p>
           </div>
@@ -103,45 +105,49 @@ export default function AccountsPage() {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th className="text-right">Action</th>
+                  <th style={{ textAlign: 'right' }}>Action</th>
                 </tr>
               </thead>
 
               <tbody>
-                {accounts.map((account, index) => {
-                  const isPrimary = index === 0
+                {accounts.map((account, index) => (
+                  <tr key={account.id}>
+                    <td>
+                      {account.name}
+                      {index === 0 && (
+                        <span className={styles.primaryBadge}>
+                          Primary
+                        </span>
+                      )}
+                    </td>
 
-                  return (
-                    <tr key={account.id}>
-                      <td className="table-name">
-                        {account.name}
-                        {isPrimary && (
-                          <span className="primary-badge">
-                            Primary
-                          </span>
-                        )}
-                      </td>
-
-                      <td className="text-right">
+                    <td style={{ textAlign: 'right' }}>
+                      {index === 0 ? (
                         <button
-                          className={`danger-btn subtle ${isPrimary ? 'disabled-btn' : ''
-                            }`}
-                          disabled={isPrimary}
+                          className="danger-btn subtle disabled-btn"
+                          disabled
+                        >
+                          Delete
+                        </button>
+                      ) : (
+                        <button
+                          className="danger-btn subtle"
                           onClick={() =>
-                            !isPrimary && deleteAccount(account.id)
+                            deleteAccount(account.id)
                           }
                         >
                           Delete
                         </button>
-                      </td>
-                    </tr>
-                  )
-                })}
+                      )}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         )}
       </div>
+
     </div>
   )
 }

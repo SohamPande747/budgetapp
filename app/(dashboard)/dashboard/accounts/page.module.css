@@ -1,0 +1,61 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: #6b7280;
+  margin-top: 4px;
+  font-size: 0.9rem;
+}
+
+.cardSpacing {
+  max-width: 700px;
+}
+
+.formRow {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.formRow .form-field {
+  flex: 1;
+}
+
+.tableCard {
+  margin-top: 1rem;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem 0;
+  color: #6b7280;
+}
+
+.emptyIcon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.primaryBadge {
+  margin-left: 10px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #6366f1;
+  font-weight: 600;
+}
