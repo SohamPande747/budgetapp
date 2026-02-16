@@ -9,18 +9,25 @@ type Category = {
   type: 'income' | 'expense'
 }
 
+type Account = {
+  id: string
+  name: string
+}
+
 export default function AddTransactionPage() {
   const router = useRouter()
 
   const [categories, setCategories] = useState<Category[]>([])
+  const [accounts, setAccounts] = useState<Account[]>([])
+
   const [type, setType] = useState<'income' | 'expense'>('expense')
   const [categoryId, setCategoryId] = useState('')
+  const [accountId, setAccountId] = useState('')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
   const [date, setDate] = useState(
     new Date().toISOString().split('T')[0]
   )
-  const [loading, setLoading] = useState(false)
 
   async function fetchCategories() {
     const res = await fetch('/api/categories')
@@ -28,26 +35,34 @@ export default function AddTransactionPage() {
     setCategories(data || [])
   }
 
+  async function fetchAccounts() {
+    const res = await fetch('/api/accounts')
+    const data = await res.json()
+    setAccounts(data || [])
+
+    // Default to first account (Account 1)
+    if (data.length > 0) {
+      setAccountId(data[0].id)
+    }
+  }
+
   async function handleSubmit() {
-    if (!categoryId || !amount || !date) {
+    if (!categoryId || !accountId || !amount) {
       alert('Please fill required fields')
       return
     }
-
-    setLoading(true)
 
     const res = await fetch('/api/transactions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         category_id: categoryId,
+        account_id: accountId,
         amount: parseFloat(amount),
         description,
         transaction_date: date
       })
     })
-
-    setLoading(false)
 
     if (!res.ok) {
       const err = await res.json()
@@ -60,9 +75,9 @@ export default function AddTransactionPage() {
 
   useEffect(() => {
     fetchCategories()
+    fetchAccounts()
   }, [])
 
-  // 🔥 Filter categories by selected type
   const filteredCategories = categories.filter(
     (c) => c.type === type
   )
@@ -71,14 +86,14 @@ export default function AddTransactionPage() {
     <div>
       <h1>Add Transaction</h1>
 
-      {/* Type Selector */}
+      {/* Type */}
       <div>
-        <label>Type *</label>
+        <label>Type</label>
         <br />
         <select
           value={type}
           onChange={(e) => {
-            setType(e.target.value as 'income' | 'expense')
+            setType(e.target.value as any)
             setCategoryId('')
           }}
         >
@@ -89,9 +104,9 @@ export default function AddTransactionPage() {
 
       <br />
 
-      {/* Category Selector */}
+      {/* Category */}
       <div>
-        <label>Category *</label>
+        <label>Category</label>
         <br />
         <select
           value={categoryId}
@@ -108,8 +123,27 @@ export default function AddTransactionPage() {
 
       <br />
 
+      {/* Account */}
       <div>
-        <label>Amount *</label>
+        <label>Payment Method</label>
+        <br />
+        <select
+          value={accountId}
+          onChange={(e) => setAccountId(e.target.value)}
+        >
+          {accounts.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <br />
+
+      {/* Amount */}
+      <div>
+        <label>Amount</label>
         <br />
         <input
           type="number"
@@ -120,6 +154,7 @@ export default function AddTransactionPage() {
 
       <br />
 
+      {/* Description */}
       <div>
         <label>Description</label>
         <br />
@@ -132,8 +167,9 @@ export default function AddTransactionPage() {
 
       <br />
 
+      {/* Date */}
       <div>
-        <label>Date *</label>
+        <label>Date</label>
         <br />
         <input
           type="date"
@@ -144,8 +180,8 @@ export default function AddTransactionPage() {
 
       <br />
 
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Saving...' : 'Add Transaction'}
+      <button onClick={handleSubmit}>
+        Add Transaction
       </button>
     </div>
   )

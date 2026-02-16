@@ -1,5 +1,7 @@
+import './globals.css'
+
 export const metadata = {
-  title: 'Budget App',
+  title: 'Spendle',
   description: 'Track income and expenses',
 }
 

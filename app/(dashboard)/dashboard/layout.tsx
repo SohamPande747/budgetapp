@@ -9,38 +9,37 @@ export default async function DashboardLayout({
 }) {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
 
   if (!user) {
     redirect('/login')
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="layout">
       {/* Sidebar */}
-      <aside
-        style={{
-          width: '250px',
-          padding: '1rem',
-          borderRight: '1px solid #ddd'
-        }}
-      >
-        <h2>Budget App</h2>
+      <aside className="sidebar">
+        <h2>Spendle</h2>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <nav className="sidebar-nav">
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/dashboard/transactions">Transactions</Link>
           <Link href="/dashboard/categories">Categories</Link>
           <Link href="/dashboard/add-transaction">Add Transaction</Link>
+          <Link href="/dashboard/budgets">Budgets</Link>
         </nav>
 
-        <form action="/api/logout" method="post" style={{ marginTop: '2rem' }}>
-          <button type="submit">Logout</button>
+        <form action="/api/logout" method="post" className="logout-form">
+          <button type="submit" className="logout-btn">
+            Logout
+          </button>
         </form>
       </aside>
 
       {/* Main Content */}
-      <main style={{ flex: 1, padding: '2rem' }}>
+      <main className="main">
         {children}
       </main>
     </div>

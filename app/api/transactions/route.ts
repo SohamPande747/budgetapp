@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { transactionSchema } from '@/lib/validations/transaction'
 
 /* ----------------------------
    GET - List transactions
@@ -73,33 +74,53 @@ import { createClient } from '@/lib/supabase/server'
 export async function POST(req: Request) {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    )
   }
 
   const body = await req.json()
-  const { category_id, amount, description, transaction_date } = body
 
-  if (!category_id || !amount || !transaction_date) {
+  const parsed = transactionSchema.safeParse(body)
+
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Missing required fields' },
+      { error: parsed.error.flatten() },
       { status: 400 }
     )
   }
+
+  // ✅ ADD THIS HERE
+  const {
+    category_id,
+    account_id,
+    amount,
+    description,
+    transaction_date
+  } = parsed.data
 
   const { error } = await supabase
     .from('transactions')
     .insert({
       user_id: user.id,
       category_id,
+      account_id,   
       amount,
       description,
       transaction_date
     })
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 })
+    return NextResponse.json(
+      { error: error.message },
+      { status: 400 }
+    )
   }
 
   return NextResponse.json({ success: true })
