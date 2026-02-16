@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import styles from './page.module.css'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -42,60 +43,61 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-card">
+    <div className={styles.wrapper}>
+      <div className={styles.card}>
 
-        <h1 className="auth-title">Welcome back</h1>
-        <p className="auth-subtitle">
+        <h1 className={styles.title}>Welcome back</h1>
+        <p className={styles.subtitle}>
           Login to continue to Spendle
         </p>
 
         {errorMsg && (
-          <div className="auth-error">
+          <div className={styles.error}>
             {errorMsg}
           </div>
         )}
 
-        <div className="form-field">
+        <div className={styles.field}>
           <label>Email</label>
           <input
             type="email"
-            className="form-input"
+            className={styles.input}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
-        <div className="form-field">
+        <div className={styles.field}>
           <label>Password</label>
           <input
             type="password"
-            className="form-input"
+            className={styles.input}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
 
         <button
-          className="primary-btn full-width"
+          className={`${styles.primaryBtn} ${styles.fullWidth}`}
           onClick={handleEmailLogin}
           disabled={loading}
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
 
-        <div className="auth-divider">
+        <div className={styles.divider}>
           <span>or</span>
         </div>
 
         <button
-          className="oauth-btn"
+          className={styles.oauthBtn}
           onClick={handleGoogleLogin}
         >
+          
           Continue with Google
         </button>
 
-        <p className="auth-footer">
+        <p className={styles.footer}>
           Don’t have an account?{' '}
           <a href="/signup">Sign up</a>
         </p>

@@ -12,51 +12,48 @@ export default async function HomePage() {
   if (user) {
     redirect('/dashboard')
   }
+return (
+  <div className={styles.wrapper}>
 
-  return (
-  <div className="landing-wrapper">
-
-    {/* Navbar */}
-    <nav className="landing-nav">
-      <div className="nav-logo">
+    <nav className={styles.nav}>
+      <div className={styles.logo}>
         Spendle
       </div>
 
-      <div className="nav-actions">
-        <a href="/login" className="nav-login">
+      <div className={styles.navActions}>
+        <a href="/login" className={styles.navLogin}>
           Login
         </a>
 
-        <a href="/signup" className="primary-btn">
+        <a href="/signup" className={styles.primaryBtn}>
           Sign Up
         </a>
       </div>
     </nav>
 
-    {/* Hero */}
-    <div className="landing-container">
-      <div className="landing-content">
+    <div className={styles.hero}>
+      <div className={styles.content}>
 
-        <span className="landing-badge">
+        <span className={styles.badge}>
           Personal Finance, Simplified
         </span>
 
-        <h1 className="landing-title">
+        <h1 className={styles.title}>
           Take control of your money.
           <br />
-          <span className="highlight">
+          <span className={styles.highlight}>
             Without overcomplicating it.
           </span>
         </h1>
 
-        <p className="landing-subtitle">
+        <p className={styles.subtitle}>
           Track spending, manage budgets,
           and understand your habits —
           all from one clean dashboard.
         </p>
 
-        <div className="landing-buttons">
-          <a href="/signup" className="primary-btn">
+        <div className={styles.buttons}>
+          <a href="/signup" className={styles.primaryBtn}>
             Get Started
           </a>
         </div>
@@ -65,5 +62,4 @@ export default async function HomePage() {
     </div>
 
   </div>
-)
-}
+)}
