@@ -8,6 +8,7 @@ export async function middleware(req: NextRequest) {
   if (process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true') {
     return res
   }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -26,7 +27,9 @@ export async function middleware(req: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
 
   const pathname = req.nextUrl.pathname
 
@@ -34,11 +37,18 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith('/login') ||
     pathname.startsWith('/signup')
 
+  // 1️⃣ Not logged in → block dashboard
   if (!user && pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/login', req.url))
   }
 
+  // 2️⃣ Logged in → prevent access to login/signup
   if (user && isAuthRoute) {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
+  // 3️⃣ Logged in → redirect from landing page
+  if (user && pathname === '/') {
     return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 

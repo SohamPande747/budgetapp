@@ -11,9 +11,11 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   async function handleEmailSignup() {
     setLoading(true)
+    setErrorMsg(null)
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -23,11 +25,10 @@ export default function SignupPage() {
     setLoading(false)
 
     if (error) {
-      alert(error.message)
+      setErrorMsg(error.message)
       return
     }
 
-    // Supabase auto logs in user if email confirmation is disabled
     router.replace('/dashboard')
   }
 
@@ -41,59 +42,65 @@ export default function SignupPage() {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '400px' }}>
-      <h1>Signup</h1>
+    <div className="auth-wrapper">
+      <div className="auth-card">
 
-      {/* Email Signup */}
-      <div>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: '100%', padding: '8px' }}
-        />
+        <h1 className="auth-title">Create your account</h1>
+        <p className="auth-subtitle">
+          Start tracking your finances in minutes.
+        </p>
 
-        <br /><br />
+        {errorMsg && (
+          <div className="auth-error">
+            {errorMsg}
+          </div>
+        )}
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: '100%', padding: '8px' }}
-        />
+        <div className="form-field">
+          <label>Email</label>
+          <input
+            type="email"
+            className="form-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-        <br /><br />
+        <div className="form-field">
+          <label>Password</label>
+          <input
+            type="password"
+            className="form-input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
 
         <button
+          className="primary-btn full-width"
           onClick={handleEmailSignup}
           disabled={loading}
-          style={{ width: '100%', padding: '8px' }}
         >
-          {loading ? 'Creating account...' : 'Signup'}
+          {loading ? 'Creating account...' : 'Create Account'}
         </button>
+
+        <div className="auth-divider">
+          <span>or</span>
+        </div>
+
+        <button
+          className="oauth-btn"
+          onClick={handleGoogleSignup}
+        >
+          Continue with Google
+        </button>
+
+        <p className="auth-footer">
+          Already have an account?{' '}
+          <a href="/login">Login</a>
+        </p>
+
       </div>
-
-      <hr style={{ margin: '2rem 0' }} />
-
-      {/* Google Signup */}
-      <button
-        onClick={handleGoogleSignup}
-        style={{
-          width: '100%',
-          padding: '8px',
-          background: '#fff',
-          border: '1px solid #ccc',
-          cursor: 'pointer'
-        }}
-      >
-        Sign up with Google
-      </button>
-
-      <p style={{ marginTop: '1rem' }}>
-        Already have an account? <a href="/login">Login</a>
-      </p>
     </div>
   )
 }

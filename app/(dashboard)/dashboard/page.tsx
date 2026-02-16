@@ -47,63 +47,68 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1>Dashboard</h1>
+      <h1 className="page-title">Dashboard</h1>
 
-      {/* Month Selector */}
-      <div style={{ marginBottom: '2rem' }}>
-        <select
-          value={month}
-          onChange={(e) => setMonth(Number(e.target.value))}
-        >
-          {Array.from({ length: 12 }).map((_, i) => (
-            <option key={i + 1} value={i + 1}>
-              {new Date(0, i).toLocaleString('default', {
-                month: 'long'
-              })}
-            </option>
-          ))}
-        </select>
+      {/* Filter Bar */}
+      <div className="filter-wrapper">
+        <div className="filter-left">
+          <span className="filter-label">Month</span>
 
-        <input
-          type="number"
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
-          style={{ marginLeft: '1rem', width: '100px' }}
-        />
+          <select
+            className="filter-select"
+            value={month}
+            onChange={(e) => setMonth(Number(e.target.value))}
+          >
+            {Array.from({ length: 12 }).map((_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {new Date(0, i).toLocaleString('default', {
+                  month: 'long',
+                })}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="number"
+            className="filter-input"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+          />
+        </div>
       </div>
 
-      {/* Financial Summary */}
+      {/* Summary Cards */}
       {summary && (
-        <div
-          style={{
-            display: 'flex',
-            gap: '2rem',
-            marginBottom: '2rem'
-          }}
-        >
-          <div>
+        <div className="summary-grid">
+          <div className="card summary-card">
             <h3>Total Income</h3>
-            <p>₹{summary.totalIncome}</p>
+            <p style={{ color: '#10b981' }}>
+              ₹{summary.totalIncome}
+            </p>
           </div>
 
-          <div>
+          <div className="card summary-card">
             <h3>Total Expense</h3>
-            <p>₹{summary.totalExpense}</p>
+            <p style={{ color: '#ef4444' }}>
+              ₹{summary.totalExpense}
+            </p>
           </div>
 
-          <div>
+          <div className="card summary-card">
             <h3>Net Savings</h3>
             <p
               style={{
                 color:
-                  summary.netSavings >= 0 ? 'green' : 'red'
+                  summary.netSavings >= 0
+                    ? '#10b981'
+                    : '#ef4444'
               }}
             >
               ₹{summary.netSavings}
             </p>
           </div>
 
-          <div>
+          <div className="card summary-card">
             <h3>Savings Rate</h3>
             <p>{summary.savingsRate}%</p>
           </div>
@@ -111,9 +116,15 @@ export default function DashboardPage() {
       )}
 
       {/* Budget Overview */}
-      <h2>Budget Overview</h2>
+      <h2 className="page-title" style={{ fontSize: '20px' }}>
+        Budget Overview
+      </h2>
 
-      {budgets.length === 0 && <p>No budgets set.</p>}
+      {budgets.length === 0 && (
+        <div className="card">
+          <p>No budgets set.</p>
+        </div>
+      )}
 
       {budgets.map((b) => {
         const percentage =
@@ -124,43 +135,26 @@ export default function DashboardPage() {
         const isOver = b.remaining < 0
 
         return (
-          <div
-            key={b.category}
-            style={{
-              marginBottom: '1.5rem',
-              border: '1px solid #ddd',
-              padding: '1rem',
-              borderRadius: '8px'
-            }}
-          >
+          <div key={b.category} className="card" style={{ marginBottom: '20px' }}>
             <strong>{b.category}</strong>
 
-            <div
-              style={{
-                height: '12px',
-                background: '#eee',
-                borderRadius: '6px',
-                marginTop: '8px'
-              }}
-            >
+            <div className="progress-bar">
               <div
+                className="progress-fill"
                 style={{
                   width: `${percentage}%`,
-                  height: '100%',
-                  background: isOver ? 'red' : 'green',
-                  borderRadius: '6px'
+                  background: isOver ? '#ef4444' : '#10b981',
                 }}
               />
             </div>
 
-            <p style={{ marginTop: '6px' }}>
+            <p style={{ marginTop: '8px' }}>
               ₹{b.spent} / ₹{b.limit}
             </p>
 
             {isOver && (
-              <p style={{ color: 'red' }}>
-                Over budget by ₹
-                {Math.abs(b.remaining)}
+              <p style={{ color: '#ef4444' }}>
+                Over budget by ₹{Math.abs(b.remaining)}
               </p>
             )}
           </div>

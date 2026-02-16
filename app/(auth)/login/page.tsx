@@ -11,9 +11,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   async function handleEmailLogin() {
     setLoading(true)
+    setErrorMsg(null)
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -23,7 +25,7 @@ export default function LoginPage() {
     setLoading(false)
 
     if (error) {
-      alert(error.message)
+      setErrorMsg(error.message)
       return
     }
 
@@ -40,59 +42,65 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '400px' }}>
-      <h1>Login</h1>
+    <div className="auth-wrapper">
+      <div className="auth-card">
 
-      {/* Email Login */}
-      <div>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: '100%', padding: '8px' }}
-        />
+        <h1 className="auth-title">Welcome back</h1>
+        <p className="auth-subtitle">
+          Login to continue to Spendle
+        </p>
 
-        <br /><br />
+        {errorMsg && (
+          <div className="auth-error">
+            {errorMsg}
+          </div>
+        )}
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: '100%', padding: '8px' }}
-        />
+        <div className="form-field">
+          <label>Email</label>
+          <input
+            type="email"
+            className="form-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-        <br /><br />
+        <div className="form-field">
+          <label>Password</label>
+          <input
+            type="password"
+            className="form-input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
 
         <button
+          className="primary-btn full-width"
           onClick={handleEmailLogin}
           disabled={loading}
-          style={{ width: '100%', padding: '8px' }}
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
+
+        <div className="auth-divider">
+          <span>or</span>
+        </div>
+
+        <button
+          className="oauth-btn"
+          onClick={handleGoogleLogin}
+        >
+          Continue with Google
+        </button>
+
+        <p className="auth-footer">
+          Don’t have an account?{' '}
+          <a href="/signup">Sign up</a>
+        </p>
+
       </div>
-
-      <hr style={{ margin: '2rem 0' }} />
-
-      {/* Google Login */}
-      <button
-        onClick={handleGoogleLogin}
-        style={{
-          width: '100%',
-          padding: '8px',
-          background: '#fff',
-          border: '1px solid #ccc',
-          cursor: 'pointer'
-        }}
-      >
-        Sign in with Google
-      </button>
-
-      <p style={{ marginTop: '1rem' }}>
-        Don’t have an account? <a href="/signup">Signup</a>
-      </p>
     </div>
   )
 }

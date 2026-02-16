@@ -85,56 +85,87 @@ export default function BudgetsPage() {
   }
 
   return (
-    <div>
-      <h1>Monthly Budgets</h1>
+  <div className="dashboard-container">
+    <div className="page-header">
+      <div>
+        <h1 className="page-title">Monthly Budgets</h1>
+        <p className="page-subtitle">
+          Set spending limits for each expense category
+        </p>
+      </div>
+    </div>
 
-      {/* Month & Year Selector */}
-      <div style={{ marginBottom: '2rem' }}>
-        <select
-          value={month}
-          onChange={(e) => setMonth(Number(e.target.value))}
-        >
-          {Array.from({ length: 12 }).map((_, i) => (
-            <option key={i + 1} value={i + 1}>
-              {new Date(0, i).toLocaleString('default', {
-                month: 'long'
-              })}
-            </option>
-          ))}
-        </select>
+    {/* Month & Year Selector */}
+    <div className="card filter-card">
+      <div className="filter-row">
+        <div className="form-field">
+          <label>Month</label>
+          <select
+            className="form-select"
+            value={month}
+            onChange={(e) => setMonth(Number(e.target.value))}
+          >
+            {Array.from({ length: 12 }).map((_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {new Date(0, i).toLocaleString('default', {
+                  month: 'long'
+                })}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <input
-          type="number"
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
-          style={{ marginLeft: '1rem', width: '100px' }}
-        />
+        <div className="form-field year-field">
+          <label>Year</label>
+          <input
+            className="form-input"
+            type="number"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+          />
+        </div>
+      </div>
+    </div>
+
+    {/* Budget Table */}
+    <div className="card table-card">
+      <div className="card-header">
+        <h3>Budget Limits</h3>
+        <span className="muted-text">
+          {categories.length} categories
+        </span>
       </div>
 
-      <table border={1} cellPadding={10}>
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Budget Limit</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((cat) => (
-            <tr key={cat.id}>
-              <td>{cat.name}</td>
-              <td>
-                <input
-                  type="number"
-                  defaultValue={getExistingBudget(cat.id)}
-                  onBlur={(e) =>
-                    handleSave(cat.id, e.target.value)
-                  }
-                />
-              </td>
+      <div className="table-wrapper">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th className="text-right">Monthly Limit</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {categories.map((cat) => (
+              <tr key={cat.id}>
+                <td className="table-name">{cat.name}</td>
+
+                <td className="text-right">
+                  <input
+                    className="budget-input"
+                    type="number"
+                    defaultValue={getExistingBudget(cat.id)}
+                    placeholder="0.00"
+                    onBlur={(e) =>
+                      handleSave(cat.id, e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
-  )
-}
+  </div>
+)}

@@ -83,106 +83,129 @@ export default function AddTransactionPage() {
   )
 
   return (
-    <div>
-      <h1>Add Transaction</h1>
-
-      {/* Type */}
+  <div className="dashboard-container">
+    <div className="page-header">
       <div>
-        <label>Type</label>
-        <br />
-        <select
-          value={type}
-          onChange={(e) => {
-            setType(e.target.value as any)
-            setCategoryId('')
-          }}
-        >
-          <option value="expense">Expense</option>
-          <option value="income">Income</option>
-        </select>
+        <h1 className="page-title">Add Transaction</h1>
+        <p className="page-subtitle">
+          Record a new income or expense entry
+        </p>
       </div>
-
-      <br />
-
-      {/* Category */}
-      <div>
-        <label>Category</label>
-        <br />
-        <select
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-        >
-          <option value="">Select category</option>
-          {filteredCategories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <br />
-
-      {/* Account */}
-      <div>
-        <label>Payment Method</label>
-        <br />
-        <select
-          value={accountId}
-          onChange={(e) => setAccountId(e.target.value)}
-        >
-          {accounts.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <br />
-
-      {/* Amount */}
-      <div>
-        <label>Amount</label>
-        <br />
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
-      </div>
-
-      <br />
-
-      {/* Description */}
-      <div>
-        <label>Description</label>
-        <br />
-        <input
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </div>
-
-      <br />
-
-      {/* Date */}
-      <div>
-        <label>Date</label>
-        <br />
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-      </div>
-
-      <br />
-
-      <button onClick={handleSubmit}>
-        Add Transaction
-      </button>
     </div>
-  )
+
+    <div className="card transaction-card">
+      <div className="form-grid">
+
+        {/* Type */}
+        <div className="form-field">
+          <label>Transaction Type</label>
+          <div className="type-toggle">
+            <button
+              className={`toggle-btn ${
+                type === 'expense' ? 'active-expense' : ''
+              }`}
+              onClick={() => {
+                setType('expense')
+                setCategoryId('')
+              }}
+            >
+              Expense
+            </button>
+
+            <button
+              className={`toggle-btn ${
+                type === 'income' ? 'active-income' : ''
+              }`}
+              onClick={() => {
+                setType('income')
+                setCategoryId('')
+              }}
+            >
+              Income
+            </button>
+          </div>
+        </div>
+
+        {/* Category */}
+        <div className="form-field">
+          <label>Category</label>
+          <select
+            className="form-select"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+          >
+            <option value="">Select category</option>
+            {filteredCategories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Account */}
+        <div className="form-field">
+          <label>Payment Method</label>
+          <select
+            className="form-select"
+            value={accountId}
+            onChange={(e) => setAccountId(e.target.value)}
+          >
+            {accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Amount */}
+        <div className="form-field">
+          <label>Amount</label>
+          <input
+            className="form-input amount-input"
+            type="number"
+            placeholder="0.00"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+        </div>
+
+        {/* Description */}
+        <div className="form-field full-width">
+          <label>Description (Optional)</label>
+          <input
+            className="form-input"
+            type="text"
+            placeholder="Add a note..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </div>
+
+        {/* Date */}
+        <div className="form-field">
+          <label>Date</label>
+          <input
+            className="form-input"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </div>
+
+        {/* Submit */}
+        <div className="form-actions full-width">
+          <button
+            className="primary-btn large-btn full-width"
+            onClick={handleSubmit}
+          >
+            Add Transaction
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+)
 }

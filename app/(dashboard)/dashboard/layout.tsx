@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import LogoutButton from './LogoutButton'
 
 export default async function DashboardLayout({
   children,
@@ -26,16 +27,16 @@ export default async function DashboardLayout({
         <nav className="sidebar-nav">
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/dashboard/transactions">Transactions</Link>
-          <Link href="/dashboard/categories">Categories</Link>
           <Link href="/dashboard/add-transaction">Add Transaction</Link>
+          <Link href="/dashboard/categories">Categories</Link>
           <Link href="/dashboard/budgets">Budgets</Link>
+          <Link href="/dashboard/accounts">Accounts</Link>
         </nav>
 
-        <form action="/api/logout" method="post" className="logout-form">
-          <button type="submit" className="logout-btn">
-            Logout
-          </button>
-        </form>
+        {/* Logout */}
+        <div className="logout-form">
+          <LogoutButton />
+        </div>
       </aside>
 
       {/* Main Content */}

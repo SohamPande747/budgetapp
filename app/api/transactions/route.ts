@@ -4,13 +4,20 @@ import { transactionSchema } from '@/lib/validations/transaction'
 
 /* ----------------------------
    GET - List transactions
----------------------------- */export async function GET(req: Request) {
+---------------------------- */
+export async function GET(req: Request) {
   const supabase = await createClient()
   const { searchParams } = new URL(req.url)
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    )
   }
 
   const month = searchParams.get('month')
@@ -24,18 +31,26 @@ import { transactionSchema } from '@/lib/validations/transaction'
 
   let query = supabase
     .from('transactions')
-    .select(`
+    .select(
+      `
       *,
       categories!inner (
         id,
         name,
         type
+      ),
+      accounts (
+        id,
+        name
       )
-    `, { count: 'exact' })
+      `,
+      { count: 'exact' }
+    )
+    .eq('user_id', user.id)
     .order('transaction_date', { ascending: false })
     .range(from, to)
 
-  // Month filter
+  /* -------- Month Filter -------- */
   if (month && year) {
     const startDate = `${year}-${month}-01`
     const endDate = new Date(Number(year), Number(month), 0)
@@ -47,7 +62,7 @@ import { transactionSchema } from '@/lib/validations/transaction'
       .lte('transaction_date', endDate)
   }
 
-  // Type filter (correct way)
+  /* -------- Type Filter -------- */
   if (type) {
     query = query.eq('categories.type', type)
   }
@@ -55,7 +70,10 @@ import { transactionSchema } from '@/lib/validations/transaction'
   const { data, error, count } = await query
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 })
+    return NextResponse.json(
+      { error: error.message },
+      { status: 400 }
+    )
   }
 
   return NextResponse.json({
@@ -96,7 +114,6 @@ export async function POST(req: Request) {
     )
   }
 
-  // ✅ ADD THIS HERE
   const {
     category_id,
     account_id,
@@ -110,7 +127,7 @@ export async function POST(req: Request) {
     .insert({
       user_id: user.id,
       category_id,
-      account_id,   
+      account_id,
       amount,
       description,
       transaction_date
@@ -133,12 +150,19 @@ export async function DELETE(req: Request) {
   const supabase = await createClient()
   const { searchParams } = new URL(req.url)
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    )
   }
 
   const id = searchParams.get('id')
+
   if (!id) {
     return NextResponse.json(
       { error: 'Transaction ID required' },
@@ -150,9 +174,13 @@ export async function DELETE(req: Request) {
     .from('transactions')
     .delete()
     .eq('id', id)
+    .eq('user_id', user.id)
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 })
+    return NextResponse.json(
+      { error: error.message },
+      { status: 400 }
+    )
   }
 
   return NextResponse.json({ success: true })

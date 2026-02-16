@@ -11,7 +11,11 @@ type Transaction = {
     id: string
     name: string
     type: string
-  }[]
+  }
+  accounts: {
+    id: string
+    name: string
+  }
 }
 
 export default function TransactionsPage() {
@@ -20,7 +24,7 @@ export default function TransactionsPage() {
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [year, setYear] = useState(now.getFullYear())
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  
+
   async function fetchTransactions() {
     const res = await fetch(
       `/api/transactions?month=${String(month).padStart(
@@ -39,53 +43,74 @@ export default function TransactionsPage() {
 
   return (
     <div>
-      <h1>Transactions</h1>
+      <h1 style={{ marginBottom: '20px' }}>Transactions</h1>
 
-      {/* Month Selector */}
-      <div style={{ marginBottom: '2rem' }}>
-        <select
-          value={month}
-          onChange={(e) => setMonth(Number(e.target.value))}
-        >
-          {Array.from({ length: 12 }).map((_, i) => (
-            <option key={i + 1} value={i + 1}>
-              {new Date(0, i).toLocaleString('default', {
-                month: 'long'
-              })}
-            </option>
-          ))}
-        </select>
+      {/* Filter Bar */}
+      <div className="filter-wrapper">
+        <div className="filter-left">
+          <span className="filter-label">Filter by</span>
 
-        <input
-          type="number"
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
-          style={{ marginLeft: '1rem', width: '100px' }}
-        />
+          <select
+            className="filter-select"
+            value={month}
+            onChange={(e) => setMonth(Number(e.target.value))}
+          >
+            {Array.from({ length: 12 }).map((_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {new Date(0, i).toLocaleString('default', {
+                  month: 'long',
+                })}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="number"
+            className="filter-input"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+          />
+        </div>
       </div>
 
-      {transactions.length === 0 && <p>No transactions.</p>}
-
-      <table border={1} cellPadding={8}>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Category</th>
-            <th>Amount</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((t) => (
-            <tr key={t.id}>
-              <td>{t.transaction_date}</td>
-              <td>{t.categories?.[0]?.name}</td>
-              <td>₹{t.amount}</td>
-              <td>{t.description}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="card">
+        {transactions.length === 0 ? (
+          <p>No transactions found.</p>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Account</th>
+                <th>Amount</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.map((t) => (
+                <tr key={t.id}>
+                  <td>{t.transaction_date}</td>
+                  <td>{t.categories?.name}</td>
+                  <td>{t.accounts?.name}</td>
+                  <td
+                    style={{
+                      color:
+                        t.categories?.type === 'income'
+                          ? '#10b981'
+                          : '#ef4444',
+                      fontWeight: 500,
+                    }}
+                  >
+                    ₹{t.amount}
+                  </td>
+                  <td>{t.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   )
 }
