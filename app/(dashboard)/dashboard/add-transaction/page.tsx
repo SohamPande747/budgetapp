@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 import styles from './page.module.css'
 
 type Category = {
@@ -30,6 +31,8 @@ export default function AddTransactionPage() {
     new Date().toISOString().split('T')[0]
   )
 
+  const [saving, setSaving] = useState(false)
+
   async function fetchCategories() {
     const res = await fetch('/api/categories')
     const data = await res.json()
@@ -48,11 +51,18 @@ export default function AddTransactionPage() {
 
   async function handleSubmit() {
     if (!categoryId || !accountId || !amount) {
-      alert('Please fill required fields')
+      toast.error('Please fill all required fields')
       return
     }
 
-    const res = await fetch('/api/transactions', {
+    if (Number(amount) <= 0) {
+      toast.error('Amount must be greater than 0')
+      return
+    }
+
+    setSaving(true)
+
+    const submitPromise = fetch('/api/transactions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -64,13 +74,21 @@ export default function AddTransactionPage() {
       })
     })
 
+    toast.promise(submitPromise, {
+      loading: 'Adding transaction...',
+      success: 'Transaction added successfully 🎉',
+      error: 'Failed to add transaction'
+    })
+
+    const res = await submitPromise
+
+    setSaving(false)
+
     if (!res.ok) {
-      const err = await res.json()
-      alert(err.error || 'Something went wrong')
       return
     }
 
-    router.replace('/dashboard/transactions')
+    router.push('/dashboard/transactions')
   }
 
   useEffect(() => {
@@ -167,6 +185,7 @@ export default function AddTransactionPage() {
             <input
               className="form-input amount-input"
               type="number"
+              step="0.01"
               placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -201,8 +220,9 @@ export default function AddTransactionPage() {
             <button
               className="primary-btn full-width"
               onClick={handleSubmit}
+              disabled={saving}
             >
-              Add Transaction
+              {saving ? 'Adding...' : 'Add Transaction'}
             </button>
           </div>
 

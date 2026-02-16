@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import styles from './page.module.css'
+import { CreditCard } from 'lucide-react'
 
 type Account = {
   id: string
@@ -11,36 +13,91 @@ type Account = {
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([])
   const [name, setName] = useState('')
+  const [creating, setCreating] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
+  /* =========================
+     Fetch Accounts
+  ========================= */
   async function fetchAccounts() {
-    const res = await fetch('/api/accounts')
-    const data = await res.json()
-    setAccounts(data || [])
+    try {
+      const res = await fetch('/api/accounts')
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null)
+        throw new Error(errorData?.error || 'Failed to fetch accounts')
+      }
+
+      const data = await res.json()
+      setAccounts(data || [])
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to fetch accounts')
+    }
   }
 
+  /* =========================
+     Create Account
+  ========================= */
   async function createAccount() {
-    if (!name.trim()) return
+    if (!name.trim()) {
+      toast.error('Please enter an account name')
+      return
+    }
 
-    const res = await fetch('/api/accounts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name.trim() })
-    })
+    setCreating(true)
 
-    if (!res.ok) return
+    try {
+      const res = await fetch('/api/accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim() })
+      })
 
-    setName('')
-    fetchAccounts()
+      const data = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        throw new Error(data?.error || 'Failed to create account')
+      }
+
+      toast.success('Account created successfully 🎉')
+      setName('')
+      fetchAccounts()
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to create account')
+    } finally {
+      setCreating(false)
+    }
   }
 
+  /* =========================
+     Delete Account
+  ========================= */
   async function deleteAccount(id: string) {
-    await fetch(`/api/accounts?id=${id}`, {
-      method: 'DELETE'
-    })
+    setDeletingId(id)
 
-    fetchAccounts()
+    try {
+      const res = await fetch(`/api/accounts?id=${id}`, {
+        method: 'DELETE'
+      })
+
+      const data = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        throw new Error(data?.error || 'Unable to delete account')
+      }
+
+      toast.success('Account deleted successfully')
+      fetchAccounts()
+    } catch (err: any) {
+      toast.error(err.message || 'Something went wrong')
+    } finally {
+      setDeletingId(null)
+    }
   }
 
+  /* =========================
+     Load on Mount
+  ========================= */
   useEffect(() => {
     fetchAccounts()
   }, [])
@@ -48,6 +105,7 @@ export default function AccountsPage() {
   return (
     <div className={styles.container}>
 
+      {/* Header */}
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Accounts</h1>
@@ -78,8 +136,9 @@ export default function AccountsPage() {
           <button
             className="primary-btn"
             onClick={createAccount}
+            disabled={creating}
           >
-            Add Account
+            {creating ? 'Adding...' : 'Add Account'}
           </button>
         </div>
       </div>
@@ -88,14 +147,14 @@ export default function AccountsPage() {
       <div className={`card ${styles.tableCard}`}>
         <div className="card-header">
           <h3>Your Accounts</h3>
-          <span>
-            {accounts.length} total
-          </span>
+          <span>{accounts.length} total</span>
         </div>
 
         {accounts.length === 0 ? (
           <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>💳</div>
+            <div className={styles.emptyIcon}>
+              <CreditCard size={40} strokeWidth={1.5} />
+            </div>
             <h4>No accounts added</h4>
             <p>Add your first payment method above.</p>
           </div>
@@ -132,11 +191,12 @@ export default function AccountsPage() {
                       ) : (
                         <button
                           className="danger-btn subtle"
-                          onClick={() =>
-                            deleteAccount(account.id)
-                          }
+                          onClick={() => deleteAccount(account.id)}
+                          disabled={deletingId === account.id}
                         >
-                          Delete
+                          {deletingId === account.id
+                            ? 'Deleting...'
+                            : 'Delete'}
                         </button>
                       )}
                     </td>

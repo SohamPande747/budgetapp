@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import styles from './page.module.css'
+import toast from 'react-hot-toast'
 
 type Transaction = {
   id: string
@@ -25,33 +26,52 @@ export default function TransactionsPage() {
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [year, setYear] = useState(now.getFullYear())
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // ✅ Currency Formatter
+  function formatAmount(value: number) {
+    return new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value)
+  }
 
   async function fetchTransactions() {
-    const res = await fetch(
-      `/api/transactions?month=${String(month).padStart(
-        2,
-        '0'
-      )}&year=${year}`
-    )
+    try {
+      const res = await fetch(
+        `/api/transactions?month=${String(month).padStart(
+          2,
+          '0'
+        )}&year=${year}`
+      )
 
-    const data = await res.json()
-    setTransactions(data.data || [])
+      const data = await res.json()
+      setTransactions(data.data || [])
+    } catch {
+      toast.error('Failed to fetch transactions')
+    }
   }
 
   async function handleDelete(id: string) {
-    const confirmDelete = confirm('Are you sure you want to delete this transaction?')
-    if (!confirmDelete) return
+    setDeletingId(id)
 
-    const res = await fetch(`/api/transactions?id=${id}`, {
+    const deletePromise = fetch(`/api/transactions?id=${id}`, {
       method: 'DELETE',
     })
 
+    toast.promise(deletePromise, {
+      loading: 'Deleting transaction...',
+      success: 'Transaction deleted successfully',
+      error: 'Failed to delete transaction',
+    })
+
+    const res = await deletePromise
+
     if (res.ok) {
-      // Optimistically update UI
       setTransactions((prev) => prev.filter((t) => t.id !== id))
-    } else {
-      alert('Failed to delete transaction')
     }
+
+    setDeletingId(null)
   }
 
   useEffect(() => {
@@ -103,7 +123,7 @@ export default function TransactionsPage() {
                 <th>Account</th>
                 <th>Amount</th>
                 <th>Description</th>
-                <th>Action</th> {/* NEW COLUMN */}
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -119,15 +139,16 @@ export default function TransactionsPage() {
                         : styles.expenseAmount
                     }
                   >
-                    ₹{t.amount}
+                    ₹{formatAmount(t.amount)}
                   </td>
                   <td>{t.description}</td>
                   <td>
                     <button
                       className={styles.deleteButton}
                       onClick={() => handleDelete(t.id)}
+                      disabled={deletingId === t.id}
                     >
-                      Delete
+                      {deletingId === t.id ? 'Deleting...' : 'Delete'}
                     </button>
                   </td>
                 </tr>

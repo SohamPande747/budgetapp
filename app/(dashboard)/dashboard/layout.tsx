@@ -25,9 +25,8 @@ export default function DashboardLayout({
   return (
     <div className={styles.layout}>
       <aside
-        className={`${styles.sidebar} ${
-          collapsed ? styles.collapsed : ''
-        }`}
+        className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''
+          }`}
       >
         <div>
           <div className={styles.topBar}>
@@ -38,9 +37,8 @@ export default function DashboardLayout({
 
             {/* Toggle Button */}
             <button
-              className={`${styles.hamburger} ${
-                collapsed ? styles.centered : styles.corner
-              }`}
+              className={`${styles.hamburger} ${collapsed ? styles.centered : styles.corner
+                }`}
               onClick={() => setCollapsed(!collapsed)}
             >
               {collapsed ? <Menu size={22} /> : <X size={18} />}
@@ -48,20 +46,17 @@ export default function DashboardLayout({
           </div>
 
           <nav className={styles.sidebarNav}>
+
             <Link href="/dashboard">
               {collapsed ? <LayoutDashboard size={22} /> : 'Dashboard'}
-            </Link>
-
-            <Link href="/dashboard/transactions">
-              {collapsed ? <Banknote size={22} /> : 'Transactions'}
             </Link>
 
             <Link href="/dashboard/add-transaction">
               {collapsed ? <BanknoteArrowUp size={22} /> : 'Add Transaction'}
             </Link>
 
-            <Link href="/dashboard/categories">
-              {collapsed ? <DatabaseZap size={22} /> : 'Categories'}
+            <Link href="/dashboard/transactions">
+              {collapsed ? <Banknote size={22} /> : 'Transactions'}
             </Link>
 
             <Link href="/dashboard/budgets">
@@ -71,6 +66,11 @@ export default function DashboardLayout({
             <Link href="/dashboard/accounts">
               {collapsed ? <Landmark size={22} /> : 'Accounts'}
             </Link>
+
+            <Link href="/dashboard/categories">
+              {collapsed ? <DatabaseZap size={22} /> : 'Categories'}
+            </Link>
+
           </nav>
         </div>
 

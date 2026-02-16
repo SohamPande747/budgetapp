@@ -84,6 +84,9 @@ export async function POST(req: Request) {
 /* =========================
    DELETE - Delete Account
 ========================= */
+/* =========================
+   DELETE - Delete Account
+========================= */
 export async function DELETE(req: Request) {
   const supabase = await createClient()
 
@@ -108,7 +111,7 @@ export async function DELETE(req: Request) {
     )
   }
 
-  // Fetch account to verify ownership
+  // ✅ Verify ownership
   const { data: account, error: fetchError } = await supabase
     .from('accounts')
     .select('*')
@@ -123,10 +126,10 @@ export async function DELETE(req: Request) {
     )
   }
 
-  // Prevent deleting primary account (first created)
+  // ✅ Prevent deleting primary account
   const { data: allAccounts } = await supabase
     .from('accounts')
-    .select('*')
+    .select('id')
     .eq('user_id', user.id)
     .order('created_at', { ascending: true })
 
@@ -141,18 +144,42 @@ export async function DELETE(req: Request) {
     }
   }
 
-  const { error } = await supabase
+  // ✅ Check if transactions exist BEFORE deleting
+  const { count, error: txError } = await supabase
+    .from('transactions')
+    .select('*', { count: 'exact', head: true })
+    .eq('account_id', id)
+
+  if (txError) {
+    return NextResponse.json(
+      { error: 'Failed to verify transactions' },
+      { status: 500 }
+    )
+  }
+
+  if (count && count > 0) {
+    return NextResponse.json(
+      { error: 'Cannot delete account because transactions exist' },
+      { status: 409 }
+    )
+  }
+
+  // ✅ Safe to delete
+  const { error: deleteError } = await supabase
     .from('accounts')
     .delete()
     .eq('id', id)
     .eq('user_id', user.id)
 
-  if (error) {
+  if (deleteError) {
     return NextResponse.json(
-      { error: error.message },
+      { error: 'Failed to delete account' },
       { status: 400 }
     )
   }
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json(
+    { success: true },
+    { status: 200 }
+  )
 }

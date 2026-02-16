@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import styles from './page.module.css'
 
 type Category = {
@@ -26,6 +27,7 @@ export default function BudgetsPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [budgets, setBudgets] = useState<Budget[]>([])
   const [budgetInputs, setBudgetInputs] = useState<Record<string, string>>({})
+  const [savingId, setSavingId] = useState<string | null>(null)
 
   async function fetchCategories() {
     const res = await fetch('/api/categories')
@@ -38,7 +40,6 @@ export default function BudgetsPage() {
     const data = await res.json()
     setBudgets(data || [])
 
-    // Populate inputs
     const inputMap: Record<string, string> = {}
     data?.forEach((b: Budget) => {
       inputMap[b.category_id] = b.limit_amount.toString()
@@ -46,16 +47,31 @@ export default function BudgetsPage() {
     setBudgetInputs(inputMap)
   }
 
+  function getExistingBudget(category_id: string) {
+    const found = budgets.find(
+      (b) => b.category_id === category_id
+    )
+    return found ? found.limit_amount.toString() : ''
+  }
+
   async function handleSave(category_id: string) {
     const value = budgetInputs[category_id]
     const limit_amount = parseFloat(value)
 
     if (!limit_amount || limit_amount <= 0) {
-      alert('Invalid amount')
+      toast.error('Enter a valid amount greater than 0')
       return
     }
 
-    await fetch('/api/budgets', {
+    // Prevent save if unchanged
+    if (value === getExistingBudget(category_id)) {
+      toast('No changes detected')
+      return
+    }
+
+    setSavingId(category_id)
+
+    const savePromise = fetch('/api/budgets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -66,7 +82,18 @@ export default function BudgetsPage() {
       })
     })
 
-    fetchBudgets()
+    toast.promise(savePromise, {
+      loading: 'Saving budget...',
+      success: 'Budget updated successfully',
+      error: 'Failed to save budget'
+    })
+
+    const res = await savePromise
+    setSavingId(null)
+
+    if (res.ok) {
+      fetchBudgets()
+    }
   }
 
   useEffect(() => {
@@ -136,25 +163,29 @@ export default function BudgetsPage() {
                 {cat.name}
               </div>
 
-              <input
-                className={styles.budgetInput}
-                type="number"
-                step="0.01"
-                value={budgetInputs[cat.id] || ''}
-                placeholder="0.00"
-                onChange={(e) =>
-                  setBudgetInputs({
-                    ...budgetInputs,
-                    [cat.id]: e.target.value
-                  })
-                }
-              />
+              <div className={styles.amountWrapper}>
+                <span className={styles.currency}>₹</span>
+                <input
+                  className={styles.budgetInput}
+                  type="number"
+                  step="0.01"
+                  value={budgetInputs[cat.id] || ''}
+                  placeholder="0.00"
+                  onChange={(e) =>
+                    setBudgetInputs({
+                      ...budgetInputs,
+                      [cat.id]: e.target.value
+                    })
+                  }
+                />
+              </div>
 
               <button
                 className={styles.saveButton}
                 onClick={() => handleSave(cat.id)}
+                disabled={savingId === cat.id}
               >
-                Save
+                {savingId === cat.id ? 'Saving...' : 'Save'}
               </button>
             </div>
           ))}
