@@ -1,23 +1,25 @@
-// components/AuthStatus.tsx
 "use client";
+
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase-client";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AuthStatus() {
   const [user, setUser] = useState<any>(null);
 
+  const supabase = createClient();
+
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
     };
+
+    getUser();
   }, []);
 
-  if (!user) return <p>Not signed in</p>;
-  return <p>Signed in as {user.email}</p>;
+  return (
+    <div>
+      {user ? <p>Logged in as {user.email}</p> : <p>Not logged in</p>}
+    </div>
+  );
 }
