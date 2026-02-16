@@ -12,10 +12,9 @@
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
     "@shadcn/ui": "^0.0.4",
-    "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.57.4",
+    "@supabase/supabase-js": "^2.95.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.544.0",
@@ -27,6 +26,7 @@
     "tailwind-merge": "^3.3.1",
     "tailwind-variants": "^3.1.1",
     "three": "^0.180.0",
+    "zod": "^4.3.6",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
