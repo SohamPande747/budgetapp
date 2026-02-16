@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: Request) {
   const supabase = await createClient()
   const { searchParams } = new URL(req.url)
@@ -23,24 +25,22 @@ export async function GET(req: Request) {
   const month = monthParam ? Number(monthParam) : now.getMonth() + 1
   const year = yearParam ? Number(yearParam) : now.getFullYear()
 
-  // 🔥 Build proper date range
   const startDate = `${year}-${String(month).padStart(2, '0')}-01`
   const endDate = new Date(year, month, 0)
     .toISOString()
     .split('T')[0]
 
-  // 1️⃣ Get expense totals per category
+  // 1️⃣ Get transactions
   const { data: transactions, error: txError } = await supabase
     .from('transactions')
     .select(`
       amount,
       category_id,
       categories (
-        id,
-        name,
         type
       )
     `)
+    .eq('user_id', user.id)
     .gte('transaction_date', startDate)
     .lte('transaction_date', endDate)
 
@@ -51,30 +51,27 @@ export async function GET(req: Request) {
     )
   }
 
-  // Only expense categories
-  const expenseTx =
-    transactions?.filter(
-      (t) => t.categories && t.categories[0]?.type === 'expense'
-    ) || []
-
   const spentMap: Record<string, number> = {}
 
-  for (const tx of expenseTx) {
-    const catId = tx.category_id
-    spentMap[catId] =
-      (spentMap[catId] || 0) + Number(tx.amount)
-  }
+  transactions?.forEach((t: any) => {
+    if (t.categories?.type === 'expense') {
+      const catId = t.category_id
+      spentMap[catId] =
+        (spentMap[catId] || 0) + Number(t.amount)
+    }
+  })
 
-  // 2️⃣ Get budgets for this month
+  // 2️⃣ Get budgets
   const { data: budgets, error: budgetError } = await supabase
     .from('budgets')
     .select(`
-      *,
+      limit_amount,
+      category_id,
       categories (
-        id,
         name
       )
     `)
+    .eq('user_id', user.id)
     .eq('month', month)
     .eq('year', year)
 
@@ -86,12 +83,12 @@ export async function GET(req: Request) {
   }
 
   const result =
-    budgets?.map((b) => {
+    budgets?.map((b: any) => {
       const spent = spentMap[b.category_id] || 0
       const remaining = Number(b.limit_amount) - spent
 
       return {
-        category: b.categories?.[0]?.name,
+        category: b.categories?.name || 'Unknown',
         limit: Number(b.limit_amount),
         spent,
         remaining

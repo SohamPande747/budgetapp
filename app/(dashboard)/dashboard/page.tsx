@@ -26,19 +26,37 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<Summary | null>(null)
 
   async function fetchBudgets() {
-    const res = await fetch(
-      `/api/budgets/overview?month=${month}&year=${year}`
-    )
-    const data = await res.json()
-    setBudgets(data || [])
+    try {
+      const res = await fetch(
+        `/api/budgets/overview?month=${month}&year=${year}`,
+        { cache: 'no-store' }   // ✅ FIX
+      )
+
+      if (!res.ok) throw new Error('Failed to fetch budgets')
+
+      const data = await res.json()
+      setBudgets(data || [])
+    } catch (err) {
+      console.error(err)
+      setBudgets([])
+    }
   }
 
   async function fetchSummary() {
-    const res = await fetch(
-      `/api/summary?month=${month}&year=${year}`
-    )
-    const data = await res.json()
-    setSummary(data)
+    try {
+      const res = await fetch(
+        `/api/summary?month=${month}&year=${year}`,
+        { cache: 'no-store' }   // ✅ FIX
+      )
+
+      if (!res.ok) throw new Error('Failed to fetch summary')
+
+      const data = await res.json()
+      setSummary(data)
+    } catch (err) {
+      console.error(err)
+      setSummary(null)
+    }
   }
 
   useEffect(() => {

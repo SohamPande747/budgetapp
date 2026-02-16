@@ -1,3 +1,7 @@
+/* ================================
+   LAYOUT
+================================ */
+
 .layout {
   display: flex;
   min-height: 100vh;
@@ -13,7 +17,8 @@
   flex-direction: column;
   justify-content: space-between;
 
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, padding 0.3s ease;
+  position: relative;
 }
 
 .collapsed {
@@ -21,67 +26,127 @@
   padding: 28px 10px;
 }
 
-/* Top bar */
+
+/* ================================
+   TOP BAR
+================================ */
+
 .topBar {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  min-height: 50px;
 }
-/* Logo */
+
 .logo {
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 700;
+  letter-spacing: 0.5px;
+  align-items: left;
 }
 
-/* Hamburger */
+
+/* ================================
+   HAMBURGER / CLOSE BUTTON
+================================ */
+
 .hamburger {
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
-  color: white;
+  position: absolute;
 
-}
-/* Nav */
-.sidebarNav {
+  width: 38px;
+  height: 38px;
+
   display: flex;
-  flex-direction: column;
-  gap: 28px;              /* increased spacing between items */
-  margin-top: 40px;
-}
+  align-items: center;
+  justify-content: center;
 
-.sidebarNav a {
-  font-size: 20px;        /* bigger text */
-  font-weight: 500;
-  text-decoration: none;
-  color: white;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
 
-  padding: 14px 16px;     /* makes each item larger */
-  border-radius: 10px;    /* smooth edges */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+
+  color: #e5e7eb;
+  cursor: pointer;
 
   transition: all 0.25s ease;
 }
 
+/* Centered when collapsed */
+.centered {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Top-right when expanded */
+.corner {
+  right: 0;
+}
+
+/* Hover effect */
+.hamburger:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Active press */
+.hamburger:active {
+  transform: scale(0.96);
+}
+
+
+/* ================================
+   NAVIGATION
+================================ */
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 40px;
+}
+
+.sidebarNav a {
+  font-size: 20px;
+  font-weight: 500;
+  text-decoration: none;
+  color: white;
+
+  padding: 10px 16px;
+  border-radius: 10px;
+
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
 .sidebarNav a:hover {
-  background-color: #1f2937;   /* subtle hover */
-  transform: translateX(4px);  /* slight movement */
+  background-color: #1f2937;
+  transform: translateX(4px);
 }
 
 /* Collapsed State */
 .collapsed .sidebarNav a {
-  font-size: 22px;       /* slightly larger icons/text */
+  font-size: 22px;
   padding: 16px 0;
   text-align: center;
 }
-/* Logout */
+
+
+/* ================================
+   LOGOUT
+================================ */
+
 .logoutForm {
   margin-top: 20px;
   display: flex;
   justify-content: center;
 }
 
-/* Main */
+
+/* ================================
+   MAIN CONTENT
+================================ */
+
 .main {
   flex: 1;
   padding: 32px;
