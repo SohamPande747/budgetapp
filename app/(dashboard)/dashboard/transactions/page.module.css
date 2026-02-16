@@ -14,7 +14,6 @@
   letter-spacing: -0.3px;
 }
 
-
 /* ===== Filter Bar ===== */
 
 .filterWrapper {
@@ -51,11 +50,6 @@
   transition: all 0.2s ease;
 }
 
-.filterSelect:hover,
-.filterInput:hover {
-  border-color: #cbd5e1;
-}
-
 .filterSelect:focus,
 .filterInput:focus {
   outline: none;
@@ -63,8 +57,7 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-
-/* ===== Card ===== */
+/* ===== Card Container ===== */
 
 .card {
   background: #ffffff;
@@ -75,16 +68,12 @@
   overflow: hidden;
 }
 
-
-/* ===== Scrollable Table Container ===== */
+/* ===== Table ===== */
 
 .tableWrapper {
   overflow-x: auto;
   max-height: 500px;
 }
-
-
-/* ===== Table ===== */
 
 .dataTable {
   width: 100%;
@@ -114,17 +103,11 @@
   padding: 18px 16px;
   border-bottom: 1px solid #f1f5f9;
   color: #334155;
-  transition: background 0.15s ease;
-}
-
-.dataTable tbody tr {
-  transition: all 0.15s ease;
 }
 
 .dataTable tbody tr:hover {
   background: #f8fafc;
 }
-
 
 /* ===== Amount Styling ===== */
 
@@ -136,60 +119,6 @@
 .expenseAmount {
   color: #ef4444;
   font-weight: 600;
-}
-
-
-/* ===== Empty State ===== */
-
-.emptyState {
-  text-align: center;
-  padding: 80px 20px;
-  font-size: 15px;
-  color: #94a3b8;
-}
-
-
-/* ===== Subtle Fade Animation ===== */
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dataTable tbody tr {
-  animation: fadeIn 0.2s ease forwards;
-}
-
-
-/* ===== Responsive ===== */
-
-@media (max-width: 768px) {
-  .container {
-    padding: 20px;
-  }
-
-  .filterWrapper {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .filterLeft {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .dataTable th,
-  .dataTable td {
-    padding: 12px;
-    font-size: 13px;
-  }
 }
 
 /* ===== Delete Button ===== */
@@ -210,11 +139,72 @@
   background: #dc2626;
   color: white;
   border-color: #dc2626;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2);
 }
 
-.deleteButton:active {
-  transform: translateY(0);
-  box-shadow: none;
+/* ===================================================== */
+/* ===== MOBILE CARD VIEW ============================== */
+/* ===================================================== */
+
+.mobileList {
+  display: none;
+}
+
+.transactionCard {
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.transactionTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.transactionTitle {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.transactionMeta {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.transactionBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 767px) {
+
+  .container {
+    padding: 20px;
+  }
+
+  .filterWrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .filterLeft {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  /* Hide desktop table */
+  .tableWrapper {
+    display: none;
+  }
+
+  /* Show mobile list */
+  .mobileList {
+    display: block;
+  }
 }

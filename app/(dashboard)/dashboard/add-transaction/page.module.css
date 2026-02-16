@@ -2,11 +2,16 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  align-items: center; /* Center content horizontally */
 }
 
+/* Limit width and center form */
 .cardWidth {
   max-width: 750px;
+  width: 100%;
 }
+
+/* ===== Form Grid ===== */
 
 .formGrid {
   display: grid;
@@ -18,6 +23,8 @@
   grid-column: span 2;
 }
 
+/* ===== Type Toggle ===== */
+
 .typeToggle {
   display: flex;
   gap: 8px;
@@ -25,12 +32,12 @@
 
 .toggleBtn {
   flex: 1;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
   border: 1px solid #e5e7eb;
   background: #f9fafb;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
   font-weight: 500;
 }
 
@@ -50,6 +57,41 @@
   color: #10b981;
 }
 
+/* ===== Form Actions ===== */
+
 .formActions {
-  margin-top: 0.5rem;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ===================================================== */
+/* ================= MOBILE RESPONSIVE ================= */
+/* ===================================================== */
+
+@media (max-width: 767px) {
+
+  .container {
+    align-items: stretch; /* Full width on mobile */
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullWidth {
+    grid-column: span 1;
+  }
+
+  .formActions {
+    justify-content: stretch;
+  }
+
+  .formActions button {
+    width: 100%;
+  }
+
+  .typeToggle {
+    flex-direction: column;
+  }
 }

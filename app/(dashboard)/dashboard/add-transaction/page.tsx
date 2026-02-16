@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import styles from './page.module.css'
@@ -18,6 +18,7 @@ type Account = {
 
 export default function AddTransactionPage() {
   const router = useRouter()
+  const amountRef = useRef<HTMLInputElement>(null)
 
   const [categories, setCategories] = useState<Category[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
@@ -34,22 +35,32 @@ export default function AddTransactionPage() {
   const [saving, setSaving] = useState(false)
 
   async function fetchCategories() {
-    const res = await fetch('/api/categories')
-    const data = await res.json()
-    setCategories(data || [])
+    try {
+      const res = await fetch('/api/categories')
+      const data = await res.json()
+      setCategories(data || [])
+    } catch {
+      toast.error('Failed to load categories')
+    }
   }
 
   async function fetchAccounts() {
-    const res = await fetch('/api/accounts')
-    const data = await res.json()
-    setAccounts(data || [])
+    try {
+      const res = await fetch('/api/accounts')
+      const data = await res.json()
+      setAccounts(data || [])
 
-    if (data.length > 0) {
-      setAccountId(data[0].id)
+      if (data?.length > 0) {
+        setAccountId(data[0].id)
+      }
+    } catch {
+      toast.error('Failed to load accounts')
     }
   }
 
   async function handleSubmit() {
+    if (saving) return
+
     if (!categoryId || !accountId || !amount) {
       toast.error('Please fill all required fields')
       return
@@ -60,40 +71,45 @@ export default function AddTransactionPage() {
       return
     }
 
-    setSaving(true)
+    try {
+      setSaving(true)
 
-    const submitPromise = fetch('/api/transactions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        category_id: categoryId,
-        account_id: accountId,
-        amount: parseFloat(amount),
-        description,
-        transaction_date: date
+      const res = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category_id: categoryId,
+          account_id: accountId,
+          amount: parseFloat(amount),
+          description,
+          transaction_date: date
+        })
       })
-    })
 
-    toast.promise(submitPromise, {
-      loading: 'Adding transaction...',
-      success: 'Transaction added successfully 🎉',
-      error: 'Failed to add transaction'
-    })
+      const data = await res.json().catch(() => null)
 
-    const res = await submitPromise
+      if (!res.ok) {
+        throw new Error(data?.error || 'Failed to add transaction')
+      }
 
-    setSaving(false)
+      toast.success('Transaction added successfully 🎉')
 
-    if (!res.ok) {
-      return
+      router.push('/dashboard/transactions')
+    } catch (err: any) {
+      toast.error(err.message || 'Something went wrong')
+    } finally {
+      setSaving(false)
     }
-
-    router.push('/dashboard/transactions')
   }
 
   useEffect(() => {
     fetchCategories()
     fetchAccounts()
+  }, [])
+
+  useEffect(() => {
+    // Auto focus amount field on mount
+    amountRef.current?.focus()
   }, [])
 
   const filteredCategories = categories.filter(
@@ -183,6 +199,7 @@ export default function AddTransactionPage() {
           <div className="form-field">
             <label>Amount</label>
             <input
+              ref={amountRef}
               className="form-input amount-input"
               type="number"
               step="0.01"

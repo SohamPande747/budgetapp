@@ -28,7 +28,6 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  // ✅ Currency Formatter
   function formatAmount(value: number) {
     return new Intl.NumberFormat('en-IN', {
       minimumFractionDigits: 2,
@@ -55,23 +54,22 @@ export default function TransactionsPage() {
   async function handleDelete(id: string) {
     setDeletingId(id)
 
-    const deletePromise = fetch(`/api/transactions?id=${id}`, {
-      method: 'DELETE',
-    })
+    try {
+      const res = await fetch(`/api/transactions?id=${id}`, {
+        method: 'DELETE',
+      })
 
-    toast.promise(deletePromise, {
-      loading: 'Deleting transaction...',
-      success: 'Transaction deleted successfully',
-      error: 'Failed to delete transaction',
-    })
+      if (!res.ok) {
+        throw new Error('Failed to delete transaction')
+      }
 
-    const res = await deletePromise
-
-    if (res.ok) {
+      toast.success('Transaction deleted successfully')
       setTransactions((prev) => prev.filter((t) => t.id !== id))
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete transaction')
+    } finally {
+      setDeletingId(null)
     }
-
-    setDeletingId(null)
   }
 
   useEffect(() => {
@@ -110,39 +108,85 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      {/* Transactions Table */}
       <div className={styles.card}>
         {transactions.length === 0 ? (
           <p className={styles.emptyState}>No transactions found.</p>
         ) : (
-          <table className={styles.dataTable}>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Account</th>
-                <th>Amount</th>
-                <th>Description</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* ================= DESKTOP TABLE ================= */}
+            <div className={styles.tableWrapper}>
+              <table className={styles.dataTable}>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Account</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.map((t) => (
+                    <tr key={t.id}>
+                      <td>{t.transaction_date}</td>
+                      <td>{t.categories?.name}</td>
+                      <td>{t.accounts?.name}</td>
+                      <td
+                        className={
+                          t.categories?.type === 'income'
+                            ? styles.incomeAmount
+                            : styles.expenseAmount
+                        }
+                      >
+                        ₹{formatAmount(t.amount)}
+                      </td>
+                      <td>{t.description}</td>
+                      <td>
+                        <button
+                          className={styles.deleteButton}
+                          onClick={() => handleDelete(t.id)}
+                          disabled={deletingId === t.id}
+                        >
+                          {deletingId === t.id ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ================= MOBILE CARDS ================= */}
+            <div className={styles.mobileList}>
               {transactions.map((t) => (
-                <tr key={t.id}>
-                  <td>{t.transaction_date}</td>
-                  <td>{t.categories?.name}</td>
-                  <td>{t.accounts?.name}</td>
-                  <td
-                    className={
-                      t.categories?.type === 'income'
-                        ? styles.incomeAmount
-                        : styles.expenseAmount
-                    }
-                  >
-                    ₹{formatAmount(t.amount)}
-                  </td>
-                  <td>{t.description}</td>
-                  <td>
+                <div key={t.id} className={styles.transactionCard}>
+                  <div className={styles.transactionTop}>
+                    <div className={styles.transactionTitle}>
+                      {t.categories?.name}
+                    </div>
+                    <div
+                      className={
+                        t.categories?.type === 'income'
+                          ? styles.incomeAmount
+                          : styles.expenseAmount
+                      }
+                    >
+                      ₹{formatAmount(t.amount)}
+                    </div>
+                  </div>
+
+                  <div className={styles.transactionMeta}>
+                    {t.accounts?.name} • {t.transaction_date}
+                  </div>
+
+                  {t.description && (
+                    <div className={styles.transactionMeta}>
+                      {t.description}
+                    </div>
+                  )}
+
+                  <div className={styles.transactionBottom}>
                     <button
                       className={styles.deleteButton}
                       onClick={() => handleDelete(t.id)}
@@ -150,11 +194,11 @@ export default function TransactionsPage() {
                     >
                       {deletingId === t.id ? 'Deleting...' : 'Delete'}
                     </button>
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
     </div>

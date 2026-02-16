@@ -7,6 +7,10 @@
   min-height: 100vh;
 }
 
+/* ================================
+   SIDEBAR
+================================ */
+
 .sidebar {
   width: 250px;
   padding: 28px 20px;
@@ -17,15 +21,15 @@
   flex-direction: column;
   justify-content: space-between;
 
-  transition: width 0.3s ease, padding 0.3s ease;
+  transition: width 0.3s ease, padding 0.3s ease, transform 0.3s ease;
   position: relative;
+  z-index: 1000;
 }
 
 .collapsed {
   width: 80px;
   padding: 28px 10px;
 }
-
 
 /* ================================
    TOP BAR
@@ -43,16 +47,22 @@
   font-size: 32px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  align-items: left;
 }
-
 
 /* ================================
    HAMBURGER / CLOSE BUTTON
 ================================ */
 
+/* Centered when collapsed (desktop only) */
+.collapsed .hamburger {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
 .hamburger {
   position: absolute;
+  right: 0;
 
   width: 38px;
   height: 38px;
@@ -73,28 +83,13 @@
   transition: all 0.25s ease;
 }
 
-/* Centered when collapsed */
-.centered {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* Top-right when expanded */
-.corner {
-  right: 0;
-}
-
-/* Hover effect */
 .hamburger:hover {
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Active press */
 .hamburger:active {
   transform: scale(0.96);
 }
-
 
 /* ================================
    NAVIGATION
@@ -131,7 +126,6 @@
   text-align: center;
 }
 
-
 /* ================================
    LOGOUT
 ================================ */
@@ -142,7 +136,6 @@
   justify-content: center;
 }
 
-
 /* ================================
    MAIN CONTENT
 ================================ */
@@ -150,4 +143,118 @@
 .main {
   flex: 1;
   padding: 32px;
+  min-width: 0; /* prevents overflow */
+}
+
+/* ======================================================
+   MOBILE RESPONSIVE (Production Grade)
+====================================================== */
+.mobileTopbar {
+  display: none;
+}
+
+.overlay {
+  display: none;
+}
+
+.mobileCloseBtn {
+  display: none;
+}
+
+/* ===================================================== */
+/* ================= MOBILE LAYOUT ===================== */
+/* ===================================================== */
+
+@media (max-width: 767px) {
+
+  .layout {
+    flex-direction: column;
+  }
+
+  /* ===== FIXED MOBILE TOPBAR ===== */
+  .mobileTopbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    position: fixed;       /* 🔥 FIXED */
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 60px;
+    padding: 0 20px;
+
+    background-color: #111827;
+    color: white;
+
+    z-index: 1000;
+  }
+
+  .mobileLogo {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .mobileMenuBtn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+
+  /* ===== SIDEBAR AS OVERLAY ===== */
+  .sidebar {
+    position: fixed;
+    top: 60px;                      /* 🔥 BELOW TOPBAR */
+    left: 0;
+    height: calc(100vh - 60px);     /* 🔥 ADJUST HEIGHT */
+    width: 250px;
+
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+
+    z-index: 1001;
+  }
+
+  .mobileOpen {
+    transform: translateX(0);
+  }
+
+  /* ===== OVERLAY ===== */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: none;
+    z-index: 900;
+  }
+
+  .showOverlay {
+    display: block;
+  }
+
+  /* Hide desktop collapse toggle */
+  .hamburger {
+    display: none;
+  }
+
+  /* ===== MOBILE CLOSE BUTTON ===== */
+  .mobileCloseBtn {
+    display: block;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+
+  /* ===== PUSH CONTENT BELOW FIXED TOPBAR ===== */
+  .main {
+    padding: 20px;
+    padding-top: 80px;   /* 🔥 SPACE FOR FIXED HEADER */
+  }
+
 }
