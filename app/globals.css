@@ -516,3 +516,30 @@ body {
   color: #6366f1;
   font-weight: 500;
 }
+
+
+.logout-btn {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+
+  background: rgb(255, 0, 0);
+  color: white;
+
+  transition: all 0.25s ease;
+}
+
+/* Hover */
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Active press effect */
+.logout-btn:active {
+  transform: translateY(0);
+}
