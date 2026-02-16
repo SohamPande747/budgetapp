@@ -15,9 +15,6 @@ type Budget = {
   month: number
   year: number
   limit_amount: number
-  categories: {
-    name: string
-  }[]
 }
 
 export default function BudgetsPage() {
@@ -28,24 +25,29 @@ export default function BudgetsPage() {
 
   const [categories, setCategories] = useState<Category[]>([])
   const [budgets, setBudgets] = useState<Budget[]>([])
+  const [budgetInputs, setBudgetInputs] = useState<Record<string, string>>({})
 
   async function fetchCategories() {
     const res = await fetch('/api/categories')
     const data = await res.json()
-    setCategories(
-      data.filter((c: Category) => c.type === 'expense')
-    )
+    setCategories(data.filter((c: Category) => c.type === 'expense'))
   }
 
   async function fetchBudgets() {
-    const res = await fetch(
-      `/api/budgets?month=${month}&year=${year}`
-    )
+    const res = await fetch(`/api/budgets?month=${month}&year=${year}`)
     const data = await res.json()
     setBudgets(data || [])
+
+    // Populate inputs
+    const inputMap: Record<string, string> = {}
+    data?.forEach((b: Budget) => {
+      inputMap[b.category_id] = b.limit_amount.toString()
+    })
+    setBudgetInputs(inputMap)
   }
 
-  async function handleSave(category_id: string, value: string) {
+  async function handleSave(category_id: string) {
+    const value = budgetInputs[category_id]
     const limit_amount = parseFloat(value)
 
     if (!limit_amount || limit_amount <= 0) {
@@ -74,13 +76,6 @@ export default function BudgetsPage() {
   useEffect(() => {
     fetchBudgets()
   }, [month, year])
-
-  function getExistingBudget(category_id: string) {
-    const found = budgets.find(
-      (b) => b.category_id === category_id
-    )
-    return found ? found.limit_amount : ''
-  }
 
   return (
     <div className={styles.container}>
@@ -126,34 +121,45 @@ export default function BudgetsPage() {
       </div>
 
       {/* TABLE */}
-     <div className={`card ${styles.listCard}`}>
-  <div className={styles.listHeader}>
-    <h3>Budget Limits</h3>
-    <div className={styles.listMeta}>
-      {categories.length} categories
-    </div>
-  </div>
-
-  <div className={styles.budgetList}>
-    {categories.map((cat) => (
-      <div key={cat.id} className={styles.budgetRow}>
-        <div className={styles.categoryName}>
-          {cat.name}
+      <div className={`card ${styles.listCard}`}>
+        <div className={styles.listHeader}>
+          <h3>Budget Limits</h3>
+          <div className={styles.listMeta}>
+            {categories.length} categories
+          </div>
         </div>
 
-        <input
-          className={styles.budgetInput}
-          type="number"
-          defaultValue={getExistingBudget(cat.id)}
-          placeholder="0.00"
-          onBlur={(e) =>
-            handleSave(cat.id, e.target.value)
-          }
-        />
+        <div className={styles.budgetList}>
+          {categories.map((cat) => (
+            <div key={cat.id} className={styles.budgetRow}>
+              <div className={styles.categoryName}>
+                {cat.name}
+              </div>
+
+              <input
+                className={styles.budgetInput}
+                type="number"
+                step="0.01"
+                value={budgetInputs[cat.id] || ''}
+                placeholder="0.00"
+                onChange={(e) =>
+                  setBudgetInputs({
+                    ...budgetInputs,
+                    [cat.id]: e.target.value
+                  })
+                }
+              />
+
+              <button
+                className={styles.saveButton}
+                onClick={() => handleSave(cat.id)}
+              >
+                Save
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
-    ))}
-  </div>
-</div>
     </div>
   )
 }

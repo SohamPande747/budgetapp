@@ -17,23 +17,42 @@ type Summary = {
   savingsRate: number
 }
 
+type AccountSummary = {
+  id: string
+  name: string
+  totalIncome: number
+  totalExpense: number
+  balance: number
+}
+
 export default function DashboardPage() {
   const now = new Date()
 
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [year, setYear] = useState(now.getFullYear())
+
   const [budgets, setBudgets] = useState<BudgetOverview[]>([])
   const [summary, setSummary] = useState<Summary | null>(null)
+  const [accounts, setAccounts] = useState<AccountSummary[]>([])
 
+  // ✅ Currency Formatter (Indian format, 2 decimals)
+  function formatAmount(value: number) {
+    return new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value)
+  }
+
+  // =============================
+  // Fetch Budgets
+  // =============================
   async function fetchBudgets() {
     try {
       const res = await fetch(
         `/api/budgets/overview?month=${month}&year=${year}`,
-        { cache: 'no-store' }   // ✅ FIX
+        { cache: 'no-store' }
       )
-
       if (!res.ok) throw new Error('Failed to fetch budgets')
-
       const data = await res.json()
       setBudgets(data || [])
     } catch (err) {
@@ -42,15 +61,16 @@ export default function DashboardPage() {
     }
   }
 
+  // =============================
+  // Fetch Global Summary
+  // =============================
   async function fetchSummary() {
     try {
       const res = await fetch(
         `/api/summary?month=${month}&year=${year}`,
-        { cache: 'no-store' }   // ✅ FIX
+        { cache: 'no-store' }
       )
-
       if (!res.ok) throw new Error('Failed to fetch summary')
-
       const data = await res.json()
       setSummary(data)
     } catch (err) {
@@ -59,16 +79,37 @@ export default function DashboardPage() {
     }
   }
 
+  // =============================
+  // Fetch Account Summary
+  // =============================
+  async function fetchAccountSummary() {
+    try {
+      const res = await fetch(
+        `/api/accounts/summary?month=${month}&year=${year}`,
+        { cache: 'no-store' }
+      )
+      if (!res.ok) throw new Error('Failed to fetch accounts')
+      const data = await res.json()
+      setAccounts(data || [])
+    } catch (err) {
+      console.error(err)
+      setAccounts([])
+    }
+  }
+
   useEffect(() => {
     fetchBudgets()
     fetchSummary()
+    fetchAccountSummary()
   }, [month, year])
 
   return (
     <div className={styles.container}>
       <h1 className={styles.pageTitle}>Dashboard</h1>
 
-      {/* Filter Bar */}
+      {/* ============================= */}
+      {/* FILTER BAR */}
+      {/* ============================= */}
       <div className={styles.filterWrapper}>
         <div className={styles.filterLeft}>
           <span className={styles.filterLabel}>Month</span>
@@ -96,25 +137,29 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Summary Cards */}
+      {/* ============================= */}
+      {/* 🔹 OVERALL OVERVIEW */}
+      {/* ============================= */}
+      <h2 className={styles.sectionTitle}>Overall Overview</h2>
+
       {summary && (
         <div className={styles.summaryGrid}>
           <div className={`${styles.card} ${styles.summaryCard}`}>
             <h3>Total Income</h3>
             <p className={`${styles.summaryValue} ${styles.income}`}>
-              ₹{summary.totalIncome}
+              ₹{formatAmount(summary.totalIncome)}
             </p>
           </div>
 
           <div className={`${styles.card} ${styles.summaryCard}`}>
             <h3>Total Expense</h3>
             <p className={`${styles.summaryValue} ${styles.expense}`}>
-              ₹{summary.totalExpense}
+              ₹{formatAmount(summary.totalExpense)}
             </p>
           </div>
 
           <div className={`${styles.card} ${styles.summaryCard}`}>
-            <h3>Net Savings</h3>
+            <h3>Current Balance</h3>
             <p
               className={`${styles.summaryValue} ${
                 summary.netSavings >= 0
@@ -122,23 +167,73 @@ export default function DashboardPage() {
                   : styles.negative
               }`}
             >
-              ₹{summary.netSavings}
+              ₹{formatAmount(summary.netSavings)}
             </p>
           </div>
 
           <div className={`${styles.card} ${styles.summaryCard}`}>
             <h3>Savings Rate</h3>
             <p className={styles.summaryValue}>
-              {summary.savingsRate}%
+              {summary.savingsRate.toFixed(2)}%
             </p>
           </div>
         </div>
       )}
 
-      {/* Budget Overview */}
-      <h2 className={styles.sectionTitle}>
-        Budget Overview
-      </h2>
+      {/* ============================= */}
+      {/* 🔹 ACCOUNT OVERVIEW */}
+      {/* ============================= */}
+      <h2 className={styles.sectionTitle}>Account Overview</h2>
+
+      {accounts.length === 0 && (
+        <div className={`${styles.card} ${styles.emptyCard}`}>
+          <p>No accounts found.</p>
+        </div>
+      )}
+
+      <div className={styles.accountGrid}>
+        {accounts.map((acc) => (
+          <div
+            key={acc.id}
+            className={`${styles.card} ${styles.accountCard}`}
+          >
+            <div className={styles.accountHeader}>
+              {acc.name}
+            </div>
+
+            <div className={styles.accountStats}>
+              <div>
+                <span>Income</span>
+                <p className={styles.income}>
+                  ₹{formatAmount(acc.totalIncome)}
+                </p>
+              </div>
+
+              <div>
+                <span>Expense</span>
+                <p className={styles.expense}>
+                  ₹{formatAmount(acc.totalExpense)}
+                </p>
+              </div>
+            </div>
+
+            <div
+              className={`${styles.accountBalance} ${
+                acc.balance >= 0
+                  ? styles.positive
+                  : styles.negative
+              }`}
+            >
+              Balance: ₹{formatAmount(acc.balance)}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ============================= */}
+      {/* 🔹 BUDGET OVERVIEW */}
+      {/* ============================= */}
+      <h2 className={styles.sectionTitle}>Budget Overview</h2>
 
       {budgets.length === 0 && (
         <div className={`${styles.card} ${styles.emptyCard}`}>
@@ -175,12 +270,12 @@ export default function DashboardPage() {
             </div>
 
             <div className={styles.budgetInfo}>
-              ₹{b.spent} / ₹{b.limit}
+              ₹{formatAmount(b.spent)} / ₹{formatAmount(b.limit)}
             </div>
 
             {isOver && (
               <div className={styles.overText}>
-                Over budget by ₹{Math.abs(b.remaining)}
+                Over budget by ₹{formatAmount(Math.abs(b.remaining))}
               </div>
             )}
           </div>

@@ -75,13 +75,18 @@ export async function POST(req: Request) {
 
   const { error } = await supabase
     .from('budgets')
-    .upsert({
-      user_id: user.id,
-      category_id,
-      month,
-      year,
-      limit_amount
-    })
+    .upsert(
+      {
+        user_id: user.id,
+        category_id,
+        month,
+        year,
+        limit_amount
+      },
+      {
+        onConflict: 'user_id,category_id,month,year'
+      }
+    )
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 })

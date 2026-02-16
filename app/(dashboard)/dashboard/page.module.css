@@ -73,6 +73,12 @@
   padding: 20px;
   border: 1px solid #f1f5f9;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
 }
 
 
@@ -113,6 +119,56 @@
 
 .negative {
   color: #ef4444;
+}
+
+
+/* ===================================================== */
+/* ===== ACCOUNT OVERVIEW SECTION ====================== */
+/* ===================================================== */
+
+.accountGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.accountCard {
+  padding: 22px;
+}
+
+.accountHeader {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #0f172a;
+}
+
+.accountStats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.accountStats span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.accountStats p {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.accountBalance {
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 
@@ -185,5 +241,10 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+
+  .accountStats {
+    flex-direction: column;
+    gap: 10px;
   }
 }
