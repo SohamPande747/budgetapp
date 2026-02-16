@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import styles from './page.module.css'
 
 type Category = {
   id: string
@@ -20,7 +21,7 @@ export default function CategoriesPage() {
   }
 
   async function createCategory() {
-    if (!name) return
+    if (!name.trim()) return
 
     const res = await fetch('/api/categories', {
       method: 'POST',
@@ -47,27 +48,27 @@ export default function CategoriesPage() {
   }, [])
 
   return (
-    <div className="dashboard-container">
-      <div className="page-header">
+    <div className={styles.dashboardContainer}>
+      <div className={styles.pageHeader}>
         <div>
-          <h1 className="page-title">Categories</h1>
-          <p className="page-subtitle">
+          <h1 className={styles.pageTitle}>Categories</h1>
+          <p className={styles.pageSubtitle}>
             Manage income and expense classifications
           </p>
         </div>
       </div>
 
       {/* Add Category Card */}
-      <div className="card category-card">
-        <div className="card-header">
+      <div className={`${styles.card} ${styles.categoryCard}`}>
+        <div className={styles.cardHeader}>
           <h3>Add New Category</h3>
         </div>
 
-        <div className="category-form-grid">
-          <div className="form-field">
+        <div className={styles.categoryFormGrid}>
+          <div className={styles.formField}>
             <label>Category Name</label>
             <input
-              className="form-input"
+              className={styles.formInput}
               type="text"
               placeholder="e.g. Travel, Bonus"
               value={name}
@@ -75,10 +76,10 @@ export default function CategoriesPage() {
             />
           </div>
 
-          <div className="form-field">
+          <div className={styles.formField}>
             <label>Type</label>
             <select
-              className="form-select"
+              className={styles.formSelect}
               value={type}
               onChange={(e) =>
                 setType(e.target.value as 'income' | 'expense')
@@ -89,9 +90,9 @@ export default function CategoriesPage() {
             </select>
           </div>
 
-          <div className="form-action">
+          <div className={styles.formAction}>
             <button
-              className="primary-btn large-btn full-width"
+              className={`${styles.primaryBtn} ${styles.largeBtn} ${styles.fullWidth}`}
               onClick={createCategory}
             >
               Add Category
@@ -101,51 +102,51 @@ export default function CategoriesPage() {
       </div>
 
       {/* Categories Table */}
-      <div className="card table-card">
-        <div className="card-header">
+      <div className={`${styles.card} ${styles.tableCard}`}>
+        <div className={styles.cardHeader}>
           <h3>Existing Categories</h3>
-          <span className="muted-text">
+          <span className={styles.mutedText}>
             {categories.length} total
           </span>
         </div>
 
         {categories.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">📂</div>
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>📂</div>
             <h4>No categories yet</h4>
             <p>Create your first category using the form above.</p>
           </div>
         ) : (
-          <div className="table-wrapper">
-            <table className="data-table">
+          <div className={styles.tableWrapper}>
+            <table className={styles.dataTable}>
               <thead>
                 <tr>
                   <th>Name</th>
                   <th>Type</th>
-                  <th className="text-right">Action</th>
+                  <th className={styles.textRight}>Action</th>
                 </tr>
               </thead>
 
               <tbody>
                 {categories.map((cat) => (
                   <tr key={cat.id}>
-                    <td className="table-name">{cat.name}</td>
+                    <td className={styles.tableName}>{cat.name}</td>
 
                     <td>
                       <span
                         className={
                           cat.type === 'income'
-                            ? 'badge income-badge'
-                            : 'badge expense-badge'
+                            ? `${styles.badge} ${styles.incomeBadge}`
+                            : `${styles.badge} ${styles.expenseBadge}`
                         }
                       >
                         {cat.type}
                       </span>
                     </td>
 
-                    <td className="text-right">
+                    <td className={styles.textRight}>
                       <button
-                        className="danger-btn subtle"
+                        className={`${styles.dangerBtn} ${styles.subtle}`}
                         onClick={() => deleteCategory(cat.id)}
                       >
                         Delete

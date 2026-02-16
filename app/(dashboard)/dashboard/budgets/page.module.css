@@ -1,0 +1,93 @@
+/* =========================================
+   PAGE
+========================================= */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+/* =========================================
+   FILTER
+========================================= */
+.filterCard {
+  max-width: 720px;
+  padding: 2rem;
+}
+
+.filterRow {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.yearField {
+  max-width: 140px;
+}
+
+/* =========================================
+   BUDGET LIST
+========================================= */
+.listCard {
+  padding: 2rem;
+}
+
+.listHeader {
+  margin-bottom: 1.5rem;
+}
+
+.listMeta {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.budgetList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* =========================================
+   BUDGET ROW CARD
+========================================= */
+.budgetRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.budgetRow:hover {
+  background: #f3f4f6;
+}
+
+.categoryName {
+  font-weight: 500;
+  font-size: 1rem;
+  color: #111827;
+}
+
+/* =========================================
+   INPUT
+========================================= */
+.budgetInput {
+  width: 180px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  text-align: right;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.budgetInput:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
