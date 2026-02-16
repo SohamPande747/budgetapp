@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import LogoutButton from './LogoutButton'
+import LogoutButton from './LougoutButton'
 
 export default async function DashboardLayout({
   children,
