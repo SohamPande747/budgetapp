@@ -1,42 +1,68 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import LogoutButton from './LougoutButton'
 import styles from './layout.module.css'
+import { Banknote, BanknoteArrowUp, DatabaseZap, HandCoins, Landmark, LayoutDashboard } from 'lucide-react';
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
+  const [collapsed, setCollapsed] = useState(false)
 
   return (
     <div className={styles.layout}>
-      <aside className={styles.sidebar}>
+      <aside
+        className={`${styles.sidebar} ${
+          collapsed ? styles.collapsed : ''
+        }`}
+      >
         <div>
-          <h2 className={styles.logo}>Spendle</h2>
+          <div className={styles.topBar}>
+            {!collapsed && (
+              <h2 className={styles.logo}>Spendle</h2>
+            )}
+
+            <button
+              className={styles.hamburger}
+              onClick={() => setCollapsed(!collapsed)}
+            >
+              ☰
+            </button>
+          </div>
 
           <nav className={styles.sidebarNav}>
-            <Link href="/dashboard">Dashboard</Link>
-            <Link href="/dashboard/transactions">Transactions</Link>
-            <Link href="/dashboard/add-transaction">Add Transaction</Link>
-            <Link href="/dashboard/categories">Categories</Link>
-            <Link href="/dashboard/budgets">Budgets</Link>
-            <Link href="/dashboard/accounts">Accounts</Link>
+            <Link href="/dashboard">
+              {collapsed ? <LayoutDashboard /> : 'Dashboard'}
+            </Link>
+
+            <Link href="/dashboard/transactions">
+              {collapsed ? <Banknote /> : 'Transactions'}
+            </Link>
+
+            <Link href="/dashboard/add-transaction">
+              {collapsed ? <BanknoteArrowUp /> : 'Add Transaction'}
+            </Link>
+
+            <Link href="/dashboard/categories">
+              {collapsed ? <DatabaseZap /> : 'Categories'}
+            </Link>
+
+            <Link href="/dashboard/budgets">
+              {collapsed ? <HandCoins />: 'Budgets'}
+            </Link>
+
+            <Link href="/dashboard/accounts">
+              {collapsed ? <Landmark /> : 'Accounts'}
+            </Link>
           </nav>
         </div>
 
         <div className={styles.logoutForm}>
-          <LogoutButton />
+          <LogoutButton collapsed={collapsed} />
         </div>
       </aside>
 

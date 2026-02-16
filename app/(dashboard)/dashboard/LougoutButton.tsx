@@ -2,8 +2,13 @@
 
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { LogOut } from 'lucide-react'
 
-export default function LogoutButton() {
+export default function LogoutButton({
+  collapsed,
+}: {
+  collapsed?: boolean
+}) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -14,7 +19,7 @@ export default function LogoutButton() {
 
   return (
     <button onClick={handleLogout} className="logout-btn">
-      Logout
+      {collapsed ?  <LogOut/>: 'Logout'}
     </button>
   )
 }
