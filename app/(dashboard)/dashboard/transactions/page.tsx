@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import styles from './page.module.css'
 
 type Transaction = {
   id: string
@@ -42,16 +43,16 @@ export default function TransactionsPage() {
   }, [month, year])
 
   return (
-    <div>
-      <h1 style={{ marginBottom: '20px' }}>Transactions</h1>
+    <div className={styles.container}>
+      <h1 className={styles.pageTitle}>Transactions</h1>
 
       {/* Filter Bar */}
-      <div className="filter-wrapper">
-        <div className="filter-left">
-          <span className="filter-label">Filter by</span>
+      <div className={styles.filterWrapper}>
+        <div className={styles.filterLeft}>
+          <span className={styles.filterLabel}>Filter by</span>
 
           <select
-            className="filter-select"
+            className={styles.filterSelect}
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
           >
@@ -66,18 +67,19 @@ export default function TransactionsPage() {
 
           <input
             type="number"
-            className="filter-input"
+            className={styles.filterInput}
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
           />
         </div>
       </div>
 
-      <div className="card">
+      {/* Transactions Table */}
+      <div className={styles.card}>
         {transactions.length === 0 ? (
-          <p>No transactions found.</p>
+          <p className={styles.emptyState}>No transactions found.</p>
         ) : (
-          <table className="data-table">
+          <table className={styles.dataTable}>
             <thead>
               <tr>
                 <th>Date</th>
@@ -94,13 +96,11 @@ export default function TransactionsPage() {
                   <td>{t.categories?.name}</td>
                   <td>{t.accounts?.name}</td>
                   <td
-                    style={{
-                      color:
-                        t.categories?.type === 'income'
-                          ? '#10b981'
-                          : '#ef4444',
-                      fontWeight: 500,
-                    }}
+                    className={
+                      t.categories?.type === 'income'
+                        ? styles.incomeAmount
+                        : styles.expenseAmount
+                    }
                   >
                     ₹{t.amount}
                   </td>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import styles from './page.module.css'
 
 type BudgetOverview = {
   category: string
@@ -46,16 +47,16 @@ export default function DashboardPage() {
   }, [month, year])
 
   return (
-    <div>
-      <h1 className="page-title">Dashboard</h1>
+    <div className={styles.container}>
+      <h1 className={styles.pageTitle}>Dashboard</h1>
 
       {/* Filter Bar */}
-      <div className="filter-wrapper">
-        <div className="filter-left">
-          <span className="filter-label">Month</span>
+      <div className={styles.filterWrapper}>
+        <div className={styles.filterLeft}>
+          <span className={styles.filterLabel}>Month</span>
 
           <select
-            className="filter-select"
+            className={styles.filterSelect}
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
           >
@@ -70,7 +71,7 @@ export default function DashboardPage() {
 
           <input
             type="number"
-            className="filter-input"
+            className={styles.filterInput}
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
           />
@@ -79,49 +80,50 @@ export default function DashboardPage() {
 
       {/* Summary Cards */}
       {summary && (
-        <div className="summary-grid">
-          <div className="card summary-card">
+        <div className={styles.summaryGrid}>
+          <div className={`${styles.card} ${styles.summaryCard}`}>
             <h3>Total Income</h3>
-            <p style={{ color: '#10b981' }}>
+            <p className={`${styles.summaryValue} ${styles.income}`}>
               ₹{summary.totalIncome}
             </p>
           </div>
 
-          <div className="card summary-card">
+          <div className={`${styles.card} ${styles.summaryCard}`}>
             <h3>Total Expense</h3>
-            <p style={{ color: '#ef4444' }}>
+            <p className={`${styles.summaryValue} ${styles.expense}`}>
               ₹{summary.totalExpense}
             </p>
           </div>
 
-          <div className="card summary-card">
+          <div className={`${styles.card} ${styles.summaryCard}`}>
             <h3>Net Savings</h3>
             <p
-              style={{
-                color:
-                  summary.netSavings >= 0
-                    ? '#10b981'
-                    : '#ef4444'
-              }}
+              className={`${styles.summaryValue} ${
+                summary.netSavings >= 0
+                  ? styles.positive
+                  : styles.negative
+              }`}
             >
               ₹{summary.netSavings}
             </p>
           </div>
 
-          <div className="card summary-card">
+          <div className={`${styles.card} ${styles.summaryCard}`}>
             <h3>Savings Rate</h3>
-            <p>{summary.savingsRate}%</p>
+            <p className={styles.summaryValue}>
+              {summary.savingsRate}%
+            </p>
           </div>
         </div>
       )}
 
       {/* Budget Overview */}
-      <h2 className="page-title" style={{ fontSize: '20px' }}>
+      <h2 className={styles.sectionTitle}>
         Budget Overview
       </h2>
 
       {budgets.length === 0 && (
-        <div className="card">
+        <div className={`${styles.card} ${styles.emptyCard}`}>
           <p>No budgets set.</p>
         </div>
       )}
@@ -135,27 +137,33 @@ export default function DashboardPage() {
         const isOver = b.remaining < 0
 
         return (
-          <div key={b.category} className="card" style={{ marginBottom: '20px' }}>
-            <strong>{b.category}</strong>
+          <div
+            key={b.category}
+            className={`${styles.card} ${styles.budgetCard}`}
+          >
+            <div className={styles.budgetHeader}>
+              {b.category}
+            </div>
 
-            <div className="progress-bar">
+            <div className={styles.progressBar}>
               <div
-                className="progress-fill"
-                style={{
-                  width: `${percentage}%`,
-                  background: isOver ? '#ef4444' : '#10b981',
-                }}
+                className={`${styles.progressFill} ${
+                  isOver
+                    ? styles.progressOver
+                    : styles.progressSafe
+                }`}
+                style={{ width: `${percentage}%` }}
               />
             </div>
 
-            <p style={{ marginTop: '8px' }}>
+            <div className={styles.budgetInfo}>
               ₹{b.spent} / ₹{b.limit}
-            </p>
+            </div>
 
             {isOver && (
-              <p style={{ color: '#ef4444' }}>
+              <div className={styles.overText}>
                 Over budget by ₹{Math.abs(b.remaining)}
-              </p>
+              </div>
             )}
           </div>
         )

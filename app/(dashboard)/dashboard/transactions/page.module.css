@@ -1,0 +1,193 @@
+/* ===== Layout ===== */
+
+.container {
+  padding: 36px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pageTitle {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 28px;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+}
+
+
+/* ===== Filter Bar ===== */
+
+.filterWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.filterLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.filterLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filterSelect,
+.filterInput {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.filterSelect:hover,
+.filterInput:hover {
+  border-color: #cbd5e1;
+}
+
+.filterSelect:focus,
+.filterInput:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+
+/* ===== Card ===== */
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 0;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+
+/* ===== Scrollable Table Container ===== */
+
+.tableWrapper {
+  overflow-x: auto;
+  max-height: 500px;
+}
+
+
+/* ===== Table ===== */
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.dataTable thead {
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.dataTable th {
+  text-align: left;
+  padding: 16px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.dataTable td {
+  padding: 18px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  transition: background 0.15s ease;
+}
+
+.dataTable tbody tr {
+  transition: all 0.15s ease;
+}
+
+.dataTable tbody tr:hover {
+  background: #f8fafc;
+}
+
+
+/* ===== Amount Styling ===== */
+
+.incomeAmount {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.expenseAmount {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+
+/* ===== Empty State ===== */
+
+.emptyState {
+  text-align: center;
+  padding: 80px 20px;
+  font-size: 15px;
+  color: #94a3b8;
+}
+
+
+/* ===== Subtle Fade Animation ===== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dataTable tbody tr {
+  animation: fadeIn 0.2s ease forwards;
+}
+
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  .filterWrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .filterLeft {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .dataTable th,
+  .dataTable td {
+    padding: 12px;
+    font-size: 13px;
+  }
+}
