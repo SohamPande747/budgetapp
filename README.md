@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💰 Spendle – Full-Stack Personal Finance Tracker
 
-## Getting Started
+A full-stack personal finance tracking application built with **Next.js and Supabase**.
 
-First, run the development server:
+Spendle allows users to securely manage their transactions, monitor budgets, and track spending — with strict database-level user isolation using Row Level Security (RLS).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This project demonstrates production-ready architecture, secure authentication, backend API handling, and scalable database design.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Live Demo
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🔗 https://spendleapp.vercel.app/
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## ✨ Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Secure email/password authentication  
+- Row Level Security (RLS) enforced per user  
+- Add / Edit / Delete transactions  
+- Account-wise transaction management  
+- Budget monitoring and spending summary  
+- Server-side API routes (Next.js App Router)  
+- Fully responsive UI  
+- Production deployment on Vercel  
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🛠 Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Frontend
+- Next.js (App Router)
+- TypeScript
+- CSS Modules
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Backend
+- Next.js API Routes
+- Supabase Authentication
+- PostgreSQL Database
+
+### Security
+- Row Level Security (RLS)
+- User-based data isolation
+- Environment variable protection
+
+### Deployment
+- Vercel
+
+---
+
+## 🧱 Architecture Overview
+
+The application follows a full-stack architecture:
+
+1. The client interacts with the Next.js frontend.
+2. API routes handle server-side logic.
+3. Supabase manages authentication and session handling.
+4. PostgreSQL database enforces Row Level Security (RLS) to ensure each user can only access their own data.
+
+All database operations are validated using authenticated user sessions.
+
+---
+
+## 📊 Architecture Diagram
+
