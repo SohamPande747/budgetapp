@@ -1,5 +1,7 @@
+import { clear } from 'console'
 import './globals.css'
 import Providers from './providers'
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
   title: 'Spendle',
