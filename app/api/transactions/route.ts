@@ -5,6 +5,10 @@ import { transactionSchema } from '@/lib/validations/transaction'
 /* =====================================================
    GET - List Transactions
 ===================================================== */
+
+/* =====================================================
+   GET - List OR Single Transaction
+===================================================== */
 export async function GET(req: Request) {
   try {
     const supabase = await createClient()
@@ -17,6 +21,46 @@ export async function GET(req: Request) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const id = searchParams.get('id')
+
+    /* =====================================================
+       🔥 SINGLE TRANSACTION (FOR EDIT PAGE)
+    ===================================================== */
+    if (id) {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select(
+          `
+          id,
+          amount,
+          description,
+          transaction_date,
+          category_id,
+          account_id,
+          categories (
+            id,
+            name,
+            type
+          ),
+          accounts (
+            id,
+            name
+          )
+          `
+        )
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single()
+
+      if (error) throw error
+
+      return NextResponse.json({ data })
+    }
+
+    /* =====================================================
+       🔥 LIST TRANSACTIONS (EXISTING LOGIC)
+    ===================================================== */
 
     const month = searchParams.get('month')
     const year = searchParams.get('year')
@@ -48,7 +92,6 @@ export async function GET(req: Request) {
       .order('transaction_date', { ascending: false })
       .range(from, to)
 
-    /* ---- Month Filter ---- */
     if (month && year) {
       const startDate = `${year}-${month.padStart(2, '0')}-01`
       const endDate = new Date(Number(year), Number(month), 0)
@@ -60,7 +103,6 @@ export async function GET(req: Request) {
         .lte('transaction_date', endDate)
     }
 
-    /* ---- Type Filter ---- */
     if (type) {
       query = query.eq('categories.type', type)
     }
@@ -178,6 +220,71 @@ export async function DELETE(req: Request) {
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to delete transaction' },
+      { status: 400 }
+    )
+  }
+}
+
+/* =====================================================
+   PUT - Update Transaction
+===================================================== */
+export async function PUT(req: Request) {
+  try {
+    const supabase = await createClient()
+
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await req.json()
+
+    const parsed = transactionSchema.safeParse(body)
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.flatten() },
+        { status: 400 }
+      )
+    }
+
+    const {
+      id,
+      category_id,
+      account_id,
+      amount,
+      description,
+      transaction_date
+    } = body
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Transaction ID required' },
+        { status: 400 }
+      )
+    }
+
+    const { error } = await supabase
+      .from('transactions')
+      .update({
+        category_id,
+        account_id,
+        amount,
+        description,
+        transaction_date
+      })
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    if (error) throw error
+
+    return NextResponse.json({ success: true }, { status: 200 })
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || 'Failed to update transaction' },
       { status: 400 }
     )
   }

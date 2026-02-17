@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import styles from './page.module.css'
 import toast from 'react-hot-toast'
 
@@ -21,6 +22,7 @@ type Transaction = {
 }
 
 export default function TransactionsPage() {
+  const router = useRouter()
   const now = new Date()
 
   const [month, setMonth] = useState(now.getMonth() + 1)
@@ -34,6 +36,10 @@ export default function TransactionsPage() {
       maximumFractionDigits: 2,
     }).format(value)
   }
+
+  function handleEdit(id: string) {
+  router.push(`/dashboard/transactions/edit/${id}`)
+}
 
   async function fetchTransactions() {
     try {
@@ -80,7 +86,7 @@ export default function TransactionsPage() {
     <div className={styles.container}>
       <h1 className={styles.pageTitle}>Transactions</h1>
 
-      {/* Filter Bar */}
+      {/* ================= FILTER BAR ================= */}
       <div className={styles.filterWrapper}>
         <div className={styles.filterLeft}>
           <span className={styles.filterLabel}>Filter by</span>
@@ -108,6 +114,7 @@ export default function TransactionsPage() {
         </div>
       </div>
 
+      {/* ================= MAIN CARD ================= */}
       <div className={styles.card}>
         {transactions.length === 0 ? (
           <p className={styles.emptyState}>No transactions found.</p>
@@ -123,7 +130,7 @@ export default function TransactionsPage() {
                     <th>Account</th>
                     <th>Amount</th>
                     <th>Description</th>
-                    <th>Action</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -142,7 +149,14 @@ export default function TransactionsPage() {
                         ₹{formatAmount(t.amount)}
                       </td>
                       <td>{t.description}</td>
-                      <td>
+                      <td className={styles.actionCell}>
+                        <button
+                          className={styles.editButton}
+                          onClick={() => handleEdit(t.id)}
+                        >
+                          Edit
+                        </button>
+
                         <button
                           className={styles.deleteButton}
                           onClick={() => handleDelete(t.id)}
@@ -187,6 +201,13 @@ export default function TransactionsPage() {
                   )}
 
                   <div className={styles.transactionBottom}>
+                    <button
+                      className={styles.editButton}
+                      onClick={() => handleEdit(t.id)}
+                    >
+                      Edit
+                    </button>
+
                     <button
                       className={styles.deleteButton}
                       onClick={() => handleDelete(t.id)}

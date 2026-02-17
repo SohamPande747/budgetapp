@@ -1,0 +1,97 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center; /* Center content horizontally */
+}
+
+/* Limit width and center form */
+.cardWidth {
+  max-width: 750px;
+  width: 100%;
+}
+
+/* ===== Form Grid ===== */
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.fullWidth {
+  grid-column: span 2;
+}
+
+/* ===== Type Toggle ===== */
+
+.typeToggle {
+  display: flex;
+  gap: 8px;
+}
+
+.toggleBtn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.toggleBtn:hover {
+  background: #f3f4f6;
+}
+
+.activeExpense {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.activeIncome {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #10b981;
+}
+
+/* ===== Form Actions ===== */
+
+.formActions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ===================================================== */
+/* ================= MOBILE RESPONSIVE ================= */
+/* ===================================================== */
+
+@media (max-width: 767px) {
+
+  .container {
+    align-items: stretch; /* Full width on mobile */
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullWidth {
+    grid-column: span 1;
+  }
+
+  .formActions {
+    justify-content: stretch;
+  }
+
+  .formActions button {
+    width: 100%;
+  }
+
+  .typeToggle {
+    flex-direction: column;
+  }
+}
