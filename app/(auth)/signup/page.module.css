@@ -7,8 +7,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f9fafb;
   padding: 2rem;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
 }
 
 /* ======================================
@@ -20,8 +20,15 @@
   max-width: 420px;
   background: #ffffff;
   padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
 }
 
 /* ======================================
@@ -29,24 +36,27 @@
 ====================================== */
 
 .title {
-  font-size: 1.8rem;
+  font-size: 1.9rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.5px;
+  color: #111827;
 }
 
 .subtitle {
   color: #6b7280;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
   font-size: 0.95rem;
 }
 
 .error {
-  background: #fee2e2;
+  background: #fef2f2;
   color: #b91c1c;
-  padding: 0.75rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
+  padding: 0.85rem;
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
   font-size: 0.9rem;
+  border: 1px solid #fee2e2;
 }
 
 /* ======================================
@@ -56,27 +66,63 @@
 .field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.25rem;
 }
 
 .field label {
   font-size: 0.85rem;
   font-weight: 500;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.45rem;
   color: #374151;
 }
 
 .input {
-  padding: 0.65rem 0.75rem;
+  width: 100%;
+  padding: 0.7rem 0.85rem;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.95rem;
-  transition: border 0.2s ease;
+  transition: all 0.2s ease;
+  background: #ffffff;
 }
 
 .input:focus {
   outline: none;
   border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* ======================================
+   PASSWORD WRAPPER
+====================================== */
+
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passwordWrapper input {
+  padding-right: 42px;
+}
+
+.eyeBtn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.eyeBtn:hover {
+  color: #374151;
+  transform: scale(1.05);
 }
 
 /* ======================================
@@ -84,18 +130,26 @@
 ====================================== */
 
 .primaryBtn {
-  background: #6366f1;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
   color: white;
-  padding: 0.75rem;
-  border-radius: 8px;
+  padding: 0.8rem;
+  border-radius: 10px;
   border: none;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .primaryBtn:hover {
-  background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.25);
+}
+
+.primaryBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .fullWidth {
@@ -104,17 +158,18 @@
 
 .oauthBtn {
   width: 100%;
-  padding: 0.75rem;
-  border-radius: 8px;
+  padding: 0.8rem;
+  border-radius: 10px;
   border: 1px solid #e5e7eb;
-  background: white;
+  background: #ffffff;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
   font-weight: 500;
 }
 
 .oauthBtn:hover {
-  background: #f3f4f6;
+  background: #f9fafb;
+  border-color: #d1d5db;
 }
 
 /* ======================================
@@ -122,7 +177,7 @@
 ====================================== */
 
 .divider {
-  margin: 1.5rem 0;
+  margin: 1.75rem 0;
   text-align: center;
   position: relative;
   font-size: 0.85rem;
@@ -130,7 +185,7 @@
 }
 
 .divider span {
-  background: white;
+  background: #ffffff;
   padding: 0 0.75rem;
   position: relative;
   z-index: 1;
@@ -152,7 +207,7 @@
 ====================================== */
 
 .footer {
-  margin-top: 1.5rem;
+  margin-top: 1.75rem;
   text-align: center;
   font-size: 0.9rem;
   color: #6b7280;
@@ -161,11 +216,12 @@
 .footer a {
   color: #6366f1;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
+  transition: color 0.2s ease;
 }
 
 .footer a:hover {
-  text-decoration: underline;
+  color: #4f46e5;
 }
 
 /* ======================================
@@ -175,6 +231,7 @@
 @media (max-width: 480px) {
   .card {
     padding: 1.8rem;
+    border-radius: 14px;
   }
 
   .title {
