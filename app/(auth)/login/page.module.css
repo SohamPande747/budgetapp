@@ -234,3 +234,27 @@
   display: flex;
   align-items: center;
 }
+
+.forgotWrapper {
+  text-align: right;
+  margin-top: 6px;
+  margin-bottom: 18px;
+}
+
+.forgotLink {
+  font-size: 14px;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.forgotLink:hover {
+  text-decoration: underline;
+}
+.success {
+  background: #ecfdf5;
+  color: #065f46;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
