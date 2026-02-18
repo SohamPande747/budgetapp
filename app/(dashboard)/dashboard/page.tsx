@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import styles from './page.module.css'
 
 type BudgetOverview = {
@@ -26,8 +27,23 @@ type AccountSummary = {
 }
 
 export default function DashboardPage() {
+  const router = useRouter()
   const now = new Date()
+  const [greeting, setGreeting] = useState('')
 
+  useEffect(() => {
+    const hour = new Date().getHours()
+
+    if (hour >= 5 && hour < 12) {
+      setGreeting('Good Morning')
+    } else if (hour >= 12 && hour < 18) {
+      setGreeting('Good Afternoon')
+    } else if (hour >= 18 && hour < 24) {
+      setGreeting('Good Evening')
+    } else {
+      setGreeting('Welcome Back')
+    }
+  }, [])
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [year, setYear] = useState(now.getFullYear())
 
@@ -35,7 +51,6 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<Summary | null>(null)
   const [accounts, setAccounts] = useState<AccountSummary[]>([])
 
-  // ✅ Currency Formatter (Indian format, 2 decimals)
   function formatAmount(value: number) {
     return new Intl.NumberFormat('en-IN', {
       minimumFractionDigits: 2,
@@ -43,56 +58,41 @@ export default function DashboardPage() {
     }).format(value)
   }
 
-  // =============================
-  // Fetch Budgets
-  // =============================
   async function fetchBudgets() {
     try {
       const res = await fetch(
         `/api/budgets/overview?month=${month}&year=${year}`,
         { cache: 'no-store' }
       )
-      if (!res.ok) throw new Error('Failed to fetch budgets')
-      const data = await res.json()
-      setBudgets(data || [])
-    } catch (err) {
-      console.error(err)
+      if (!res.ok) throw new Error()
+      setBudgets(await res.json())
+    } catch {
       setBudgets([])
     }
   }
 
-  // =============================
-  // Fetch Global Summary
-  // =============================
   async function fetchSummary() {
     try {
       const res = await fetch(
         `/api/summary?month=${month}&year=${year}`,
         { cache: 'no-store' }
       )
-      if (!res.ok) throw new Error('Failed to fetch summary')
-      const data = await res.json()
-      setSummary(data)
-    } catch (err) {
-      console.error(err)
+      if (!res.ok) throw new Error()
+      setSummary(await res.json())
+    } catch {
       setSummary(null)
     }
   }
 
-  // =============================
-  // Fetch Account Summary
-  // =============================
   async function fetchAccountSummary() {
     try {
       const res = await fetch(
         `/api/accounts/summary?month=${month}&year=${year}`,
         { cache: 'no-store' }
       )
-      if (!res.ok) throw new Error('Failed to fetch accounts')
-      const data = await res.json()
-      setAccounts(data || [])
-    } catch (err) {
-      console.error(err)
+      if (!res.ok) throw new Error()
+      setAccounts(await res.json())
+    } catch {
       setAccounts([])
     }
   }
@@ -103,19 +103,27 @@ export default function DashboardPage() {
     fetchAccountSummary()
   }, [month, year])
 
+  const overBudgetCount = budgets.filter(b => b.remaining < 0).length
+
   return (
     <div className={styles.container}>
-      <h1 className={styles.pageTitle}>Dashboard</h1>
+      {/* ================= HEADER ================= */}
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.greeting}>
+            {greeting} 👋
+          </h1>
+          <p className={styles.subGreeting}>
+            Here’s your financial snapshot for{' '}
+            {new Date(year, month - 1).toLocaleString('default', {
+              month: 'long',
+              year: 'numeric',
+            })}
+          </p>
+        </div>
 
-      {/* ============================= */}
-      {/* FILTER BAR */}
-      {/* ============================= */}
-      <div className={styles.filterWrapper}>
-        <div className={styles.filterLeft}>
-          <span className={styles.filterLabel}>Month</span>
-
+        <div className={styles.filterBar}>
           <select
-            className={styles.filterSelect}
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
           >
@@ -130,157 +138,172 @@ export default function DashboardPage() {
 
           <input
             type="number"
-            className={styles.filterInput}
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
           />
         </div>
       </div>
 
-      {/* ============================= */}
-      {/* 🔹 OVERALL OVERVIEW */}
-      {/* ============================= */}
-      <h2 className={styles.sectionTitle}>Overall Overview</h2>
-
-      {summary && (
-        <div className={styles.summaryGrid}>
-          <div className={`${styles.card} ${styles.summaryCard}`}>
-            <h3>Total Income</h3>
-            <p className={`${styles.summaryValue} ${styles.income}`}>
-              ₹{formatAmount(summary.totalIncome)}
-            </p>
-          </div>
-
-          <div className={`${styles.card} ${styles.summaryCard}`}>
-            <h3>Total Expense</h3>
-            <p className={`${styles.summaryValue} ${styles.expense}`}>
-              ₹{formatAmount(summary.totalExpense)}
-            </p>
-          </div>
-
-          <div className={`${styles.card} ${styles.summaryCard}`}>
-            <h3>Current Balance</h3>
-            <p
-              className={`${styles.summaryValue} ${
-                summary.netSavings >= 0
-                  ? styles.positive
-                  : styles.negative
-              }`}
-            >
-              ₹{formatAmount(summary.netSavings)}
-            </p>
-          </div>
-
-          <div className={`${styles.card} ${styles.summaryCard}`}>
-            <h3>Savings Rate</h3>
-            <p className={styles.summaryValue}>
-              {summary.savingsRate.toFixed(2)}%
-            </p>
-          </div>
+      {/* ================= ALERTS ================= */}
+      {overBudgetCount > 0 && (
+        <div className={styles.alertBanner}>
+          ⚠ You are over budget in {overBudgetCount} category
+          {overBudgetCount > 1 && 'ies'}.
         </div>
       )}
 
-      {/* ============================= */}
-      {/* 🔹 ACCOUNT OVERVIEW */}
-      {/* ============================= */}
-      <h2 className={styles.sectionTitle}>Account Overview</h2>
-
-      {accounts.length === 0 && (
-        <div className={`${styles.card} ${styles.emptyCard}`}>
-          <p>No accounts found.</p>
-        </div>
-      )}
-
-      <div className={styles.accountGrid}>
-        {accounts.map((acc) => (
-          <div
-            key={acc.id}
-            className={`${styles.card} ${styles.accountCard}`}
-          >
-            <div className={styles.accountHeader}>
-              {acc.name}
-            </div>
-
-            <div className={styles.accountStats}>
-              <div>
-                <span>Income</span>
-                <p className={styles.income}>
-                  ₹{formatAmount(acc.totalIncome)}
-                </p>
+      {/* ================= MAIN GRID ================= */}
+      <div className={styles.dashboardGrid}>
+        {/* ========= LEFT MAIN COLUMN ========= */}
+        <div className={styles.mainColumn}>
+          {/* KPI CARDS */}
+          {summary && (
+            <div className={styles.kpiGrid}>
+              <div className={`${styles.card} ${styles.kpiCard}`}>
+                <span className={styles.kpiLabel}>Total Income</span>
+                <h2 className={styles.income}>
+                  ₹{formatAmount(summary.totalIncome)}
+                </h2>
               </div>
 
-              <div>
-                <span>Expense</span>
-                <p className={styles.expense}>
-                  ₹{formatAmount(acc.totalExpense)}
-                </p>
+              <div className={`${styles.card} ${styles.kpiCard}`}>
+                <span className={styles.kpiLabel}>Total Expense</span>
+                <h2 className={styles.expense}>
+                  ₹{formatAmount(summary.totalExpense)}
+                </h2>
+              </div>
+
+              <div className={`${styles.card} ${styles.kpiCard}`}>
+                <span className={styles.kpiLabel}>Net Balance</span>
+                <h2
+                  className={
+                    summary.netSavings >= 0
+                      ? styles.positive
+                      : styles.negative
+                  }
+                >
+                  ₹{formatAmount(summary.netSavings)}
+                </h2>
+              </div>
+
+              <div className={`${styles.card} ${styles.kpiCard}`}>
+                <span className={styles.kpiLabel}>Savings Rate</span>
+                <h2>{summary.savingsRate.toFixed(2)}%</h2>
               </div>
             </div>
+          )}
 
-            <div
-              className={`${styles.accountBalance} ${
-                acc.balance >= 0
-                  ? styles.positive
-                  : styles.negative
-              }`}
-            >
-              Balance: ₹{formatAmount(acc.balance)}
+          {/* BUDGET SECTION */}
+          <h2 className={styles.sectionTitle}>Budget Overview</h2>
+
+          {budgets.length === 0 && (
+            <div className={`${styles.card} ${styles.emptyCard}`}>
+              No budgets set.
             </div>
-          </div>
-        ))}
-      </div>
+          )}
 
-      {/* ============================= */}
-      {/* 🔹 BUDGET OVERVIEW */}
-      {/* ============================= */}
-      <h2 className={styles.sectionTitle}>Budget Overview</h2>
+          {budgets.map((b) => {
+            const percentage =
+              b.limit > 0
+                ? Math.min((b.spent / b.limit) * 100, 100)
+                : 0
 
-      {budgets.length === 0 && (
-        <div className={`${styles.card} ${styles.emptyCard}`}>
-          <p>No budgets set.</p>
-        </div>
-      )}
+            const isOver = b.remaining < 0
 
-      {budgets.map((b) => {
-        const percentage =
-          b.limit > 0
-            ? Math.min((b.spent / b.limit) * 100, 100)
-            : 0
-
-        const isOver = b.remaining < 0
-
-        return (
-          <div
-            key={b.category}
-            className={`${styles.card} ${styles.budgetCard}`}
-          >
-            <div className={styles.budgetHeader}>
-              {b.category}
-            </div>
-
-            <div className={styles.progressBar}>
+            return (
               <div
-                className={`${styles.progressFill} ${
-                  isOver
-                    ? styles.progressOver
-                    : styles.progressSafe
-                }`}
-                style={{ width: `${percentage}%` }}
-              />
-            </div>
+                key={b.category}
+                className={`${styles.card} ${styles.budgetCard}`}
+              >
+                <div className={styles.budgetHeader}>
+                  {b.category}
+                </div>
 
-            <div className={styles.budgetInfo}>
-              ₹{formatAmount(b.spent)} / ₹{formatAmount(b.limit)}
-            </div>
+                <div className={styles.progressBar}>
+                  <div
+                    className={`${styles.progressFill} ${isOver
+                      ? styles.progressOver
+                      : styles.progressSafe
+                      }`}
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
 
-            {isOver && (
-              <div className={styles.overText}>
-                Over budget by ₹{formatAmount(Math.abs(b.remaining))}
+                <div className={styles.budgetInfo}>
+                  ₹{formatAmount(b.spent)} / ₹
+                  {formatAmount(b.limit)}
+                </div>
+
+                {isOver && (
+                  <div className={styles.overText}>
+                    Over by ₹
+                    {formatAmount(Math.abs(b.remaining))}
+                  </div>
+                )}
               </div>
-            )}
+            )
+          })}
+        </div>
+
+        {/* ========= RIGHT SIDEBAR ========= */}
+        <div className={styles.sideColumn}>
+          {/* QUICK ACTIONS */}
+          {/* QUICK ACTIONS */}
+          <div className={`${styles.card} ${styles.quickActions}`}>
+            <h3>Quick Actions</h3>
+
+            <button
+              className={styles.primaryBtn}
+              onClick={() => router.push('/dashboard/add-transaction')}
+            >
+              + Add Transaction
+            </button>
+
+            <button
+              className={styles.secondaryBtn}
+              onClick={() => router.push('/dashboard/budgets')}
+            >
+              + Create Budget
+            </button>
+
+            <button
+              className={styles.secondaryBtn}
+              onClick={() => router.push('/dashboard/accounts')}
+            >
+              + Add Account
+            </button>
           </div>
-        )
-      })}
+
+          {/* ACCOUNTS */}
+          <div className={`${styles.card}`}>
+            <h3>Accounts</h3>
+
+            {accounts.length === 0 && (
+              <p>No accounts found.</p>
+            )}
+
+            {accounts.map((acc) => (
+              <div
+                key={acc.id}
+                className={styles.accountItem}
+              >
+                <div className={styles.accountName}>
+                  {acc.name}
+                </div>
+                <div
+                  className={
+                    acc.balance >= 0
+                      ? styles.positive
+                      : styles.negative
+                  }
+                >
+                  ₹{formatAmount(acc.balance)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

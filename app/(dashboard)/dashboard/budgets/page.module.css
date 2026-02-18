@@ -13,23 +13,74 @@
 /* =========================================
    FILTER
 ========================================= */
+
+/* =========================================
+   FILTER (Refined Control Panel Style)
+========================================= */
+
 .filterCard {
-  padding: 1.4rem 1.8rem;
-  border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  padding: 1.6rem 2rem;
+  border-radius: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+
+  display: flex;
+  justify-content: center;
 }
 
 .filterRow {
   display: flex;
-  gap: 2rem;
+  gap: 2.5rem;
   align-items: flex-end;
-  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Align fields cleanly */
+.filterRow .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
 }
 
 .yearField {
   max-width: 120px;
+}
+
+/* Labels */
+.filterCard label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}
+
+/* Inputs */
+.filterCard select,
+.filterCard input {
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.filterCard select:focus,
+.filterCard input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* Dark mode slight separation */
+:global([data-theme='dark']) .filterCard {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 /* =========================================

@@ -93,7 +93,6 @@ export default function AddTransactionPage() {
       }
 
       toast.success('Transaction added successfully 🎉')
-
       router.push('/dashboard/transactions')
     } catch (err: any) {
       toast.error(err.message || 'Something went wrong')
@@ -108,7 +107,6 @@ export default function AddTransactionPage() {
   }, [])
 
   useEffect(() => {
-    // Auto focus amount field on mount
     amountRef.current?.focus()
   }, [])
 
@@ -118,21 +116,21 @@ export default function AddTransactionPage() {
 
   return (
     <div className={styles.container}>
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Add Transaction</h1>
-          <p className="page-subtitle">
-            Record a new income or expense entry
-          </p>
-        </div>
+      {/* Header */}
+      <div className={styles.pageHeader}>
+        <h1>Add Transaction</h1>
+        <p>Record a new income or expense entry</p>
       </div>
 
-      <div className={`card ${styles.cardWidth}`}>
+      {/* Form Card */}
+      <div className={styles.cardWidth}>
         <div className={styles.formGrid}>
 
-          {/* Type */}
+          {/* Transaction Type */}
           <div className="form-field">
-            <label>Transaction Type</label>
+            <label>
+              Transaction Type <span className={styles.required}>*</span>
+            </label>
             <div className={styles.typeToggle}>
               <button
                 type="button"
@@ -164,7 +162,9 @@ export default function AddTransactionPage() {
 
           {/* Category */}
           <div className="form-field">
-            <label>Category</label>
+            <label>
+              Category <span className={styles.required}>*</span>
+            </label>
             <select
               className="form-select"
               value={categoryId}
@@ -181,7 +181,9 @@ export default function AddTransactionPage() {
 
           {/* Account */}
           <div className="form-field">
-            <label>Payment Method</label>
+            <label>
+              Payment Method <span className={styles.required}>*</span>
+            </label>
             <select
               className="form-select"
               value={accountId}
@@ -197,7 +199,9 @@ export default function AddTransactionPage() {
 
           {/* Amount */}
           <div className="form-field">
-            <label>Amount</label>
+            <label>
+              Amount <span className={styles.required}>*</span>
+            </label>
             <input
               ref={amountRef}
               className="form-input amount-input"
@@ -221,9 +225,10 @@ export default function AddTransactionPage() {
             />
           </div>
 
-          {/* Date */}
           <div className="form-field">
-            <label>Date</label>
+            <label>
+              Date <span className={styles.required}>*</span>
+            </label>
             <input
               className="form-input"
               type="date"
@@ -235,7 +240,7 @@ export default function AddTransactionPage() {
           {/* Submit */}
           <div className={`${styles.formActions} ${styles.fullWidth}`}>
             <button
-              className="primary-btn full-width"
+              className="primary-btn"
               onClick={handleSubmit}
               disabled={saving}
             >
