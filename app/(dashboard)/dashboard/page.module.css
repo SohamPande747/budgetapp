@@ -1,33 +1,30 @@
-/* ================= CONTAINER ================= */
-
 .container {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 40px;
+  padding: 10px 0;
 }
 
-/* ================= HEADER ================= */
+/* HEADER */
 
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 .greeting {
-  font-size: 24px;
+  font-size: 34px;
   font-weight: 600;
-  color: var(--text-primary);
+  letter-spacing: -1px;
+  color: var(--text-strong);
 }
 
 .subGreeting {
-  margin-top: 4px;
-  font-size: 14px;
-  color: var(--text-secondary);
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--text-muted);
 }
-
-/* ================= FILTER BAR ================= */
 
 .filterBar {
   display: flex;
@@ -37,216 +34,345 @@
 .filterBar select,
 .filterBar input {
   padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-primary);
+  border-radius: 12px;
+  border: none;
+  background: var(--surface-2);
+  color: var(--text-strong);
   font-size: 14px;
-  transition: border 0.2s ease;
 }
 
-.filterBar select:focus,
-.filterBar input:focus {
-  outline: none;
-  border-color: var(--accent);
-}
+/* SNAPSHOT */
 
-/* ================= ALERT ================= */
-
-.alertBanner {
-  padding: 12px 16px;
-  border-radius: 10px;
-  background: rgba(239, 68, 68, 0.08);
-  color: #dc2626;
-  font-size: 14px;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-/* ================= GRID ================= */
-
-.dashboardGrid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
-}
-
-.mainColumn {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.sideColumn {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* ================= CARDS ================= */
-
-.card {
-  background: var(--bg-card);
-  border-radius: 14px;
-  padding: 20px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-soft);
-}
-
-/* ================= KPI ================= */
-
-.kpiGrid {
+.snapshot {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 24px;
+  background: var(--surface-1);
+  padding: 32px;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
-.kpiCard {
+.snapshot span {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.snapshot h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-top: 6px;
+  letter-spacing: -0.5px;
+}
+
+/* STATES */
+
+.income,
+.positive {
+  color: var(--success);
+}
+
+.expense,
+.negative {
+  color: var(--danger);
+}
+
+/* SECTION */
+
+.section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 18px;
 }
-
-.kpiLabel {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.kpiCard h2 {
-  font-size: 20px;
-  font-weight: 600;
-}
-
-/* Income / Expense Colors */
-
-.income {
-  color: #059669;
-}
-
-.expense {
-  color: #dc2626;
-}
-
-.positive {
-  color: #059669;
-}
-
-.negative {
-  color: #dc2626;
-}
-
-/* ================= SECTION TITLE ================= */
 
 .sectionTitle {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  color: var(--text-primary);
+  letter-spacing: -0.4px;
 }
 
-/* ================= BUDGET ================= */
+/* BUDGET ROW */
 
-.budgetCard {
+.budgetRow {
+  background: var(--surface-1);
+  padding: 22px;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
 }
 
-.budgetHeader {
+.budgetTop {
+  display: flex;
+  justify-content: space-between;
   font-weight: 500;
-  color: var(--text-primary);
 }
 
 .progressBar {
-  height: 8px;
-  background: var(--border);
+  height: 6px;
+  background: var(--surface-3);
   border-radius: 999px;
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
+  background: var(--accent);
   border-radius: 999px;
   transition: width 0.3s ease;
 }
 
-/* softer accent usage */
-.progressSafe {
+.budgetMeta {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* BOTTOM GRID */
+
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+/* ACTIONS */
+
+.actions {
+  background: var(--surface-1);
+  padding: 28px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.primaryBtn {
   background: var(--accent);
-}
-
-.progressOver {
-  background: #dc2626;
-}
-
-.budgetInfo {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.overText {
-  font-size: 13px;
-  color: #dc2626;
-}
-
-/* ================= QUICK ACTIONS ================= */
-
-.quickActions h3 {
-  margin-bottom: 12px;
+  color: white;
+  padding: 14px;
+  border-radius: 16px;
+  border: none;
   font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.secondaryLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.secondaryLinks button {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ACCOUNTS */
+
+.accounts {
+  background: var(--surface-1);
+  padding: 28px;
+  border-radius: 24px;
+}
+
+.accounts h3 {
+  margin-bottom: 16px;
   font-weight: 600;
 }
 
-/* Primary Button */
-.primaryBtn {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: none;
-  background: var(--accent);
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.primaryBtn:hover {
-  background: var(--accent-hover);
-  color: var(--text-primary);
-}
-
-/* Secondary Button */
-.secondaryBtn {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.secondaryBtn:hover {
-  background: var(--accent-soft);
-}
-
-/* ================= ACCOUNTS ================= */
-
-.accountItem {
+.accountRow {
   display: flex;
   justify-content: space-between;
   padding: 8px 0;
-  border-bottom: 1px solid var(--border);
 }
 
-.accountName {
+/* EMPTY */
+
+.empty {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+:root {
+  --bg-canvas: #f5f5f7;
+  --surface-1: #ffffff;
+  --surface-2: #f2f2f4;
+  --surface-3: #e8e8ed;
+
+  --text-strong: #1d1d1f;
+  --text-muted: #6e6e73;
+
+  --success: #1d9b63;
+  --danger: #ff453a;
+
+  --radius-xl: 28px;
+  --radius-lg: 20px;
+}
+
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 60px 24px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+
+/* HEADER */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.header h1 {
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -1.2px;
+  color: var(--text-strong);
+}
+
+.header p {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+.filter {
+  display: flex;
+  gap: 12px;
+}
+
+.filter select,
+.filter input {
+  background: var(--surface-2);
+  border: none;
+  border-radius: 14px;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: var(--text-strong);
+}
+
+/* HERO */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.heroPrimary span {
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.heroPrimary h2 {
+  font-size: 56px;
+  font-weight: 600;
+  letter-spacing: -2px;
+  margin-top: 8px;
+}
+
+.heroSecondary {
+  display: flex;
+  gap: 60px;
+}
+
+.heroSecondary span {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.heroSecondary p {
+  margin-top: 6px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* STATES */
+
+.positive {
+  color: var(--success);
+}
+
+.negative {
+  color: var(--danger);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+/* BUDGET */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section h3 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.budgetRow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.budgetHeader {
+  display: flex;
+  justify-content: space-between;
   font-size: 14px;
 }
 
-/* ================= EMPTY ================= */
+.progress {
+  height: 6px;
+  background: var(--surface-3);
+  border-radius: 999px;
+}
 
-.emptyCard {
-  text-align: center;
-  font-size: 14px;
-  color: var(--text-secondary);
+.progressFill {
+  height: 100%;
+  background: var(--text-strong);
+  border-radius: 999px;
+}
+
+/* BOTTOM */
+
+.bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.primaryAction {
+  align-self: flex-start;
+  padding: 12px 28px;
+  background: var(--text-strong);
+  color: white;
+  border-radius: 999px;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.accounts h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.accountRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
 }

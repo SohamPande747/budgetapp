@@ -144,69 +144,43 @@ export default function AccountsPage() {
       </div>
 
       {/* Accounts Table */}
-      <div className={`card ${styles.tableCard}`}>
-        <div className="card-header">
-          <h3>Your Accounts</h3>
-          <span>{accounts.length} total</span>
+      <div className={styles.tableCard}>
+  {accounts.length === 0 ? (
+    <div className={styles.emptyState}>
+      <div className={styles.emptyIcon}>
+        <CreditCard size={36} strokeWidth={1.5} />
+      </div>
+      <h4>No accounts yet</h4>
+      <p>Add your first payment method above.</p>
+    </div>
+  ) : (
+    accounts.map((account, index) => (
+      <div key={account.id} className={styles.accountRow}>
+        <div className={styles.accountLeft}>
+          <span className={styles.accountName}>
+            {account.name}
+          </span>
+
+          {index === 0 && (
+            <span className={styles.primaryBadge}>
+              Primary
+            </span>
+          )}
         </div>
 
-        {accounts.length === 0 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>
-              <CreditCard size={40} strokeWidth={1.5} />
-            </div>
-            <h4>No accounts added</h4>
-            <p>Add your first payment method above.</p>
-          </div>
-        ) : (
-          <div className="table-wrapper">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th style={{ textAlign: 'right' }}>Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {accounts.map((account, index) => (
-                  <tr key={account.id}>
-                    <td>
-                      {account.name}
-                      {index === 0 && (
-                        <span className={styles.primaryBadge}>
-                          Primary
-                        </span>
-                      )}
-                    </td>
-
-                    <td style={{ textAlign: 'right' }}>
-                      {index === 0 ? (
-                        <button
-                          className="danger-btn subtle disabled-btn"
-                          disabled
-                        >
-                          Delete
-                        </button>
-                      ) : (
-                        <button
-                          className="danger-btn subtle"
-                          onClick={() => deleteAccount(account.id)}
-                          disabled={deletingId === account.id}
-                        >
-                          {deletingId === account.id
-                            ? 'Deleting...'
-                            : 'Delete'}
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {index !== 0 && (
+          <button
+            className="danger-btn subtle"
+            onClick={() => deleteAccount(account.id)}
+            disabled={deletingId === account.id}
+          >
+            {deletingId === account.id ? 'Deleting...' : 'Delete'}
+          </button>
         )}
       </div>
+    ))
+  )}
+</div>
 
     </div>
   )

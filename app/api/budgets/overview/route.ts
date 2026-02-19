@@ -7,9 +7,7 @@ export async function GET(req: Request) {
   const supabase = await createClient()
   const { searchParams } = new URL(req.url)
 
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     return NextResponse.json(
@@ -25,24 +23,37 @@ export async function GET(req: Request) {
   const month = monthParam ? Number(monthParam) : now.getMonth() + 1
   const year = yearParam ? Number(yearParam) : now.getFullYear()
 
+  if (!month || month < 1 || month > 12) {
+    return NextResponse.json(
+      { error: 'Invalid month' },
+      { status: 400 }
+    )
+  }
+
+  if (!year || year < 2000) {
+    return NextResponse.json(
+      { error: 'Invalid year' },
+      { status: 400 }
+    )
+  }
+
   const startDate = `${year}-${String(month).padStart(2, '0')}-01`
   const endDate = new Date(year, month, 0)
     .toISOString()
     .split('T')[0]
 
-  // 1️⃣ Get transactions
-  const { data: transactions, error: txError } = await supabase
-    .from('transactions')
-    .select(`
-      amount,
-      category_id,
-      categories (
-        type
-      )
-    `)
-    .eq('user_id', user.id)
-    .gte('transaction_date', startDate)
-    .lte('transaction_date', endDate)
+  // 1️⃣ Fetch transactions (only expense ones matter)
+  const { data: transactions, error: txError } =
+    await supabase
+      .from('transactions')
+      .select(`
+        amount,
+        category_id,
+        categories ( type )
+      `)
+      .eq('user_id', user.id)
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
 
   if (txError) {
     return NextResponse.json(
@@ -55,25 +66,23 @@ export async function GET(req: Request) {
 
   transactions?.forEach((t: any) => {
     if (t.categories?.type === 'expense') {
-      const catId = t.category_id
-      spentMap[catId] =
-        (spentMap[catId] || 0) + Number(t.amount)
+      spentMap[t.category_id] =
+        (spentMap[t.category_id] || 0) + Number(t.amount)
     }
   })
 
-  // 2️⃣ Get budgets
-  const { data: budgets, error: budgetError } = await supabase
-    .from('budgets')
-    .select(`
-      limit_amount,
-      category_id,
-      categories (
-        name
-      )
-    `)
-    .eq('user_id', user.id)
-    .eq('month', month)
-    .eq('year', year)
+  // 2️⃣ Fetch budgets for month
+  const { data: budgets, error: budgetError } =
+    await supabase
+      .from('budgets')
+      .select(`
+        limit_amount,
+        category_id,
+        categories ( name )
+      `)
+      .eq('user_id', user.id)
+      .eq('month', month)
+      .eq('year', year)
 
   if (budgetError) {
     return NextResponse.json(

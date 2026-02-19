@@ -1,119 +1,120 @@
 /* =========================================
-   PAGE (Centered + Reduced Width)
+   PAGE
 ========================================= */
 .container {
-  max-width: 920px;           /* reduced overall width */
-  margin: 0 auto;             /* center */
+  max-width: 920px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;                /* tighter vertical spacing */
+  gap: 1.8rem;
   padding-bottom: 2rem;
 }
 
-/* =========================================
-   FILTER
-========================================= */
 
 /* =========================================
-   FILTER (Refined Control Panel Style)
+   FILTER CARD (Centered Period Control)
 ========================================= */
-
 .filterCard {
-  padding: 1.6rem 2rem;
+  padding: 2rem 1.6rem;
   border-radius: 18px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-soft);
+  background: var(--surface-primary);
+  border: 1px solid var(--border-color);
 
   display: flex;
   justify-content: center;
 }
 
-.filterRow {
-  display: flex;
-  gap: 2.5rem;
-  align-items: flex-end;
-  justify-content: center;
-  width: 100%;
-}
-
-/* Align fields cleanly */
-.filterRow .form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 180px;
-}
-
-.yearField {
-  max-width: 120px;
-}
-
-/* Labels */
-.filterCard label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  letter-spacing: 0.3px;
-}
-
-/* Inputs */
-.filterCard select,
-.filterCard input {
-  height: 42px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--bg-page);
-  color: var(--text-primary);
-  padding: 0 14px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.filterCard select:focus,
-.filterCard input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-soft);
-}
-
-/* Dark mode slight separation */
-:global([data-theme='dark']) .filterCard {
-  background: rgba(255, 255, 255, 0.04);
-}
 
 /* =========================================
-   BUDGET LIST CONTAINER
+   PERIOD BAR
+========================================= */
+.periodBar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  background: var(--surface-secondary);
+  padding: 0.6rem 0.8rem;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+
+  width: fit-content;
+}
+
+
+/* =========================================
+   PERIOD NAV BUTTONS
+========================================= */
+.navBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.15s ease;
+}
+
+.navBtn:hover {
+  background: var(--surface-hover);
+}
+
+
+/* =========================================
+   PERIOD DROPDOWNS
+========================================= */
+.periodSelect {
+  height: 40px;
+  padding: 0 1rem;
+  border-radius: 10px;
+  border: none;
+  background: var(--surface-primary);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  min-width: 130px;
+}
+
+.periodSelect:focus {
+  outline: none;
+}
+
+
+/* =========================================
+   LIST CARD
 ========================================= */
 .listCard {
-  padding: 1.8rem 2rem;
-  border-radius: 18px;
-  background: #ffffff;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05);
+  padding: 1.6rem 1.8rem;
+  border-radius: 16px;
+  background: var(--surface-primary);
+  border: 1px solid var(--border-color);
 }
 
 .listHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.6rem;
 }
 
 .listHeader h3 {
   font-size: 1.05rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .listMeta {
-  font-size: 0.8rem;
-  color: #64748b;
-  background: #f1f5f9;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--surface-secondary);
   padding: 4px 10px;
   border-radius: 999px;
 }
+
 
 /* =========================================
    BUDGET LIST
@@ -121,37 +122,44 @@
 .budgetList {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem; /* tighter */
+  gap: 0.6rem;
 }
 
+
 /* =========================================
-   BUDGET ROW (Compact + Balanced)
+   BUDGET ROW
 ========================================= */
 .budgetRow {
   display: grid;
-  grid-template-columns: 1fr 120px 90px; /* tighter proportions */
+  grid-template-columns: 1fr 140px 90px;
   align-items: center;
   gap: 1rem;
-  padding: 0.85rem 1.1rem;
-  border-radius: 14px;
-  background: linear-gradient(145deg, #f9fafb, #ffffff);
-  border: 1px solid #f1f5f9;
-  transition: all 0.2s ease;
+
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  background: var(--surface-secondary);
+  border: 1px solid var(--border-color);
+
+  transition: background 0.15s ease, border 0.15s ease;
 }
 
 .budgetRow:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+  background: var(--surface-hover);
 }
 
-.categoryName {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #0f172a;
-}
 
 /* =========================================
-   AMOUNT WRAPPER WITH ₹
+   CATEGORY
+========================================= */
+.categoryName {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+
+/* =========================================
+   AMOUNT INPUT
 ========================================= */
 .amountWrapper {
   position: relative;
@@ -160,36 +168,33 @@
 
 .currency {
   position: absolute;
-  left: 10px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  font-weight: 600;
-  color: #94a3b8;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
   pointer-events: none;
 }
 
-/* =========================================
-   INPUT (Compact Fintech Style)
-========================================= */
 .budgetInput {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: textfield;
 
   width: 100%;
-  padding: 6px 8px 6px 24px;
+  padding: 0.55rem 0.75rem 0.55rem 1.9rem;
   border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  text-align: center;
-  font-weight: 600;
+  border: 1px solid var(--border-color);
+  background: var(--surface-primary);
+
   font-size: 0.9rem;
-  background: #f8fafc;
-  color: #0f172a;
+  font-weight: 500;
+  color: var(--text-primary);
+
   transition: all 0.2s ease;
 }
 
-/* Remove number arrows */
 .budgetInput::-webkit-outer-spin-button,
 .budgetInput::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -198,37 +203,69 @@
 
 .budgetInput:focus {
   outline: none;
-  border-color: #6366f1;
-  background: #ffffff;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.12);
 }
+
 
 /* =========================================
-   SAVE BUTTON (Slim + Clean)
+   SAVE BUTTON
 ========================================= */
 .saveButton {
-  padding: 6px 0;
+  height: 36px;
   border-radius: 10px;
   border: none;
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
+
+  background: var(--accent);
   color: white;
-  font-weight: 600;
+
   font-size: 0.85rem;
+  font-weight: 500;
+
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: opacity 0.15s ease;
 }
 
-.saveButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(99, 102, 241, 0.25);
+.saveButton:hover:not(:disabled) {
+  opacity: 0.9;
 }
 
 .saveButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
+
+
+/* =========================================
+   DARK MODE OVERRIDES
+========================================= */
+:global([data-theme='dark']) .filterCard {
+  background: #1e293b;
+  border: 1px solid #2b3a50;
+}
+
+:global([data-theme='dark']) .periodBar {
+  background: #243247;
+  border: 1px solid #334155;
+}
+
+:global([data-theme='dark']) .periodSelect {
+  background: #1b2738;
+  color: #e2e8f0;
+}
+
+:global([data-theme='dark']) .navBtn {
+  color: #cbd5e1;
+}
+
+:global([data-theme='dark']) .navBtn:hover {
+  background: #2f3f58;
+}
+
+:global([data-theme='dark']) .periodSelect:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
 
 /* =========================================
    RESPONSIVE
@@ -237,5 +274,9 @@
   .budgetRow {
     grid-template-columns: 1fr;
     gap: 0.8rem;
+  }
+
+  .saveButton {
+    width: 100%;
   }
 }

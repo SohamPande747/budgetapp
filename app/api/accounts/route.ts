@@ -7,28 +7,20 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET() {
   const supabase = await createClient()
 
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { data, error } = await supabase
     .from('accounts')
-    .select('*')
+    .select('id, name, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: true })
 
   if (error) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: error.message }, { status: 400 })
   }
 
   return NextResponse.json(data)
@@ -39,22 +31,16 @@ export async function GET() {
 ========================= */
 export async function POST(req: Request) {
   const supabase = await createClient()
-
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const body = await req.json()
-  const { name } = body
+  const name = body?.name?.trim()
 
-  if (!name || !name.trim()) {
+  if (!name) {
     return NextResponse.json(
       { error: 'Account name is required' },
       { status: 400 }
@@ -63,13 +49,12 @@ export async function POST(req: Request) {
 
   const { data, error } = await supabase
     .from('accounts')
-    .insert([
-      {
-        name: name.trim(),
-        user_id: user.id
-      }
-    ])
+    .insert({
+      name,
+      user_id: user.id
+    })
     .select()
+    .single()
 
   if (error) {
     return NextResponse.json(
@@ -78,27 +63,55 @@ export async function POST(req: Request) {
     )
   }
 
-  return NextResponse.json(data[0], { status: 201 })
+  return NextResponse.json(data, { status: 201 })
+}
+
+/* =========================
+   PUT - Rename Account
+========================= */
+export async function PUT(req: Request) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const body = await req.json()
+  const { id, name } = body
+
+  if (!id || !name?.trim()) {
+    return NextResponse.json(
+      { error: 'Account ID and name required' },
+      { status: 400 }
+    )
+  }
+
+  const { error } = await supabase
+    .from('accounts')
+    .update({ name: name.trim() })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 400 }
+    )
+  }
+
+  return NextResponse.json({ success: true })
 }
 
 /* =========================
    DELETE - Delete Account
 ========================= */
-/* =========================
-   DELETE - Delete Account
-========================= */
 export async function DELETE(req: Request) {
   const supabase = await createClient()
-
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { searchParams } = new URL(req.url)
@@ -111,75 +124,44 @@ export async function DELETE(req: Request) {
     )
   }
 
-  // ✅ Verify ownership
-  const { data: account, error: fetchError } = await supabase
-    .from('accounts')
-    .select('*')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
-
-  if (fetchError || !account) {
-    return NextResponse.json(
-      { error: 'Account not found' },
-      { status: 404 }
-    )
-  }
-
-  // ✅ Prevent deleting primary account
-  const { data: allAccounts } = await supabase
+  // Ensure user has more than 1 account
+  const { data: accounts } = await supabase
     .from('accounts')
     .select('id')
     .eq('user_id', user.id)
-    .order('created_at', { ascending: true })
 
-  if (allAccounts && allAccounts.length > 0) {
-    const primaryAccount = allAccounts[0]
-
-    if (primaryAccount.id === id) {
-      return NextResponse.json(
-        { error: 'Primary account cannot be deleted' },
-        { status: 400 }
-      )
-    }
+  if (!accounts || accounts.length <= 1) {
+    return NextResponse.json(
+      { error: 'You must have at least one account' },
+      { status: 400 }
+    )
   }
 
-  // ✅ Check if transactions exist BEFORE deleting
-  const { count, error: txError } = await supabase
+  // Check if transactions exist
+  const { count } = await supabase
     .from('transactions')
     .select('*', { count: 'exact', head: true })
     .eq('account_id', id)
 
-  if (txError) {
-    return NextResponse.json(
-      { error: 'Failed to verify transactions' },
-      { status: 500 }
-    )
-  }
-
   if (count && count > 0) {
     return NextResponse.json(
-      { error: 'Cannot delete account because transactions exist' },
+      { error: 'Cannot delete account with transactions' },
       { status: 409 }
     )
   }
 
-  // ✅ Safe to delete
-  const { error: deleteError } = await supabase
+  const { error } = await supabase
     .from('accounts')
     .delete()
     .eq('id', id)
     .eq('user_id', user.id)
 
-  if (deleteError) {
+  if (error) {
     return NextResponse.json(
-      { error: 'Failed to delete account' },
+      { error: error.message },
       { status: 400 }
     )
   }
 
-  return NextResponse.json(
-    { success: true },
-    { status: 200 }
-  )
+  return NextResponse.json({ success: true })
 }

@@ -117,36 +117,67 @@ export default function BudgetsPage() {
 
       {/* FILTER */}
       <div className={`card ${styles.filterCard}`}>
-        <div className={styles.filterRow}>
-          <div className="form-field">
-            <label>Month</label>
-            <select
-              className="form-select"
-              value={month}
-              onChange={(e) => setMonth(Number(e.target.value))}
-            >
-              {Array.from({ length: 12 }).map((_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {new Date(0, i).toLocaleString('default', {
-                    month: 'long'
-                  })}
-                </option>
-              ))}
-            </select>
-          </div>
+  <div className={styles.periodBar}>
+    
+    <button
+      className={styles.navBtn}
+      onClick={() => {
+        if (month === 1) {
+          setMonth(12)
+          setYear((prev) => prev - 1)
+        } else {
+          setMonth((prev) => prev - 1)
+        }
+      }}
+    >
+      ←
+    </button>
 
-          <div className={`form-field ${styles.yearField}`}>
-            <label>Year</label>
-            <input
-              className="form-input"
-              type="number"
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
-            />
-          </div>
-        </div>
-      </div>
+    <select
+      className={styles.periodSelect}
+      value={month}
+      onChange={(e) => setMonth(Number(e.target.value))}
+    >
+      {Array.from({ length: 12 }).map((_, i) => (
+        <option key={i + 1} value={i + 1}>
+          {new Date(0, i).toLocaleString('default', {
+            month: 'long'
+          })}
+        </option>
+      ))}
+    </select>
 
+    <select
+      className={styles.periodSelect}
+      value={year}
+      onChange={(e) => setYear(Number(e.target.value))}
+    >
+      {Array.from({ length: 5 }).map((_, i) => {
+        const y = new Date().getFullYear() - 2 + i
+        return (
+          <option key={y} value={y}>
+            {y}
+          </option>
+        )
+      })}
+    </select>
+
+    <button
+      className={styles.navBtn}
+      onClick={() => {
+        if (month === 12) {
+          setMonth(1)
+          setYear((prev) => prev + 1)
+        } else {
+          setMonth((prev) => prev + 1)
+        }
+      }}
+    >
+      →
+    </button>
+
+  </div>
+</div>
       {/* TABLE */}
       <div className={`card ${styles.listCard}`}>
         <div className={styles.listHeader}>
