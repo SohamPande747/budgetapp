@@ -22,14 +22,18 @@ export default function DashboardShell({
         : 'light')
 
     setTheme(initial)
-    document.documentElement.setAttribute('data-theme', initial)
+
+    // ✅ Correct dark activation
+    document.documentElement.classList.toggle('dark', initial === 'dark')
   }, [])
 
   const toggleTheme = () => {
     const next = theme === 'light' ? 'dark' : 'light'
     setTheme(next)
     localStorage.setItem('theme', next)
-    document.documentElement.setAttribute('data-theme', next)
+
+    // ✅ Correct dark activation
+    document.documentElement.classList.toggle('dark', next === 'dark')
   }
 
   return (
