@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import styles from './page.module.css'
+import Button from '../../../../../components/ui/Button'
 
 type Category = {
   id: string
@@ -16,8 +17,11 @@ type Account = {
   name: string
 }
 
-export default function AddTransactionPage() {
+export default function EditTransactionPage() {
   const router = useRouter()
+  const params = useParams()
+  const transactionId = params.id as string
+
   const amountRef = useRef<HTMLInputElement>(null)
 
   const [categories, setCategories] = useState<Category[]>([])
@@ -28,56 +32,70 @@ export default function AddTransactionPage() {
   const [accountId, setAccountId] = useState('')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
-  const [date, setDate] = useState(
-    new Date().toISOString().split('T')[0]
-  )
+  const [date, setDate] = useState('')
 
   const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  /* =========================
+     FETCH BASE DATA
+  ========================== */
 
   async function fetchCategories() {
-    try {
-      const res = await fetch('/api/categories')
-      const data = await res.json()
-      setCategories(data || [])
-    } catch {
-      toast.error('Failed to load categories')
-    }
+    const res = await fetch('/api/categories')
+    const data = await res.json()
+    setCategories(data || [])
   }
 
   async function fetchAccounts() {
-    try {
-      const res = await fetch('/api/accounts')
-      const data = await res.json()
-      setAccounts(data || [])
+    const res = await fetch('/api/accounts')
+    const data = await res.json()
+    setAccounts(data || [])
+  }
 
-      if (data?.length > 0) {
-        setAccountId(data[0].id)
-      }
-    } catch {
-      toast.error('Failed to load accounts')
+  /* =========================
+     FETCH TRANSACTION
+  ========================== */
+
+  async function fetchTransaction() {
+    try {
+      const res = await fetch(`/api/transactions?id=${transactionId}`)
+      const json = await res.json()
+
+      if (!res.ok) throw new Error(json?.error)
+
+      const data = json.data
+
+      setType(data.categories.type)
+      setCategoryId(data.category_id)
+      setAccountId(data.account_id)
+      setAmount(String(data.amount))
+      setDescription(data.description || '')
+      setDate(data.transaction_date)
+
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to load transaction')
+      router.push('/dashboard/transactions')
+    } finally {
+      setLoading(false)
     }
   }
 
+  /* =========================
+     UPDATE TRANSACTION
+  ========================== */
+
   async function handleSubmit() {
     if (saving) return
-
-    if (!categoryId || !accountId || !amount) {
-      toast.error('Please fill all required fields')
-      return
-    }
-
-    if (Number(amount) <= 0) {
-      toast.error('Amount must be greater than 0')
-      return
-    }
 
     try {
       setSaving(true)
 
       const res = await fetch('/api/transactions', {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          id: transactionId,
           category_id: categoryId,
           account_id: accountId,
           amount: parseFloat(amount),
@@ -86,14 +104,13 @@ export default function AddTransactionPage() {
         })
       })
 
-      const data = await res.json().catch(() => null)
+      const json = await res.json()
 
-      if (!res.ok) {
-        throw new Error(data?.error || 'Failed to add transaction')
-      }
+      if (!res.ok) throw new Error(json?.error)
 
-      toast.success('Transaction added successfully 🎉')
+      toast.success('Transaction updated successfully 🎉')
       router.push('/dashboard/transactions')
+
     } catch (err: any) {
       toast.error(err.message || 'Something went wrong')
     } finally {
@@ -101,14 +118,32 @@ export default function AddTransactionPage() {
     }
   }
 
+  /* =========================
+     INIT
+  ========================== */
+
   useEffect(() => {
+    if (!transactionId) return
+
     fetchCategories()
     fetchAccounts()
-  }, [])
+    fetchTransaction()
+  }, [transactionId])
 
   useEffect(() => {
     amountRef.current?.focus()
   }, [])
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.pageHeader}>
+          <h1>Edit Transaction</h1>
+          <p>Loading transaction...</p>
+        </div>
+      </div>
+    )
+  }
 
   const filteredCategories = categories.filter(
     (c) => c.type === type
@@ -116,13 +151,11 @@ export default function AddTransactionPage() {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
       <div className={styles.pageHeader}>
         <h1>Edit Transaction</h1>
-        <p>Update the existing transaction</p>
+        <p>Update your transaction details</p>
       </div>
 
-      {/* Form Card */}
       <div className={styles.cardWidth}>
         <div className={styles.formGrid}>
 
@@ -207,7 +240,6 @@ export default function AddTransactionPage() {
               className="form-input amount-input"
               type="number"
               step="0.01"
-              placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
@@ -215,18 +247,17 @@ export default function AddTransactionPage() {
 
           {/* Description */}
           <div className={`form-field ${styles.fullWidth}`}>
-            <label>Description (Optional)</label>
+            <label>Description</label>
             <input
               className="form-input"
               type="text"
-              placeholder="Add a note..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 
           {/* Date */}
-          <div className="form-field">
+          <div className={`form-field ${styles.dateField}`}>
             <label>
               Date <span className={styles.required}>*</span>
             </label>
@@ -239,14 +270,10 @@ export default function AddTransactionPage() {
           </div>
 
           {/* Submit */}
-          <div className={`${styles.formActions} ${styles.fullWidth}`}>
-            <button
-              className="primary-btn"
-              onClick={handleSubmit}
-              disabled={saving}
-            >
-              {saving ? 'Adding...' : 'Add Transaction'}
-            </button>
+          <div className={styles.formActions}>
+            <Button onClick={handleSubmit} disabled={saving}>
+              {saving ? 'Updating...' : 'Update Transaction'}
+            </Button>
           </div>
 
         </div>

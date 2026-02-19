@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import styles from './page.module.css'
+import Button from '../../../components/ui/Button'
 
 type Category = {
   id: string
@@ -134,9 +135,8 @@ export default function AddTransactionPage() {
             <div className={styles.typeToggle}>
               <button
                 type="button"
-                className={`${styles.toggleBtn} ${
-                  type === 'expense' ? styles.activeExpense : ''
-                }`}
+                className={`${styles.toggleBtn} ${type === 'expense' ? styles.activeExpense : ''
+                  }`}
                 onClick={() => {
                   setType('expense')
                   setCategoryId('')
@@ -147,9 +147,8 @@ export default function AddTransactionPage() {
 
               <button
                 type="button"
-                className={`${styles.toggleBtn} ${
-                  type === 'income' ? styles.activeIncome : ''
-                }`}
+                className={`${styles.toggleBtn} ${type === 'income' ? styles.activeIncome : ''
+                  }`}
                 onClick={() => {
                   setType('income')
                   setCategoryId('')
@@ -225,7 +224,7 @@ export default function AddTransactionPage() {
             />
           </div>
 
-          <div className="form-field">
+          <div className={`${styles.dateField} form-field`}>
             <label>
               Date <span className={styles.required}>*</span>
             </label>
@@ -237,15 +236,13 @@ export default function AddTransactionPage() {
             />
           </div>
 
-          {/* Submit */}
-          <div className={`${styles.formActions} ${styles.fullWidth}`}>
-            <button
-              className="primary-btn"
+          <div className={styles.formActions}>
+            <Button
               onClick={handleSubmit}
               disabled={saving}
             >
               {saving ? 'Adding...' : 'Add Transaction'}
-            </button>
+            </Button>
           </div>
 
         </div>

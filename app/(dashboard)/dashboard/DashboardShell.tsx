@@ -32,7 +32,6 @@ export default function DashboardShell({
     setTheme(next)
     localStorage.setItem('theme', next)
 
-    // ✅ Correct dark activation
     document.documentElement.classList.toggle('dark', next === 'dark')
   }
 

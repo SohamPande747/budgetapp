@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import styles from './page.module.css'
 
@@ -31,17 +31,41 @@ export default function DashboardPage() {
   const [greeting, setGreeting] = useState('')
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [year, setYear] = useState(now.getFullYear())
+  const [isPickerOpen, setIsPickerOpen] = useState(false)
+
+  const pickerRef = useRef<HTMLDivElement>(null)
 
   const [budgets, setBudgets] = useState<BudgetOverview[]>([])
   const [summary, setSummary] = useState<Summary | null>(null)
   const [accounts, setAccounts] = useState<AccountSummary[]>([])
 
+  /* Greeting */
   useEffect(() => {
     const hour = new Date().getHours()
     if (hour < 12) setGreeting('Good Morning')
     else if (hour < 18) setGreeting('Good Afternoon')
     else setGreeting('Good Evening')
   }, [])
+
+  /* Close picker on outside click */
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        pickerRef.current &&
+        !pickerRef.current.contains(e.target as Node)
+      ) {
+        setIsPickerOpen(false)
+      }
+    }
+
+    if (isPickerOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isPickerOpen])
 
   function formatAmount(value: number) {
     return new Intl.NumberFormat('en-IN', {
@@ -66,38 +90,60 @@ export default function DashboardPage() {
     fetchAll()
   }, [month, year])
 
+  const currentMonthLabel = new Date(year, month - 1).toLocaleString(
+    'default',
+    { month: 'long', year: 'numeric' }
+  )
+
   return (
     <div className={styles.container}>
-      {/* Header */}
+      {/* ================= HEADER ================= */}
       <div className={styles.header}>
         <div>
           <h1>{greeting}</h1>
-          <p>
-            {new Date(year, month - 1).toLocaleString('default', {
-              month: 'long',
-              year: 'numeric',
-            })}
-          </p>
+          <p>{currentMonthLabel}</p>
         </div>
 
-        <div className={styles.filter}>
-          <select value={month} onChange={(e) => setMonth(Number(e.target.value))}>
-            {Array.from({ length: 12 }).map((_, i) => (
-              <option key={i + 1} value={i + 1}>
-                {new Date(0, i).toLocaleString('default', { month: 'long' })}
-              </option>
-            ))}
-          </select>
+        <div className={styles.dateWrapper} ref={pickerRef}>
+          <button
+            className={styles.dateButton}
+            onClick={() => setIsPickerOpen(!isPickerOpen)}
+          >
+            {currentMonthLabel}
+          </button>
 
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-          />
+          {isPickerOpen && (
+            <div className={styles.popover}>
+              <div className={styles.yearNav}>
+                <button onClick={() => setYear((prev) => prev - 1)}>‹</button>
+                <span>{year}</span>
+                <button onClick={() => setYear((prev) => prev + 1)}>›</button>
+              </div>
+
+              <div className={styles.monthGrid}>
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`${styles.monthCell} ${month === i + 1 ? styles.monthActive : ''
+                      }`}
+                    onClick={() => {
+                      setMonth(i + 1)
+                      setIsPickerOpen(false)
+                    }}
+                  >
+                    {new Date(0, i).toLocaleString('default', {
+                      month: 'short',
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
+      {/* ================= END HEADER ================= */}
 
-      {/* Hero Financial Block */}
+      {/* ================= HERO ================= */}
       {summary && (
         <div className={styles.hero}>
           <div className={styles.heroPrimary}>
@@ -126,7 +172,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Budgets */}
+      {/* ================= BUDGETS ================= */}
       <div className={styles.section}>
         <h3>Budget Overview</h3>
 
@@ -156,17 +202,12 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Actions + Accounts */}
+      {/* ================= BOTTOM ================= */}
+      {/* ================= BOTTOM ================= */}
       <div className={styles.bottom}>
-        <button
-          className={styles.primaryAction}
-          onClick={() => router.push('/dashboard/add-transaction')}
-        >
-          Add Transaction
-        </button>
-
         <div className={styles.accounts}>
           <h3>Accounts</h3>
+
           {accounts.map((acc) => (
             <div key={acc.id} className={styles.accountRow}>
               <span>{acc.name}</span>
@@ -175,6 +216,36 @@ export default function DashboardPage() {
               </span>
             </div>
           ))}
+
+          {/* Quick Actions */}
+
+        </div>
+
+      </div>
+      <div className={styles.quickActions}>
+        <p className={styles.quickLabel}>Quick Actions</p>
+
+        <div className={styles.quickGrid}>
+          <button
+            className={styles.quickBtn}
+            onClick={() => router.push('/dashboard/add-transaction')}
+          >
+            Add Transaction
+          </button>
+
+          <button
+            className={styles.quickBtn}
+            onClick={() => router.push('/dashboard/accounts')}
+          >
+            Manage Accounts
+          </button>
+
+          <button
+            className={styles.quickBtn}
+            onClick={() => router.push('/dashboard/budgets')}
+          >
+            Edit Budgets
+          </button>
         </div>
       </div>
     </div>
