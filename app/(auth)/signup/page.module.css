@@ -84,6 +84,11 @@
   font-size: 0.95rem;
   transition: all 0.2s ease;
   background: #ffffff;
+  color: #111827; /* Force dark text */
+}
+
+.input::placeholder {
+  color: #9ca3af;
 }
 
 .input:focus {
@@ -103,12 +108,15 @@
 }
 
 .passwordWrapper input {
-  padding-right: 42px;
+  width: 100%;
+  padding-right: 45px;
 }
 
 .eyeBtn {
   position: absolute;
   right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -118,11 +126,12 @@
   justify-content: center;
   padding: 4px;
   transition: color 0.2s ease, transform 0.15s ease;
+  z-index: 2;
 }
 
 .eyeBtn:hover {
   color: #374151;
-  transform: scale(1.05);
+  transform: translateY(-50%) scale(1.05);
 }
 
 /* ======================================
@@ -170,6 +179,38 @@
 .oauthBtn:hover {
   background: #f9fafb;
   border-color: #d1d5db;
+}
+
+/* ======================================
+   GOOGLE BUTTON
+====================================== */
+
+.googleBtn {
+  width: 100%;
+  height: 44px;
+  background: #e4edfa;
+  border: none;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.googleBtn:hover {
+  background: #f3f4f6;
+}
+
+.googleIcon {
+  position: absolute;
+  left: 18px;
+  display: flex;
+  align-items: center;
 }
 
 /* ======================================
@@ -239,31 +280,14 @@
   }
 }
 
+/* ======================================
+   AUTOFILL FIX
+====================================== */
 
-.googleBtn {
-  width: 100%;
-  height: 44px;
-  background: #e4edfa;
-  border: none;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  font-size: 14px;
-  font-weight: 500;
-  color: #1f2937;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.googleBtn:hover {
-  background: #f3f4f6;
-}
-
-.googleIcon {
-  position: absolute;
-  left: 18px;
-  display: flex;
-  align-items: center;
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #111827 !important;
 }
