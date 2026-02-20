@@ -9,11 +9,17 @@ export default function DashboardShell({
 }: {
   children: React.ReactNode
 }) {
-  const [collapsed, setCollapsed] = useState(false)
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const [collapsed, setCollapsed] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
+
+  /* ================= THEME INIT ================= */
 
   useEffect(() => {
-    const stored = localStorage.getItem('theme') as 'light' | 'dark' | null
+    const stored = localStorage.getItem('theme') as
+      | 'light'
+      | 'dark'
+      | null
 
     const initial =
       stored ||
@@ -22,8 +28,6 @@ export default function DashboardShell({
         : 'light')
 
     setTheme(initial)
-
-    // ✅ Correct dark activation
     document.documentElement.classList.toggle('dark', initial === 'dark')
   }, [])
 
@@ -31,24 +35,46 @@ export default function DashboardShell({
     const next = theme === 'light' ? 'dark' : 'light'
     setTheme(next)
     localStorage.setItem('theme', next)
-
     document.documentElement.classList.toggle('dark', next === 'dark')
   }
+
+  /* ================= FIX 1: RESET ON DESKTOP ================= */
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 900) {
+        setIsMobileOpen(false)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   return (
     <div className={styles.wrapper}>
       <Sidebar
         collapsed={collapsed}
         setCollapsed={setCollapsed}
+        isMobileOpen={isMobileOpen}
+        setIsMobileOpen={setIsMobileOpen}
         theme={theme}
         toggleTheme={toggleTheme}
       />
 
-      <main
-        className={`${styles.main} ${
-          collapsed ? styles.mainCollapsed : ''
-        }`}
-      >
+      <main className={styles.main}>
+        {/* ✅ Sticky Mobile Header */}
+        <div className={styles.mobileHeader}>
+          <button
+            className={styles.hamburger}
+            onClick={() => setIsMobileOpen(true)}
+          >
+            ☰
+          </button>
+
+          <span className={styles.mobileTitle}>Spendle</span>
+        </div>
+
         <div className={styles.content}>{children}</div>
       </main>
     </div>

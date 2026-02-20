@@ -3,193 +3,67 @@
 .wrapper {
   display: flex;
   min-height: 100vh;
-  background: var(--bg-canvas);
-}
-
-/* ================= SIDEBAR ================= */
-
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 220px;
-
-  background: var(--surface-elevated);
-  border-right: 1px solid var(--surface-divider);
-
-  padding: 24px 16px;
-  display: flex;
-  flex-direction: column;
-  transition: width 0.25s ease;
-}
-
-.collapsed {
-  width: 72px;
-}
-
-/* ================= SIDEBAR HEADER ================= */
-
-.sidebarHeader {
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 32px;
-}
-
-.logo {
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-  color: var(--text-strong);
-}
-
-.collapseBtn {
-  height: 36px;
-  width: 36px;
-  border-radius: 12px;
-  border: none;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.collapseBtn:hover {
   background: var(--surface-subtle);
-  color: var(--text-strong);
-}
-
-/* ================= NAVIGATION ================= */
-
-.nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.navItem {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  padding: 10px 14px;
-  border-radius: 14px;
-
-  font-size: 14px;
-  color: var(--text-muted);
-  text-decoration: none;
-
-  transition: all 0.2s ease;
-}
-
-.navItem:hover {
-  background: var(--surface-subtle);
-  color: var(--text-strong);
-}
-
-.active {
-  background: var(--surface-subtle);
-  color: var(--text-strong);
-  font-weight: 500;
-}
-
-.active::before {
-  content: '';
-  position: absolute;
-  left: -12px;
-  top: 8px;
-  bottom: 8px;
-  width: 3px;
-  border-radius: 6px;
-  background: var(--accent-hero);
-}
-
-.collapsed .navItem span {
-  display: none;
-}
-
-/* ================= SIDEBAR BOTTOM ================= */
-
-.sidebarBottom {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding-top: 24px;
-}
-
-/* ================= THEME TOGGLE ================= */
-
-.themeRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 10px 14px;
-  border-radius: 14px;
-  border: 1px solid var(--surface-divider);
-
-  font-size: 14px;
-  color: var(--text-muted);
-  transition: background 0.2s ease;
-}
-
-.themeRow:hover {
-  background: var(--surface-subtle);
-}
-
-/* Toggle */
-
-.toggle {
-  width: 42px;
-  height: 22px;
-  border-radius: 999px;
-  border: none;
-  background: var(--surface-divider);
-  position: relative;
-  cursor: pointer;
-  transition: background 0.25s ease;
-  padding: 0;
-}
-
-.toggleThumb {
-  width: 16px;
-  height: 16px;
-  background: var(--text-strong);
-  border-radius: 50%;
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  transition: transform 0.25s ease;
-}
-
-.toggleActive {
-  background: var(--accent-hero);
-}
-
-.toggleActive .toggleThumb {
-  transform: translateX(18px);
 }
 
 /* ================= MAIN ================= */
 
 .main {
-  margin-left: 220px;
-  width: 100%;
-  padding: 40px 48px;
-  transition: margin-left 0.25s ease;
-}
-
-.mainCollapsed {
-  margin-left: 72px;
+  flex: 1;
+  padding: 2rem;
 }
 
 .content {
-  min-height: calc(100vh - 80px);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ================= MOBILE HEADER (Hidden by Default) ================= */
+
+.mobileHeader {
+  display: none;
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-strong);
+}
+
+.mobileTitle {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+@media (max-width: 900px) {
+
+  .wrapper {
+    flex-direction: column;
+  }
+
+  .main {
+    padding: 0; /* remove default desktop padding */
+  }
+
+  .mobileHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    position: sticky;
+    top: 0;
+    z-index: 500;
+
+    background: var(--surface-elevated);
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--surface-divider);
+  }
+
+  .content {
+    padding: 1.2rem 1rem;
+  }
 }

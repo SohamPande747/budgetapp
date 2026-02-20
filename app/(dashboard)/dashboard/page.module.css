@@ -1,4 +1,13 @@
 /* ======================================
+   GLOBAL FIX
+====================================== */
+html,
+body {
+  overflow-x: hidden;
+}
+
+
+/* ======================================
    CONTAINER
 ====================================== */
 .container {
@@ -270,7 +279,6 @@
   margin-top: 2.5rem;
   padding-top: 2rem;
   border-top: 1px solid var(--surface-divider);
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -293,7 +301,7 @@
 }
 
 .quickBtn {
-  padding: 0.6rem 1.2rem;
+  padding: 0.7rem 1.3rem;
   font-size: 0.9rem;
   border-radius: 999px;
   border: 1px solid var(--surface-divider);
@@ -301,6 +309,7 @@
   color: var(--text-strong);
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 44px;
 }
 
 .quickBtn:hover {
@@ -327,15 +336,113 @@
 
 
 /* ======================================
-   RESPONSIVE
+   TABLET (≤1024px)
 ====================================== */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
+
+  .container {
+    padding: 2rem 1.2rem;
+  }
+
   .hero {
-    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .heroSecondary {
     gap: 2rem;
   }
 
   .bottom {
     flex-direction: column;
+  }
+}
+
+
+/* ======================================
+   MOBILE (≤768px)
+====================================== */
+@media (max-width: 768px) {
+
+  .container {
+    padding: 1.4rem 1rem 2rem;
+    gap: 1.6rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .dateButton {
+    width: 100%;
+  }
+
+  .hero {
+    flex-direction: column;
+    padding: 1.6rem;
+    gap: 1.5rem;
+  }
+
+  .heroPrimary h2 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  .heroSecondary {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .section,
+  .accounts {
+    padding: 1.4rem;
+  }
+
+  .bottom {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .quickGrid {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .quickBtn {
+    width: 100%;
+  }
+
+  .popover {
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+
+/* ======================================
+   SMALL PHONES (≤480px)
+====================================== */
+@media (max-width: 480px) {
+
+  .heroPrimary h2 {
+    font-size: 1.7rem;
+  }
+
+  .heroSecondary p {
+    font-size: 1rem;
+  }
+
+  .accountRow {
+    font-size: 0.9rem;
+  }
+
+  .budgetHeader {
+    font-size: 0.9rem;
   }
 }
