@@ -1,260 +1,69 @@
-/* ================================
-   LAYOUT
-================================ */
+/* ================= WRAPPER ================= */
 
-.layout {
+.wrapper {
   display: flex;
   min-height: 100vh;
+  background: var(--surface-subtle);
 }
 
-/* ================================
-   SIDEBAR
-================================ */
-
-.sidebar {
-  width: 250px;
-  padding: 28px 20px;
-  background-color: #111827;
-  color: white;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-
-  transition: width 0.3s ease, padding 0.3s ease, transform 0.3s ease;
-  position: relative;
-  z-index: 1000;
-}
-
-.collapsed {
-  width: 80px;
-  padding: 28px 10px;
-}
-
-/* ================================
-   TOP BAR
-================================ */
-
-.topBar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  min-height: 50px;
-}
-
-.logo {
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-/* ================================
-   HAMBURGER / CLOSE BUTTON
-================================ */
-
-/* Centered when collapsed (desktop only) */
-.collapsed .hamburger {
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-}
-
-.hamburger {
-  position: absolute;
-  right: 0;
-
-  width: 38px;
-  height: 38px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(6px);
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-
-  color: #e5e7eb;
-  cursor: pointer;
-
-  transition: all 0.25s ease;
-}
-
-.hamburger:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.hamburger:active {
-  transform: scale(0.96);
-}
-
-/* ================================
-   NAVIGATION
-================================ */
-
-.sidebarNav {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-  margin-top: 40px;
-}
-
-.sidebarNav a {
-  font-size: 20px;
-  font-weight: 500;
-  text-decoration: none;
-  color: white;
-
-  padding: 10px 16px;
-  border-radius: 10px;
-
-  transition: background-color 0.25s ease, transform 0.2s ease;
-}
-
-.sidebarNav a:hover {
-  background-color: #1f2937;
-  transform: translateX(4px);
-}
-
-/* Collapsed State */
-.collapsed .sidebarNav a {
-  font-size: 22px;
-  padding: 16px 0;
-  text-align: center;
-}
-
-/* ================================
-   LOGOUT
-================================ */
-
-.logoutForm {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-/* ================================
-   MAIN CONTENT
-================================ */
+/* ================= MAIN ================= */
 
 .main {
   flex: 1;
-  padding: 32px;
-  min-width: 0; /* prevents overflow */
+  padding: 2rem;
 }
 
-/* ======================================================
-   MOBILE RESPONSIVE (Production Grade)
-====================================================== */
-.mobileTopbar {
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ================= MOBILE HEADER (Hidden by Default) ================= */
+
+.mobileHeader {
   display: none;
 }
 
-.overlay {
-  display: none;
+.hamburger {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-strong);
 }
 
-.mobileCloseBtn {
-  display: none;
+.mobileTitle {
+  font-weight: 600;
+  font-size: 1.05rem;
 }
 
-/* ===================================================== */
-/* ================= MOBILE LAYOUT ===================== */
-/* ===================================================== */
+/* ================= MOBILE RESPONSIVE ================= */
 
-@media (max-width: 767px) {
+@media (max-width: 900px) {
 
-  .layout {
+  .wrapper {
     flex-direction: column;
   }
 
-  /* ===== FIXED MOBILE TOPBAR ===== */
-  .mobileTopbar {
+  .main {
+    padding: 0; /* remove default desktop padding */
+  }
+
+  .mobileHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    position: fixed;       /* 🔥 FIXED */
+    position: sticky;
     top: 0;
-    left: 0;
-    right: 0;
+    z-index: 500;
 
-    height: 60px;
-    padding: 0 20px;
-
-    background-color: #111827;
-    color: white;
-
-    z-index: 1000;
+    background: var(--surface-elevated);
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--surface-divider);
   }
 
-  .mobileLogo {
-    font-size: 20px;
-    font-weight: 600;
+  .content {
+    padding: 1.2rem 1rem;
   }
-
-  .mobileMenuBtn {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-  }
-
-  /* ===== SIDEBAR AS OVERLAY ===== */
-  .sidebar {
-    position: fixed;
-    top: 60px;                      /* 🔥 BELOW TOPBAR */
-    left: 0;
-    height: calc(100vh - 60px);     /* 🔥 ADJUST HEIGHT */
-    width: 250px;
-
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-
-    z-index: 1001;
-  }
-
-  .mobileOpen {
-    transform: translateX(0);
-  }
-
-  /* ===== OVERLAY ===== */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    display: none;
-    z-index: 900;
-  }
-
-  .showOverlay {
-    display: block;
-  }
-
-  /* Hide desktop collapse toggle */
-  .hamburger {
-    display: none;
-  }
-
-  /* ===== MOBILE CLOSE BUTTON ===== */
-  .mobileCloseBtn {
-    display: block;
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-  }
-
-  /* ===== PUSH CONTENT BELOW FIXED TOPBAR ===== */
-  .main {
-    padding: 20px;
-    padding-top: 80px;   /* 🔥 SPACE FOR FIXED HEADER */
-  }
-
 }

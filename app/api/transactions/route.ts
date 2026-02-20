@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { transactionSchema } from '@/lib/validations/transaction'
-
-/* =====================================================
-   GET - List Transactions
-===================================================== */
+import {
+  createTransactionSchema,
+  updateTransactionSchema
+} from '@/lib/validations/transaction'
 
 /* =====================================================
    GET - List OR Single Transaction
@@ -24,14 +23,11 @@ export async function GET(req: Request) {
 
     const id = searchParams.get('id')
 
-    /* =====================================================
-       🔥 SINGLE TRANSACTION (FOR EDIT PAGE)
-    ===================================================== */
+    // 🔹 Single transaction
     if (id) {
       const { data, error } = await supabase
         .from('transactions')
-        .select(
-          `
+        .select(`
           id,
           amount,
           description,
@@ -47,8 +43,7 @@ export async function GET(req: Request) {
             id,
             name
           )
-          `
-        )
+        `)
         .eq('id', id)
         .eq('user_id', user.id)
         .single()
@@ -58,10 +53,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ data })
     }
 
-    /* =====================================================
-       🔥 LIST TRANSACTIONS (EXISTING LOGIC)
-    ===================================================== */
-
+    // 🔹 List transactions
     const month = searchParams.get('month')
     const year = searchParams.get('year')
     const type = searchParams.get('type')
@@ -73,8 +65,7 @@ export async function GET(req: Request) {
 
     let query = supabase
       .from('transactions')
-      .select(
-        `
+      .select(`
         *,
         categories!inner (
           id,
@@ -85,9 +76,7 @@ export async function GET(req: Request) {
           id,
           name
         )
-        `,
-        { count: 'exact' }
-      )
+      `, { count: 'exact' })
       .eq('user_id', user.id)
       .order('transaction_date', { ascending: false })
       .range(from, to)
@@ -119,6 +108,7 @@ export async function GET(req: Request) {
         total: count
       }
     })
+
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to fetch transactions' },
@@ -143,7 +133,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const parsed = transactionSchema.safeParse(body)
+    const parsed = createTransactionSchema.safeParse(body)
 
     if (!parsed.success) {
       return NextResponse.json(
@@ -160,6 +150,36 @@ export async function POST(req: Request) {
       transaction_date
     } = parsed.data
 
+    // 🔒 Validate account ownership
+    const { data: account } = await supabase
+      .from('accounts')
+      .select('id')
+      .eq('id', account_id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (!account) {
+      return NextResponse.json(
+        { error: 'Invalid account' },
+        { status: 400 }
+      )
+    }
+
+    // 🔒 Validate category ownership
+    const { data: category } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('id', category_id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (!category) {
+      return NextResponse.json(
+        { error: 'Invalid category' },
+        { status: 400 }
+      )
+    }
+
     const { error } = await supabase
       .from('transactions')
       .insert({
@@ -174,6 +194,7 @@ export async function POST(req: Request) {
     if (error) throw error
 
     return NextResponse.json({ success: true }, { status: 201 })
+
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to create transaction' },
@@ -183,8 +204,95 @@ export async function POST(req: Request) {
 }
 
 /* =====================================================
+   PUT - Update Transaction
+===================================================== */
+export async function PUT(req: Request) {
+  try {
+    const supabase = await createClient()
+
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await req.json()
+    const parsed = updateTransactionSchema.safeParse(body)
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.flatten() },
+        { status: 400 }
+      )
+    }
+
+    const {
+      id,
+      category_id,
+      account_id,
+      amount,
+      description,
+      transaction_date
+    } = parsed.data
+
+    // 🔒 Validate account ownership
+    const { data: account } = await supabase
+      .from('accounts')
+      .select('id')
+      .eq('id', account_id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (!account) {
+      return NextResponse.json(
+        { error: 'Invalid account' },
+        { status: 400 }
+      )
+    }
+
+    // 🔒 Validate category ownership
+    const { data: category } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('id', category_id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (!category) {
+      return NextResponse.json(
+        { error: 'Invalid category' },
+        { status: 400 }
+      )
+    }
+
+    const { error } = await supabase
+      .from('transactions')
+      .update({
+        category_id,
+        account_id,
+        amount,
+        description,
+        transaction_date
+      })
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    if (error) throw error
+
+    return NextResponse.json({ success: true }, { status: 200 })
+
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || 'Failed to update transaction' },
+      { status: 400 }
+    )
+  }
+}
+
+/* =====================================================
    DELETE - Remove Transaction
-   (Call using: /api/transactions?id=xxx)
 ===================================================== */
 export async function DELETE(req: Request) {
   try {
@@ -217,74 +325,10 @@ export async function DELETE(req: Request) {
     if (error) throw error
 
     return NextResponse.json({ success: true }, { status: 200 })
+
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to delete transaction' },
-      { status: 400 }
-    )
-  }
-}
-
-/* =====================================================
-   PUT - Update Transaction
-===================================================== */
-export async function PUT(req: Request) {
-  try {
-    const supabase = await createClient()
-
-    const {
-      data: { user }
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const body = await req.json()
-
-    const parsed = transactionSchema.safeParse(body)
-
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.flatten() },
-        { status: 400 }
-      )
-    }
-
-    const {
-      id,
-      category_id,
-      account_id,
-      amount,
-      description,
-      transaction_date
-    } = body
-
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Transaction ID required' },
-        { status: 400 }
-      )
-    }
-
-    const { error } = await supabase
-      .from('transactions')
-      .update({
-        category_id,
-        account_id,
-        amount,
-        description,
-        transaction_date
-      })
-      .eq('id', id)
-      .eq('user_id', user.id)
-
-    if (error) throw error
-
-    return NextResponse.json({ success: true }, { status: 200 })
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || 'Failed to update transaction' },
       { status: 400 }
     )
   }

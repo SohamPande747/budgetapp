@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import styles from './page.module.css'
 import toast from 'react-hot-toast'
@@ -27,8 +27,16 @@ export default function TransactionsPage() {
 
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [year, setYear] = useState(now.getFullYear())
+  const [isPickerOpen, setIsPickerOpen] = useState(false)
+  const pickerRef = useRef<HTMLDivElement>(null)
+
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const currentMonthLabel = new Date(year, month - 1).toLocaleString(
+    'default',
+    { month: 'long', year: 'numeric' }
+  )
 
   function formatAmount(value: number) {
     return new Intl.NumberFormat('en-IN', {
@@ -38,8 +46,8 @@ export default function TransactionsPage() {
   }
 
   function handleEdit(id: string) {
-  router.push(`/dashboard/transactions/edit/${id}`)
-}
+    router.push(`/dashboard/transactions/edit/${id}`)
+  }
 
   async function fetchTransactions() {
     try {
@@ -82,35 +90,66 @@ export default function TransactionsPage() {
     fetchTransactions()
   }, [month, year])
 
+  /* Close picker when clicking outside */
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        pickerRef.current &&
+        !pickerRef.current.contains(e.target as Node)
+      ) {
+        setIsPickerOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () =>
+      document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   return (
     <div className={styles.container}>
       <h1 className={styles.pageTitle}>Transactions</h1>
 
       {/* ================= FILTER BAR ================= */}
       <div className={styles.filterWrapper}>
-        <div className={styles.filterLeft}>
-          <span className={styles.filterLabel}>Filter by</span>
+        <div className={styles.filterLeft} ref={pickerRef}>
+          <span className={styles.filterLabel}>Filter by month</span>
 
-          <select
-            className={styles.filterSelect}
-            value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
+          <button
+            className={styles.monthInput}
+            onClick={() => setIsPickerOpen(!isPickerOpen)}
           >
-            {Array.from({ length: 12 }).map((_, i) => (
-              <option key={i + 1} value={i + 1}>
-                {new Date(0, i).toLocaleString('default', {
-                  month: 'long',
-                })}
-              </option>
-            ))}
-          </select>
+            {currentMonthLabel}
+          </button>
 
-          <input
-            type="number"
-            className={styles.filterInput}
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-          />
+          {isPickerOpen && (
+            <div className={styles.popover}>
+              <div className={styles.yearNav}>
+                <button onClick={() => setYear((prev) => prev - 1)}>‹</button>
+                <span>{year}</span>
+                <button onClick={() => setYear((prev) => prev + 1)}>›</button>
+              </div>
+
+              <div className={styles.monthGrid}>
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`${styles.monthCell} ${
+                      month === i + 1 ? styles.monthActive : ''
+                    }`}
+                    onClick={() => {
+                      setMonth(i + 1)
+                      setIsPickerOpen(false)
+                    }}
+                  >
+                    {new Date(0, i).toLocaleString('default', {
+                      month: 'short',
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -120,7 +159,7 @@ export default function TransactionsPage() {
           <p className={styles.emptyState}>No transactions found.</p>
         ) : (
           <>
-            {/* ================= DESKTOP TABLE ================= */}
+            {/* DESKTOP TABLE */}
             <div className={styles.tableWrapper}>
               <table className={styles.dataTable}>
                 <thead>
@@ -171,7 +210,7 @@ export default function TransactionsPage() {
               </table>
             </div>
 
-            {/* ================= MOBILE CARDS ================= */}
+            {/* MOBILE CARDS */}
             <div className={styles.mobileList}>
               {transactions.map((t) => (
                 <div key={t.id} className={styles.transactionCard}>

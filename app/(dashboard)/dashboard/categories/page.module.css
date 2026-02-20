@@ -1,92 +1,177 @@
+/* =====================================================
+   CONTAINER
+===================================================== */
+
 .dashboardContainer {
-  padding: 32px;
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
+
+
+/* =====================================================
+   PAGE HEADER
+===================================================== */
 
 .pageHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 28px;
+  align-items: flex-start;
 }
 
 .pageTitle {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
 }
 
 .pageSubtitle {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: 15px;
+  color: var(--text-muted);
 }
 
-/* ================= CARD ================= */
+
+/* =====================================================
+   CARD
+===================================================== */
 
 .card {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 24px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  background: var(--surface-elevated);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--surface-divider);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
 .cardHeader {
+  padding: 1.4rem 1.8rem;
+  border-bottom: 1px solid var(--surface-divider);
   display: flex;
   justify-content: space-between;
-  margin-bottom: 16px;
+  align-items: center;
 }
 
-/* ================= FORM GRID ================= */
+.cardHeader h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.mutedText {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+
+/* =====================================================
+   ADD CATEGORY FORM
+===================================================== */
+
+.categoryCard {
+  padding-bottom: 1.8rem;
+}
 
 .categoryFormGrid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: 1fr 180px 200px;
+  gap: 1.2rem;
+  padding: 1.6rem 1.8rem;
   align-items: end;
 }
 
 .formField {
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+
+.formField label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .formInput,
 .formSelect {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-divider);
+  background: var(--surface-subtle);
+  color: var(--text-strong);
+  transition: all 0.18s ease;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  outline: none;
+  border-color: var(--accent-hero);
+  background: var(--surface-elevated);
+  box-shadow: 0 0 0 3px rgba(62, 207, 142, 0.15);
 }
 
 .formAction {
   display: flex;
+  align-items: flex-end;
 }
 
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
 .primaryBtn {
-  background: #6366f1;
-  color: white;
+  background: var(--accent-hero);
+  color: #fff;
   border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 500;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.18s ease;
 }
 
 .primaryBtn:hover {
-  background: #4f46e5;
+  opacity: 0.9;
 }
 
 .largeBtn {
-  height: 42px;
+  padding: 12px 18px;
 }
 
 .fullWidth {
   width: 100%;
 }
 
-/* ================= TABLE ================= */
+.dangerBtn {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: opacity 0.18s ease;
+}
+
+.dangerBtn:hover {
+  opacity: 0.9;
+}
+
+.subtle {
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.tableCard {
+  padding-bottom: 1rem;
+}
 
 .tableWrapper {
   overflow-x: auto;
@@ -97,87 +182,79 @@
   border-collapse: collapse;
 }
 
-.dataTable th,
+.dataTable th {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--surface-divider);
+}
+
 .dataTable td {
-  padding: 12px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--surface-divider);
   font-size: 14px;
+  color: var(--text-strong);
+}
+
+.tableName {
+  font-weight: 500;
 }
 
 .textRight {
   text-align: right;
 }
 
-/* ================= BADGES ================= */
+
+/* =====================================================
+   BADGES
+===================================================== */
 
 .badge {
-  padding: 4px 10px;
+  padding: 5px 10px;
   border-radius: 999px;
   font-size: 12px;
+  font-weight: 500;
 }
 
 .incomeBadge {
-  background: #dcfce7;
-  color: #166534;
+  background: rgba(62, 207, 142, 0.12);
+  color: var(--accent-hero);
 }
 
 .expenseBadge {
-  background: #fee2e2;
-  color: #991b1b;
+  background: rgba(255, 92, 87, 0.12);
+  color: var(--danger);
 }
 
-/* ================= BUTTONS ================= */
 
-.dangerBtn {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.dangerBtn:hover {
-  background: #b91c1c;
-  color: white;
-}
-
-/* ================= EMPTY STATE ================= */
+/* =====================================================
+   EMPTY STATE
+===================================================== */
 
 .emptyState {
+  padding: 3rem 2rem;
   text-align: center;
-  padding: 40px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .emptyIcon {
-  font-size: 36px;
-  margin-bottom: 8px;
+  font-size: 30px;
+  margin-bottom: 0.8rem;
 }
 
-/* ===================================================== */
-/* ================= MOBILE RESPONSIVE ================= */
-/* ===================================================== */
 
-@media (max-width: 767px) {
+/* =====================================================
+   RESPONSIVE
+===================================================== */
 
-  .pageHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
+@media (max-width: 768px) {
   .categoryFormGrid {
     grid-template-columns: 1fr;
   }
 
-  .formAction {
-    width: 100%;
+  .textRight {
+    text-align: left;
   }
-
-  .formAction button {
-    width: 100%;
-  }
-
 }

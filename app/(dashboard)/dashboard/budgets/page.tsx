@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import styles from './page.module.css'
 
@@ -23,11 +23,21 @@ export default function BudgetsPage() {
 
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [year, setYear] = useState(now.getFullYear())
+  const [isPickerOpen, setIsPickerOpen] = useState(false)
+
+  const pickerRef = useRef<HTMLDivElement>(null)
 
   const [categories, setCategories] = useState<Category[]>([])
   const [budgets, setBudgets] = useState<Budget[]>([])
   const [budgetInputs, setBudgetInputs] = useState<Record<string, string>>({})
   const [savingId, setSavingId] = useState<string | null>(null)
+
+  const currentMonthLabel = new Date(year, month - 1).toLocaleString(
+    'default',
+    { month: 'long', year: 'numeric' }
+  )
+
+  /* ================= FETCHING ================= */
 
   async function fetchCategories() {
     const res = await fetch('/api/categories')
@@ -37,6 +47,12 @@ export default function BudgetsPage() {
 
   async function fetchBudgets() {
     const res = await fetch(`/api/budgets?month=${month}&year=${year}`)
+
+    if (!res.ok) {
+      setBudgets([])
+      return
+    }
+
     const data = await res.json()
     setBudgets(data || [])
 
@@ -46,6 +62,33 @@ export default function BudgetsPage() {
     })
     setBudgetInputs(inputMap)
   }
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  useEffect(() => {
+    fetchBudgets()
+  }, [month, year])
+
+  /* ================= CLOSE PICKER ================= */
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        pickerRef.current &&
+        !pickerRef.current.contains(e.target as Node)
+      ) {
+        setIsPickerOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () =>
+      document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  /* ================= SAVE ================= */
 
   function getExistingBudget(category_id: string) {
     const found = budgets.find(
@@ -63,7 +106,6 @@ export default function BudgetsPage() {
       return
     }
 
-    // Prevent save if unchanged
     if (value === getExistingBudget(category_id)) {
       toast('No changes detected')
       return
@@ -96,66 +138,59 @@ export default function BudgetsPage() {
     }
   }
 
-  useEffect(() => {
-    fetchCategories()
-  }, [])
-
-  useEffect(() => {
-    fetchBudgets()
-  }, [month, year])
+  /* ================= UI ================= */
 
   return (
     <div className={styles.container}>
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Monthly Budgets</h1>
-          <p className="page-subtitle">
-            Set spending limits for each expense category
-          </p>
+      
+      {/* PAGE TITLE */}
+      <h1 className={styles.pageTitle}>Monthly Budgets</h1>
+
+      {/* FILTER BAR */}
+      <div className={styles.filterWrapper}>
+        <div className={styles.filterLeft} ref={pickerRef}>
+          <span className={styles.filterLabel}>FILTER BY MONTH</span>
+
+          <button
+            className={styles.monthInput}
+            onClick={() => setIsPickerOpen((prev) => !prev)}
+          >
+            {currentMonthLabel}
+          </button>
+
+          {isPickerOpen && (
+            <div className={styles.popover}>
+              <div className={styles.yearNav}>
+                <button onClick={() => setYear((prev) => prev - 1)}>‹</button>
+                <span>{year}</span>
+                <button onClick={() => setYear((prev) => prev + 1)}>›</button>
+              </div>
+
+              <div className={styles.monthGrid}>
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`${styles.monthCell} ${
+                      month === i + 1 ? styles.monthActive : ''
+                    }`}
+                    onClick={() => {
+                      setMonth(i + 1)
+                      setIsPickerOpen(false)
+                    }}
+                  >
+                    {new Date(0, i).toLocaleString('default', {
+                      month: 'short'
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* FILTER */}
-      <div className={`card ${styles.filterCard}`}>
-        <div className={styles.filterRow}>
-          <div className="form-field">
-            <label>Month</label>
-            <select
-              className="form-select"
-              value={month}
-              onChange={(e) => setMonth(Number(e.target.value))}
-            >
-              {Array.from({ length: 12 }).map((_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {new Date(0, i).toLocaleString('default', {
-                    month: 'long'
-                  })}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className={`form-field ${styles.yearField}`}>
-            <label>Year</label>
-            <input
-              className="form-input"
-              type="number"
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* TABLE */}
+      {/* BUDGET LIST */}
       <div className={`card ${styles.listCard}`}>
-        <div className={styles.listHeader}>
-          <h3>Budget Limits</h3>
-          <div className={styles.listMeta}>
-            {categories.length} categories
-          </div>
-        </div>
-
         <div className={styles.budgetList}>
           {categories.map((cat) => (
             <div key={cat.id} className={styles.budgetRow}>

@@ -1,4 +1,6 @@
-/* ===== Layout ===== */
+/* =====================================================
+   LAYOUT
+===================================================== */
 
 .container {
   padding: 36px;
@@ -10,65 +12,175 @@
   font-size: 30px;
   font-weight: 700;
   margin-bottom: 28px;
-  color: #0f172a;
+  color: var(--text-strong);
   letter-spacing: -0.3px;
 }
 
-/* ===== Filter Bar ===== */
+
+/* =====================================================
+   FILTER BAR
+===================================================== */
 
 .filterWrapper {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 28px;
 }
 
 .filterLeft {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 14px;
-  background: #f8fafc;
+
+  background: var(--surface-subtle);
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--surface-divider);
+
+  min-width: 400px;
+  justify-content: space-around;
 }
 
 .filterLabel {
   font-size: 13px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.filterSelect,
-.filterInput {
+/* Month Button (replaces native input) */
+.monthInput {
   padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-divider);
+
   font-size: 14px;
-  background: white;
+  font-weight: 500;
+
+  background: var(--surface-elevated);
+  color: var(--text-strong);
+
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.filterSelect:focus,
-.filterInput:focus {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+.monthInput:hover {
+  border-color: var(--accent-hero);
 }
 
-/* ===== Card Container ===== */
+.monthInput:focus {
+  outline: none;
+  border-color: var(--accent-hero);
+  box-shadow: 0 0 0 3px rgba(62, 207, 142, 0.15);
+}
+
+
+/* =====================================================
+   POPOVER
+===================================================== */
+
+.popover {
+  position: absolute;
+  top: 115%;
+  left: 0;
+
+  width: 250px;
+  padding: 1rem;
+
+  border-radius: 16px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-divider);
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+}
+
+
+/* =====================================================
+   YEAR NAV
+===================================================== */
+
+.yearNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.yearNav button {
+  width: 28px;
+  height: 28px;
+
+  border-radius: 8px;
+  border: none;
+
+  background: var(--surface-subtle);
+  color: var(--text-strong);
+
+  cursor: pointer;
+}
+
+.yearNav span {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+
+/* =====================================================
+   MONTH GRID
+===================================================== */
+
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.monthCell {
+  padding: 0.45rem 0;
+  border-radius: 8px;
+
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  background: var(--surface-subtle);
+  color: var(--text-muted);
+}
+
+.monthCell:hover {
+  background: var(--surface-divider);
+  color: var(--text-strong);
+}
+
+.monthActive {
+  background: var(--accent-hero);
+  color: white;
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
 
 .card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 0;
-  border: 1px solid #f1f5f9;
+  background: var(--surface-elevated);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--surface-divider);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
 
-/* ===== Table ===== */
+
+/* =====================================================
+   TABLE
+===================================================== */
 
 .tableWrapper {
   overflow-x: auto;
@@ -82,7 +194,7 @@
 }
 
 .dataTable thead {
-  background: #f8fafc;
+  background: var(--surface-subtle);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -93,37 +205,41 @@
   padding: 16px;
   font-weight: 600;
   font-size: 12px;
-  color: #64748b;
-  border-bottom: 1px solid #e2e8f0;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--surface-divider);
   text-transform: uppercase;
   letter-spacing: 0.6px;
 }
 
 .dataTable td {
   padding: 18px 16px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #334155;
+  border-bottom: 1px solid var(--surface-divider);
+  color: var(--text-strong);
 }
 
 .dataTable tbody tr:hover {
-  background: #f8fafc;
+  background: var(--surface-subtle);
 }
 
-/* ===== Amount Styling ===== */
+
+/* =====================================================
+   AMOUNT COLORS
+===================================================== */
 
 .incomeAmount {
-  color: #10b981;
+  color: var(--accent-hero);
   font-weight: 600;
 }
 
 .expenseAmount {
-  color: #ef4444;
+  color: var(--danger);
   font-weight: 600;
 }
 
-/* ===================================================== */
-/* ===== ACTION BUTTONS ================================ */
-/* ===================================================== */
+
+/* =====================================================
+   ACTION BUTTONS
+===================================================== */
 
 .actionCell {
   display: flex;
@@ -131,44 +247,35 @@
   gap: 8px;
 }
 
-/* Edit Button */
-
-.editButton {
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 8px;
-  border: 1px solid #c7d2fe;
-  background: #eef2ff;
-  color: #4338ca;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.editButton:hover {
-  background: #4338ca;
-  color: white;
-  border-color: #4338ca;
-}
-
-/* Delete Button */
-
+.editButton,
 .deleteButton {
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
-  border-radius: 8px;
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #dc2626;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
+.editButton {
+  border: 1px solid var(--surface-divider);
+  background: var(--surface-subtle);
+  color: var(--text-strong);
+}
+
+.editButton:hover {
+  background: var(--surface-elevated);
+  border-color: var(--accent-hero);
+}
+
+.deleteButton {
+  border: 1px solid var(--danger);
+  background: transparent;
+  color: var(--danger);
+}
+
 .deleteButton:hover:not(:disabled) {
-  background: #dc2626;
-  color: white;
-  border-color: #dc2626;
+  background: rgba(255, 92, 87, 0.1);
 }
 
 .deleteButton:disabled {
@@ -176,9 +283,10 @@
   cursor: not-allowed;
 }
 
-/* ===================================================== */
-/* ===== MOBILE CARD VIEW ============================== */
-/* ===================================================== */
+
+/* =====================================================
+   MOBILE VIEW
+===================================================== */
 
 .mobileList {
   display: none;
@@ -186,7 +294,8 @@
 
 .transactionCard {
   padding: 18px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--surface-divider);
+  background: var(--surface-elevated);
 }
 
 .transactionTop {
@@ -199,11 +308,12 @@
 .transactionTitle {
   font-weight: 600;
   font-size: 15px;
+  color: var(--text-strong);
 }
 
 .transactionMeta {
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-muted);
   margin-bottom: 6px;
 }
 
@@ -213,9 +323,10 @@
   margin-top: 12px;
 }
 
-/* ===================================================== */
-/* ===== RESPONSIVE =================================== */
-/* ===================================================== */
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
 
 @media (max-width: 767px) {
 
@@ -232,15 +343,95 @@
   .filterLeft {
     width: 100%;
     flex-wrap: wrap;
+    min-width: unset;
   }
 
-  /* Hide desktop table */
   .tableWrapper {
     display: none;
   }
 
-  /* Show mobile list */
   .mobileList {
     display: block;
   }
+}
+
+/* =====================================================
+   FILTER BAR (Same as Transactions)
+===================================================== */
+
+.filterWrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.filterLeft {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  background: var(--surface-subtle);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--surface-divider);
+
+  min-width: 400px;
+  justify-content: space-around;
+}
+
+.filterLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Month Button */
+.monthInput {
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-divider);
+
+  font-size: 14px;
+  font-weight: 500;
+
+  background: var(--surface-elevated);
+  color: var(--text-strong);
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.monthInput:hover {
+  border-color: var(--accent-hero);
+}
+
+.monthInput:focus {
+  outline: none;
+  border-color: var(--accent-hero);
+  box-shadow: 0 0 0 3px rgba(62, 207, 142, 0.15);
+}
+
+
+/* =====================================================
+   POPOVER (match Transactions)
+===================================================== */
+
+.popover {
+  position: absolute;
+  top: 115%;
+  left: 0;
+
+  width: 250px;
+  padding: 1rem;
+
+  border-radius: 16px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-divider);
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 50;
 }

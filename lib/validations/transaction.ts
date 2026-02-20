@@ -1,6 +1,10 @@
 import { z } from 'zod'
 
-export const transactionSchema = z.object({
+/* =====================================================
+   Base Transaction Schema
+   (Shared fields for create & update)
+===================================================== */
+const baseTransactionSchema = z.object({
   category_id: z.string().uuid({
     message: 'Invalid category ID'
   }),
@@ -21,4 +25,23 @@ export const transactionSchema = z.object({
   )
 })
 
-export type TransactionInput = z.infer<typeof transactionSchema>
+/* =====================================================
+   Create Transaction (POST)
+===================================================== */
+export const createTransactionSchema = baseTransactionSchema
+
+export type CreateTransactionInput =
+  z.infer<typeof createTransactionSchema>
+
+/* =====================================================
+   Update Transaction (PUT)
+   Requires transaction ID
+===================================================== */
+export const updateTransactionSchema = baseTransactionSchema.extend({
+  id: z.string().uuid({
+    message: 'Invalid transaction ID'
+  })
+})
+
+export type UpdateTransactionInput =
+  z.infer<typeof updateTransactionSchema>
