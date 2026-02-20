@@ -1,3 +1,7 @@
+/* ======================================
+   WRAPPER
+====================================== */
+
 .wrapper {
   min-height: 100vh;
   background: #ffffff;
@@ -5,6 +9,10 @@
   align-items: center;
   justify-content: center;
 }
+
+/* ======================================
+   CARD
+====================================== */
 
 .card {
   width: 100%;
@@ -14,6 +22,10 @@
   flex-direction: column;
   gap: 32px;
 }
+
+/* ======================================
+   HEADER
+====================================== */
 
 .logo {
   font-size: 20px;
@@ -40,6 +52,10 @@
   transition: width 0.3s ease;
 }
 
+/* ======================================
+   CONTENT
+====================================== */
+
 .content h2 {
   font-size: 22px;
   margin-bottom: 12px;
@@ -51,23 +67,34 @@
   margin-bottom: 16px;
 }
 
+/* ======================================
+   INPUT
+====================================== */
+
 .input {
   width: 100%;
   padding: 14px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 16px;
+  background: #ffffff;
+  color: #111827; /* FIX white text */
+  transition: 0.2s ease;
+}
+
+.input::placeholder {
+  color: #94a3b8;
 }
 
 .input:focus {
   outline: none;
   border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
 
-input:focus {
-  outline: none;
-  border-color: #4f46e5;
-}
+/* ======================================
+   FOOTER
+====================================== */
 
 .footer {
   display: flex;
@@ -83,6 +110,7 @@ input:focus {
   border: none;
   font-weight: 600;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
 .primaryBtn:disabled {
@@ -98,8 +126,24 @@ input:focus {
   cursor: pointer;
 }
 
+/* ======================================
+   ERROR
+====================================== */
+
 .error {
   margin-top: 12px;
   color: #dc2626;
   font-size: 14px;
+}
+
+/* ======================================
+   AUTOFILL FIX
+====================================== */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #111827 !important;
 }
